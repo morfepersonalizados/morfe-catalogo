@@ -392,6 +392,7 @@
     </div>
     <button class="icon-btn" id="btn-favoritos" title="Favoritos">
       <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7.2-4.5-9.6-9C.6 8.6 2 4.9 5.7 4.2c2-.4 4 .5 5 2.1a1 1 0 0 0 1.6 0c1-1.6 3-2.5 5-2.1C20.9 4.9 22.3 8.6 20.5 12 18.2 16.5 12 21 12 21Z"/></svg>
+      <span class="contagem" id="contagem-favoritos">0</span>
     </button>
     <button class="icon-btn" id="btn-pedido" title="Minha lista">
       <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
@@ -399,7 +400,7 @@
         <path d="M7.4 9.5h9.2l1.3 10.6a1.8 1.8 0 0 1-1.8 2H7.9a1.8 1.8 0 0 1-1.8-2L7.4 9.5Z"/>
         <path d="M8 12.8h8" stroke-width="1.3" opacity=".6"/>
       </svg>
-      <span class="contagem" id="contagem-pedido" style="display:none">0</span>
+      <span class="contagem" id="contagem-pedido">0</span>
     </button>
   </div>
   <div class="header-busca">
@@ -616,11 +617,17 @@ function renderTudo(){
   renderSidebar('sidebar-desktop');
   renderSidebar('sidebar-mobile');
   renderGrid();
+  atualizarContagemFavoritos();
+}
+
+function atualizarContagemFavoritos(){
+  document.getElementById('contagem-favoritos').textContent = favoritos.size;
 }
 
 function alternarFavorito(produtoId, botao){
   if (favoritos.has(produtoId)) favoritos.delete(produtoId); else favoritos.add(produtoId);
   salvarFavoritos();
+  atualizarContagemFavoritos();
 
   if (somenteFavoritos){
     renderTudo();
@@ -736,7 +743,6 @@ function renderPainelPedido(){
   const totalQtd = listaPedido.reduce((s, i) => s + i.qtd, 0);
 
   contagemEl.textContent = totalQtd;
-  contagemEl.style.display = totalQtd > 0 ? 'flex' : 'none';
 
   if (listaPedido.length === 0){
     itensEl.innerHTML = '<p style="color:var(--texto-claro); text-align:center; padding:30px 0">Sua lista está vazia.</p>';
