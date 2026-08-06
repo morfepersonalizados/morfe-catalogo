@@ -9,6 +9,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/brand.css">
 <style>
+  body{ background:var(--creme); }
+  #fundo-interativo{
+    position:fixed; inset:0; z-index:-1;
+    background:
+      radial-gradient(650px circle at var(--mx,72%) var(--my,18%), rgba(212,175,82,.22), transparent 55%),
+      radial-gradient(600px 420px at 100% 0%, rgba(177,140,53,.11), transparent 60%),
+      radial-gradient(520px 380px at 0% 100%, rgba(76,37,7,.07), transparent 60%);
+    background-color: var(--creme);
+    animation: fundoRespirar 12s ease-in-out infinite;
+  }
+  @keyframes fundoRespirar{
+    0%,100%{ opacity:1; transform:scale(1); }
+    50%{ opacity:.85; transform:scale(1.035); }
+  }
+
   header{
     background: linear-gradient(120deg, var(--terracota-2) 0%, var(--terracota) 55%, var(--terracota-escuro) 100%);
     color: var(--creme);
@@ -17,6 +32,27 @@
     top: 0;
     z-index: 30;
     box-shadow: var(--sombra-lg);
+    overflow: hidden;
+  }
+  header::before{
+    content:'';
+    position:absolute; inset:0; z-index:0;
+    background-image: radial-gradient(rgba(255,251,226,.10) 1px, transparent 1px);
+    background-size: 15px 15px;
+    pointer-events:none;
+  }
+  header::after{
+    content:'';
+    position:absolute; top:0; bottom:0; width:35%; z-index:0;
+    background:linear-gradient(100deg, transparent, rgba(212,175,82,.28), transparent);
+    transform:translateX(-160%);
+    animation: brilhoHeader 6s ease-in-out infinite;
+    pointer-events:none;
+  }
+  @keyframes brilhoHeader{
+    0%{ transform:translateX(-160%); }
+    18%{ transform:translateX(340%); }
+    100%{ transform:translateX(340%); }
   }
   .header-topo{
     display:flex;
@@ -24,6 +60,8 @@
     gap:12px;
     max-width:1100px;
     margin:0 auto;
+    position:relative;
+    z-index:1;
   }
   .header-topo img{ height:40px; width:40px; border-radius:8px; flex-shrink:0 }
   .header-topo .marca{ flex:1; min-width:0 }
@@ -42,7 +80,8 @@
   }
   .icon-btn:hover{ background:rgba(255,255,255,.22) }
   .icon-btn:active{ transform:scale(.92) }
-  .icon-btn.ativo{ background:var(--dourado); color:var(--terracota-escuro) }
+  .icon-btn.ativo{ background:rgba(232,72,58,.22); color:var(--vermelho-favorito) }
+  .icon-btn.ativo svg{ fill:currentColor }
   .icon-btn .contagem{
     position:absolute; top:-5px; right:-5px;
     background:var(--dourado); color:var(--terracota-escuro);
@@ -67,7 +106,7 @@
   }
   .contagem.pop{ animation: badgePop .35s ease; }
 
-  .header-busca{ max-width:1100px; margin:10px auto 0; position:relative }
+  .header-busca{ max-width:1100px; margin:10px auto 0; position:relative; z-index:1 }
   .header-busca input{
     width:100%;
     padding:10px 14px 10px 36px;
@@ -200,7 +239,7 @@
     transition: color .2s ease, transform .15s ease;
   }
   .card .fav-btn:active{ transform:scale(.85) }
-  .card .fav-btn.ativo{ color:var(--dourado) }
+  .card .fav-btn.ativo{ color:var(--vermelho-favorito) }
   .card .fav-btn.ativo svg{ fill:currentColor }
   @keyframes popCoracao{
     0%{ transform:scale(1) }
@@ -337,6 +376,8 @@
 </head>
 <body>
 
+<div id="fundo-interativo"></div>
+
 <div id="pre-carregador">
   <div class="pre-logo"><img src="assets/logo.png" alt="Morfê Personalizados"></div>
   <div class="pre-pontos"><span></span><span></span><span></span></div>
@@ -353,7 +394,11 @@
       <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7.2-4.5-9.6-9C.6 8.6 2 4.9 5.7 4.2c2-.4 4 .5 5 2.1a1 1 0 0 0 1.6 0c1-1.6 3-2.5 5-2.1C20.9 4.9 22.3 8.6 20.5 12 18.2 16.5 12 21 12 21Z"/></svg>
     </button>
     <button class="icon-btn" id="btn-pedido" title="Minha lista">
-      <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l-1.1 12.1a2 2 0 0 1-2 1.9H9.1a2 2 0 0 1-2-1.9L6 7Z"/><path d="M9 7V6a3 3 0 0 1 6 0v1"/></svg>
+      <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 9.5V7a3 3 0 0 1 6 0v2.5"/>
+        <path d="M7.4 9.5h9.2l1.3 10.6a1.8 1.8 0 0 1-1.8 2H7.9a1.8 1.8 0 0 1-1.8-2L7.4 9.5Z"/>
+        <path d="M8 12.8h8" stroke-width="1.3" opacity=".6"/>
+      </svg>
       <span class="contagem" id="contagem-pedido" style="display:none">0</span>
     </button>
   </div>
@@ -801,6 +846,23 @@ async function iniciar(){
   }
 }
 iniciar();
+
+/* ---- Fundo reage ao cursor (só em telas com mouse de verdade) ---- */
+if (window.matchMedia('(hover: hover) and (pointer: fine)').matches){
+  const fundo = document.getElementById('fundo-interativo');
+  let atualX = 72, atualY = 18, alvoX = 72, alvoY = 18;
+  window.addEventListener('mousemove', (e) => {
+    alvoX = (e.clientX / window.innerWidth) * 100;
+    alvoY = (e.clientY / window.innerHeight) * 100;
+  });
+  (function passo(){
+    atualX += (alvoX - atualX) * 0.07;
+    atualY += (alvoY - atualY) * 0.07;
+    fundo.style.setProperty('--mx', atualX + '%');
+    fundo.style.setProperty('--my', atualY + '%');
+    requestAnimationFrame(passo);
+  })();
+}
 </script>
 
 </body>
