@@ -4,10 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Morfê Personalizados — Catálogo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/brand.css">
 <style>
   header{
-    background: var(--terracota);
+    background: linear-gradient(120deg, var(--terracota-2) 0%, var(--terracota) 55%, var(--terracota-escuro) 100%);
     color: var(--creme);
     padding: 14px 18px;
     position: sticky;
@@ -24,35 +27,57 @@
   }
   .header-topo img{ height:40px; width:40px; border-radius:8px; flex-shrink:0 }
   .header-topo .marca{ flex:1; min-width:0 }
-  .header-topo .marca h1{ font-size:16px; font-weight:800; letter-spacing:-.2px }
+  .header-topo .marca h1{ font-family:var(--fonte-titulo); font-size:19px; font-weight:700; letter-spacing:-.2px }
   .header-topo .marca p{ font-size:11px; opacity:.8 }
   .icon-btn{
     background:rgba(255,255,255,.12);
     border:none;
     color:var(--creme);
-    width:38px; height:38px;
-    border-radius:8px;
+    width:40px; height:40px;
+    border-radius:10px;
     display:flex; align-items:center; justify-content:center;
-    font-size:17px;
     position:relative;
     flex-shrink:0;
+    transition: background-color .2s ease, transform .15s ease;
   }
+  .icon-btn:hover{ background:rgba(255,255,255,.22) }
+  .icon-btn:active{ transform:scale(.92) }
+  .icon-btn.ativo{ background:var(--dourado); color:var(--terracota-escuro) }
   .icon-btn .contagem{
     position:absolute; top:-5px; right:-5px;
     background:var(--dourado); color:var(--terracota-escuro);
     font-size:10px; font-weight:800;
-    min-width:16px; height:16px; border-radius:9px;
+    min-width:17px; height:17px; border-radius:9px;
     display:flex; align-items:center; justify-content:center;
     padding:0 3px;
+    box-shadow:0 0 0 2px var(--terracota);
   }
-  .header-busca{ max-width:1100px; margin:10px auto 0 }
+  @keyframes bounceCarrinho{
+    0%{ transform:scale(1) }
+    30%{ transform:scale(1.28) rotate(-6deg) }
+    55%{ transform:scale(.92) rotate(4deg) }
+    75%{ transform:scale(1.08) rotate(-2deg) }
+    100%{ transform:scale(1) rotate(0) }
+  }
+  .icon-btn.pulando{ animation: bounceCarrinho .55s ease; }
+  @keyframes badgePop{
+    0%{ transform:scale(0) }
+    60%{ transform:scale(1.35) }
+    100%{ transform:scale(1) }
+  }
+  .contagem.pop{ animation: badgePop .35s ease; }
+
+  .header-busca{ max-width:1100px; margin:10px auto 0; position:relative }
   .header-busca input{
     width:100%;
-    padding:9px 14px;
-    border-radius:8px;
+    padding:10px 14px 10px 36px;
+    border-radius:9px;
     border:none;
     font-size:14px;
+    transition: box-shadow .2s ease;
   }
+  .header-busca input:focus{ outline:none; box-shadow:0 0 0 3px rgba(177,140,53,.5) }
+  .header-busca svg{ position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#a89a7a }
 
   .layout{
     max-width:1100px;
@@ -80,13 +105,15 @@
   .sidebar-item{
     display:flex; justify-content:space-between; align-items:center;
     width:100%; background:none; border:none;
-    padding:8px 8px; border-radius:7px;
+    padding:9px 10px; border-radius:8px;
     font-size:14px; text-align:left; color:var(--texto);
     margin-bottom:2px;
+    transition: background-color .18s ease, color .18s ease;
   }
   .sidebar-item:hover{ background:var(--creme) }
   .sidebar-item.ativo{ background:var(--terracota); color:var(--creme); font-weight:700 }
   .sidebar-item .contagem-cat{ font-size:12px; opacity:.7 }
+  .sidebar-item svg{ vertical-align:-3px; margin-right:6px }
   .sidebar-fav{ margin-top:12px; padding-top:12px; border-top:1px solid #eee2c8 }
 
   .filtro-mobile-btn{
@@ -96,20 +123,32 @@
   @media (max-width:760px){
     .filtro-mobile-btn{ display:flex; width:calc(100% - 36px) }
   }
-  .filtro-mobile-painel{
-    display:none;
-    position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:50;
+
+  /* Fundo/painel compartilhado (pedido, filtro mobile) */
+  .sobreposicao{
+    position:fixed; inset:0; z-index:50;
+    background:rgba(58,32,10,0);
+    visibility:hidden; opacity:0;
+    transition: opacity .3s ease, background-color .3s ease, visibility 0s linear .3s;
   }
-  .filtro-mobile-painel.aberto{ display:block }
+  .sobreposicao.aberto{
+    visibility:visible; opacity:1; background:rgba(58,32,10,.45);
+    transition: opacity .3s ease, background-color .3s ease, visibility 0s linear 0s;
+  }
+
   .filtro-mobile-conteudo{
     position:absolute; bottom:0; left:0; right:0;
     background:var(--branco);
-    border-radius:16px 16px 0 0;
+    border-radius:18px 18px 0 0;
     padding:18px;
     max-height:70vh;
     overflow-y:auto;
+    transform: translateY(100%);
+    transition: transform .32s cubic-bezier(.2,.8,.2,1);
   }
+  .sobreposicao.aberto .filtro-mobile-conteudo{ transform: translateY(0); }
   .filtro-mobile-conteudo h3{ margin-bottom:12px; display:flex; justify-content:space-between; align-items:center }
+  .btn-fechar-x{ background:none; border:none; color:var(--texto); padding:4px }
 
   .grid{
     display:grid;
@@ -118,63 +157,104 @@
     align-content:start;
   }
 
+  @keyframes cardEntrada{
+    from{ opacity:0; transform:translateY(16px) }
+    to{ opacity:1; transform:translateY(0) }
+  }
   .card{
     background:var(--branco);
     border-radius:12px;
-    padding:16px;
+    padding:17px 16px 16px;
     box-shadow:var(--sombra);
     position:relative;
     display:flex;
     flex-direction:column;
     gap:8px;
+    overflow:hidden;
+    animation: cardEntrada .45s cubic-bezier(.2,.7,.3,1) backwards;
+    transition: transform .28s cubic-bezier(.2,.7,.3,1), box-shadow .28s ease;
   }
+  .card::before{
+    content:'';
+    position:absolute; top:0; left:0; right:0; height:3px;
+    background:linear-gradient(90deg, var(--dourado-claro), var(--dourado), var(--terracota-2));
+    transform:scaleX(0);
+    transform-origin:center;
+    transition:transform .35s cubic-bezier(.2,.8,.2,1);
+  }
+  .card::after{
+    content:'';
+    position:absolute; inset:0;
+    background:linear-gradient(115deg, transparent 40%, rgba(255,255,255,.55) 50%, transparent 60%);
+    transform:translateX(-120%);
+    pointer-events:none;
+  }
+  .card:hover{ transform:translateY(-6px); box-shadow:var(--sombra-lg), var(--sombra-dourada) }
+  .card:hover::before{ transform:scaleX(1) }
+  .card:hover::after{ transform:translateX(120%); transition:transform .85s ease }
   .card .fav-btn{
     position:absolute; top:12px; right:12px;
-    background:none; border:none; font-size:18px;
+    background:none; border:none;
     color:#d8cdb5;
+    display:flex;
+    transition: color .2s ease, transform .15s ease;
   }
+  .card .fav-btn:active{ transform:scale(.85) }
   .card .fav-btn.ativo{ color:var(--dourado) }
-  .card .categoria-label{ font-size:11px; color:var(--texto-claro); font-weight:700; text-transform:uppercase }
-  .card .nome{ font-size:15px; font-weight:700; line-height:1.25; padding-right:20px }
+  .card .fav-btn.ativo svg{ fill:currentColor }
+  @keyframes popCoracao{
+    0%{ transform:scale(1) }
+    35%{ transform:scale(1.4) }
+    60%{ transform:scale(.88) }
+    100%{ transform:scale(1) }
+  }
+  .card .fav-btn.pop{ animation: popCoracao .4s ease; }
+  .card .categoria-label{ font-size:10.5px; color:var(--dourado); font-weight:700; text-transform:uppercase; letter-spacing:.6px }
+  .card .nome{ font-family:var(--fonte-titulo); font-size:16.5px; font-weight:600; line-height:1.28; padding-right:20px; color:#241f14 }
   .card .cores{ display:flex; gap:5px; align-items:center; flex-wrap:wrap }
   .card .cores span{
     width:14px; height:14px; border-radius:50%;
     border:1px solid rgba(0,0,0,.15);
     display:inline-block;
+    transition: transform .15s ease;
   }
-  .card .preco{ font-size:17px; font-weight:800; color:var(--terracota); margin-top:auto }
+  .card .cores span:hover{ transform:scale(1.25) }
+  .card .preco{ font-family:var(--fonte-titulo); font-size:22px; font-weight:700; color:var(--terracota); margin-top:auto; letter-spacing:-.3px }
+  .card .preco .cifrao{ font-size:13px; font-weight:600; vertical-align:4px; margin-right:1px; font-family:var(--fonte-corpo) }
   .card .card-botoes{ display:flex; gap:8px }
   .card .card-botoes .btn{ flex:1; font-size:13px; padding:9px 10px }
 
   .estado-msg{ text-align:center; padding:50px 20px; color:var(--texto-claro); grid-column:1/-1 }
 
   /* Painel de pedido */
-  .painel-fundo{
-    display:none;
-    position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:60;
-  }
-  .painel-fundo.aberto{ display:block }
   .painel-pedido{
     position:absolute; top:0; right:0; bottom:0;
     width:min(400px, 100%);
     background:var(--branco);
     display:flex; flex-direction:column;
+    transform: translateX(100%);
+    transition: transform .35s cubic-bezier(.2,.8,.2,1);
   }
+  .sobreposicao.aberto .painel-pedido{ transform: translateX(0); }
   .painel-topo{
-    background:var(--terracota); color:var(--creme);
+    background: linear-gradient(120deg, var(--terracota-2), var(--terracota));
+    color:var(--creme);
     padding:16px 18px; display:flex; justify-content:space-between; align-items:center;
   }
-  .painel-topo button{ background:none; border:none; color:var(--creme); font-size:20px }
+  .painel-topo strong{ font-family:var(--fonte-titulo); font-size:18px; font-weight:600 }
+  .painel-topo button{ background:none; border:none; color:var(--creme) }
   .painel-itens{ flex:1; overflow-y:auto; padding:12px 18px }
   .item-pedido{
     display:flex; justify-content:space-between; align-items:flex-start;
     padding:12px 0; border-bottom:1px solid #f1ead6; gap:8px;
+    animation: cardEntrada .3s ease backwards;
   }
   .item-pedido .info{ flex:1; min-width:0 }
   .item-pedido .info .nome{ font-weight:700; font-size:14px }
   .item-pedido .info .cor{ font-size:12px; color:var(--texto-claro) }
   .item-pedido .qtd{ display:flex; align-items:center; gap:8px; margin-top:6px }
-  .item-pedido .qtd button{ width:22px; height:22px; border-radius:5px; border:1px solid #ddd; background:#fff }
+  .item-pedido .qtd button{ width:24px; height:24px; border-radius:6px; border:1px solid #ddd; background:#fff; transition: background-color .15s ease }
+  .item-pedido .qtd button:hover{ background:var(--creme) }
   .item-pedido .remover{ background:none; border:none; color:#b3261e; font-size:12px; margin-top:4px }
   .item-pedido .preco-item{ font-weight:700; font-size:14px; white-space:nowrap }
   .painel-rodape{ padding:16px 18px; border-top:1px solid #eee2c8 }
@@ -182,32 +262,85 @@
 
   /* Modal de seleção de cor */
   .modal-fundo{
-    display:none;
-    position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:70;
-    align-items:center; justify-content:center; padding:20px;
+    position:fixed; inset:0; z-index:70;
+    background:rgba(58,32,10,0);
+    visibility:hidden; opacity:0;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+    transition: opacity .25s ease, background-color .25s ease, visibility 0s linear .25s;
   }
-  .modal-fundo.aberto{ display:flex }
+  .modal-fundo.aberto{
+    visibility:visible; opacity:1; background:rgba(58,32,10,.45);
+    transition: opacity .25s ease, background-color .25s ease, visibility 0s linear 0s;
+  }
   .modal{
     background:var(--branco); border-radius:14px; padding:22px;
     max-width:380px; width:100%;
+    transform: scale(.9) translateY(10px);
+    opacity:0;
+    transition: transform .25s cubic-bezier(.2,.8,.2,1), opacity .25s ease;
   }
-  .modal h3{ font-size:17px; margin-bottom:4px }
-  .modal .preco-modal{ color:var(--terracota); font-weight:700; margin-bottom:16px }
+  .modal-fundo.aberto .modal{ transform: scale(1) translateY(0); opacity:1; }
+  .modal h3{ font-family:var(--fonte-titulo); font-size:19px; font-weight:600; margin-bottom:4px }
+  .modal .preco-modal{ font-family:var(--fonte-titulo); color:var(--terracota); font-weight:700; font-size:18px; margin-bottom:16px }
   .opcoes-cor{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px }
   .opcao-cor{
     border:1.5px solid #e4dcc8; border-radius:8px;
     padding:7px 12px; font-size:13px; background:#fff;
     display:flex; align-items:center; gap:6px;
+    transition: border-color .15s ease, background-color .15s ease, transform .12s ease;
   }
+  .opcao-cor:active{ transform:scale(.95) }
   .opcao-cor span{ width:12px; height:12px; border-radius:50%; border:1px solid rgba(0,0,0,.15) }
   .opcao-cor.selecionada{ border-color:var(--terracota); background:var(--creme); font-weight:700 }
   .modal-botoes{ display:flex; gap:10px }
   .modal-botoes .btn{ flex:1 }
 
+  /* Bolinha voadora ao adicionar */
+  .voador{
+    position:fixed; width:14px; height:14px; border-radius:50%;
+    background:var(--dourado); z-index:200; pointer-events:none;
+    box-shadow:0 2px 8px rgba(0,0,0,.3);
+    transition: transform .55s cubic-bezier(.3,.6,.4,1), opacity .4s ease .15s;
+  }
+
   footer{ text-align:center; padding:20px; font-size:12px; color:var(--texto-claro) }
+
+  #pre-carregador{
+    position:fixed; inset:0; z-index:1000;
+    background: linear-gradient(135deg, var(--terracota-2), var(--terracota) 55%, var(--terracota-escuro));
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px;
+    transition: opacity .5s ease, visibility 0s linear .5s;
+  }
+  #pre-carregador.saindo{ opacity:0; visibility:hidden; }
+  .pre-logo img{
+    width:64px; height:64px; border-radius:16px;
+    animation: preLogoPulso 1.4s ease-in-out infinite;
+    box-shadow: 0 10px 32px rgba(0,0,0,.4);
+  }
+  @keyframes preLogoPulso{
+    0%,100%{ transform:scale(1); }
+    50%{ transform:scale(1.08); }
+  }
+  .pre-pontos{ display:flex; gap:7px; }
+  .pre-pontos span{
+    width:8px; height:8px; border-radius:50%;
+    background:var(--dourado-claro);
+    animation: prePontoSobe 1s ease-in-out infinite;
+  }
+  .pre-pontos span:nth-child(2){ animation-delay:.15s }
+  .pre-pontos span:nth-child(3){ animation-delay:.3s }
+  @keyframes prePontoSobe{
+    0%,80%,100%{ transform:translateY(0); opacity:.5 }
+    40%{ transform:translateY(-9px); opacity:1 }
+  }
 </style>
 </head>
 <body>
+
+<div id="pre-carregador">
+  <div class="pre-logo"><img src="assets/logo.png" alt="Morfê Personalizados"></div>
+  <div class="pre-pontos"><span></span><span></span><span></span></div>
+</div>
 
 <header>
   <div class="header-topo">
@@ -216,17 +349,24 @@
       <h1>Morfê Personalizados</h1>
       <p>Catálogo — peça direto pelo WhatsApp</p>
     </div>
-    <button class="icon-btn" id="btn-favoritos" title="Favoritos">♥</button>
+    <button class="icon-btn" id="btn-favoritos" title="Favoritos">
+      <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7.2-4.5-9.6-9C.6 8.6 2 4.9 5.7 4.2c2-.4 4 .5 5 2.1a1 1 0 0 0 1.6 0c1-1.6 3-2.5 5-2.1C20.9 4.9 22.3 8.6 20.5 12 18.2 16.5 12 21 12 21Z"/></svg>
+    </button>
     <button class="icon-btn" id="btn-pedido" title="Minha lista">
-      🛍️<span class="contagem" id="contagem-pedido" style="display:none">0</span>
+      <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l-1.1 12.1a2 2 0 0 1-2 1.9H9.1a2 2 0 0 1-2-1.9L6 7Z"/><path d="M9 7V6a3 3 0 0 1 6 0v1"/></svg>
+      <span class="contagem" id="contagem-pedido" style="display:none">0</span>
     </button>
   </div>
   <div class="header-busca">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
     <input type="text" id="campo-busca" placeholder="Buscar produto...">
   </div>
 </header>
 
-<button class="btn btn-secundario filtro-mobile-btn" id="btn-filtro-mobile">☰ Categorias</button>
+<button class="btn btn-secundario filtro-mobile-btn" id="btn-filtro-mobile">
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  Categorias
+</button>
 
 <div class="layout">
   <aside class="sidebar" id="sidebar-desktop"></aside>
@@ -239,18 +379,24 @@
 
 <footer>Morfê Personalizados · Manaus-AM</footer>
 
-<div class="filtro-mobile-painel" id="filtro-mobile-painel">
+<div class="sobreposicao" id="filtro-mobile-painel">
   <div class="filtro-mobile-conteudo">
-    <h3>Categorias <button id="fechar-filtro-mobile" style="background:none;border:none;font-size:20px">✕</button></h3>
+    <h3>Categorias
+      <button class="btn-fechar-x" id="fechar-filtro-mobile">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </h3>
     <div id="sidebar-mobile"></div>
   </div>
 </div>
 
-<div class="painel-fundo" id="painel-fundo">
+<div class="sobreposicao" id="painel-fundo">
   <div class="painel-pedido">
     <div class="painel-topo">
       <strong>Minha lista</strong>
-      <button id="fechar-painel">✕</button>
+      <button id="fechar-painel">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
     </div>
     <div class="painel-itens" id="painel-itens"></div>
     <div class="painel-rodape">
@@ -278,6 +424,8 @@ const SUPABASE_KEY = "sb_publishable_s4JUXdMlfy70pWIz780U9w_2IVSAI5t";
 const WHATSAPP_NUMERO = "5592994875346";
 const HEADERS = { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` };
 
+const ICONE_CORACAO = '<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7.2-4.5-9.6-9C.6 8.6 2 4.9 5.7 4.2c2-.4 4 .5 5 2.1a1 1 0 0 0 1.6 0c1-1.6 3-2.5 5-2.1C20.9 4.9 22.3 8.6 20.5 12 18.2 16.5 12 21 12 21Z"/></svg>';
+
 let categorias = [];
 let produtos = [];
 let coresPorProduto = {};
@@ -293,6 +441,10 @@ function salvarPedido(){ localStorage.setItem('morfe_lista_pedido', JSON.stringi
 
 function formatarPreco(centavos){
   return (centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+function formatarPrecoCard(centavos){
+  const valor = (centavos / 100).toFixed(2).replace('.', ',');
+  return `<span class="cifrao">R$</span>${valor}`;
 }
 function normalizar(texto){
   return texto.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
@@ -359,7 +511,7 @@ function renderSidebar(containerId){
   divFav.className = 'sidebar-fav';
   const btnFav = document.createElement('button');
   btnFav.className = 'sidebar-item' + (somenteFavoritos ? ' ativo' : '');
-  btnFav.innerHTML = `<span>♥ Favoritos</span><span class="contagem-cat">${favoritos.size}</span>`;
+  btnFav.innerHTML = `<span>${ICONE_CORACAO} Favoritos</span><span class="contagem-cat">${favoritos.size}</span>`;
   btnFav.onclick = () => { somenteFavoritos = !somenteFavoritos; renderTudo(); fecharFiltroMobile(); };
   divFav.appendChild(btnFav);
   el.appendChild(divFav);
@@ -384,34 +536,32 @@ function renderGrid(){
     return;
   }
 
-  lista.forEach(p => {
+  lista.forEach((p, idx) => {
     const cat = categorias.find(c => c.id === p.category_id);
     const cores = coresPorProduto[p.id] || [];
     const card = document.createElement('div');
     card.className = 'card';
+    card.style.animationDelay = Math.min(idx * 35, 350) + 'ms';
 
     const coresHtml = cores.length
       ? `<div class="cores">${cores.map(c => `<span style="background:${corParaHex(c.name)}" title="${c.name}"></span>`).join('')}</div>`
       : '';
 
     card.innerHTML = `
-      <button class="fav-btn ${favoritos.has(p.id) ? 'ativo' : ''}" data-id="${p.id}">♥</button>
+      <button class="fav-btn ${favoritos.has(p.id) ? 'ativo' : ''}" data-id="${p.id}">${ICONE_CORACAO}</button>
       ${p.badge ? `<div class="badge">${p.badge}</div>` : ''}
       <div class="categoria-label">${cat ? cat.name : ''}</div>
       <div class="nome">${p.name}</div>
       ${coresHtml}
-      <div class="preco">${formatarPreco(p.price_cents)}</div>
+      <div class="preco">${formatarPrecoCard(p.price_cents)}</div>
       <div class="card-botoes">
         <button class="btn btn-primario" data-add="${p.id}">Adicionar</button>
       </div>
     `;
 
-    card.querySelector('.fav-btn').onclick = () => {
-      if (favoritos.has(p.id)) favoritos.delete(p.id); else favoritos.add(p.id);
-      salvarFavoritos();
-      renderTudo();
-    };
-    card.querySelector('[data-add]').onclick = () => abrirAdicionar(p.id);
+    const favBtn = card.querySelector('.fav-btn');
+    favBtn.onclick = () => alternarFavorito(p.id, favBtn);
+    card.querySelector('[data-add]').onclick = (e) => abrirAdicionar(p.id, e.currentTarget);
 
     grid.appendChild(card);
   });
@@ -423,21 +573,41 @@ function renderTudo(){
   renderGrid();
 }
 
+function alternarFavorito(produtoId, botao){
+  if (favoritos.has(produtoId)) favoritos.delete(produtoId); else favoritos.add(produtoId);
+  salvarFavoritos();
+
+  if (somenteFavoritos){
+    renderTudo();
+    return;
+  }
+
+  botao.classList.toggle('ativo', favoritos.has(produtoId));
+  botao.classList.remove('pop');
+  void botao.offsetWidth;
+  botao.classList.add('pop');
+  renderSidebar('sidebar-desktop');
+  renderSidebar('sidebar-mobile');
+}
+
 /* ---- Adicionar à lista / modal de cor ---- */
 let produtoModalId = null;
 let corModalSelecionada = null;
+let origemAdicaoAtual = null;
 
-function abrirAdicionar(produtoId){
+function abrirAdicionar(produtoId, botaoOrigem){
   const p = produtos.find(x => x.id === produtoId);
   const cores = coresPorProduto[produtoId] || [];
 
   if (cores.length === 0){
+    voarParaCarrinho(botaoOrigem);
     adicionarAoPedido(p, null);
     return;
   }
 
   produtoModalId = produtoId;
   corModalSelecionada = cores[0].name;
+  origemAdicaoAtual = botaoOrigem;
   document.getElementById('modal-nome').textContent = p.name;
   document.getElementById('modal-preco').textContent = formatarPreco(p.price_cents);
   const coresEl = document.getElementById('modal-cores');
@@ -461,9 +631,47 @@ document.getElementById('modal-cancelar').onclick = () => {
 };
 document.getElementById('modal-confirmar').onclick = () => {
   const p = produtos.find(x => x.id === produtoModalId);
-  adicionarAoPedido(p, corModalSelecionada);
   document.getElementById('modal-fundo').classList.remove('aberto');
+  voarParaCarrinho(origemAdicaoAtual || document.getElementById('modal-confirmar'));
+  adicionarAoPedido(p, corModalSelecionada);
 };
+
+/* ---- Animação de voo até o carrinho ---- */
+function voarParaCarrinho(elementoOrigem){
+  if (!elementoOrigem) return;
+  const origem = elementoOrigem.getBoundingClientRect();
+  const btnPedido = document.getElementById('btn-pedido');
+  const destino = btnPedido.getBoundingClientRect();
+
+  const startX = origem.left + origem.width / 2 - 7;
+  const startY = origem.top + origem.height / 2 - 7;
+  const dx = (destino.left + destino.width / 2) - (startX + 7);
+  const dy = (destino.top + destino.height / 2) - (startY + 7);
+
+  const voador = document.createElement('div');
+  voador.className = 'voador';
+  voador.style.left = startX + 'px';
+  voador.style.top = startY + 'px';
+  voador.style.transform = 'translate(0,0) scale(1)';
+  voador.style.opacity = '1';
+  document.body.appendChild(voador);
+
+  requestAnimationFrame(() => {
+    voador.style.transform = `translate(${dx}px, ${dy}px) scale(.25)`;
+    voador.style.opacity = '0';
+  });
+
+  setTimeout(() => {
+    voador.remove();
+    btnPedido.classList.remove('pulando');
+    void btnPedido.offsetWidth;
+    btnPedido.classList.add('pulando');
+    const contagemEl = document.getElementById('contagem-pedido');
+    contagemEl.classList.remove('pop');
+    void contagemEl.offsetWidth;
+    contagemEl.classList.add('pop');
+  }, 560);
+}
 
 function adicionarAoPedido(produto, cor){
   const existente = listaPedido.find(i => i.product_id === produto.id && i.cor === cor);
@@ -474,7 +682,6 @@ function adicionarAoPedido(produto, cor){
   }
   salvarPedido();
   renderPainelPedido();
-  abrirPainelPedido();
 }
 
 /* ---- Painel do pedido ---- */
@@ -550,8 +757,9 @@ document.getElementById('btn-finalizar').onclick = () => {
 };
 
 /* ---- Favoritos (atalho no header) ---- */
-document.getElementById('btn-favoritos').onclick = () => {
+document.getElementById('btn-favoritos').onclick = (e) => {
   somenteFavoritos = !somenteFavoritos;
+  e.currentTarget.classList.toggle('ativo', somenteFavoritos);
   renderTudo();
 };
 
@@ -571,7 +779,15 @@ document.getElementById('filtro-mobile-painel').addEventListener('click', (e) =>
 });
 
 /* ---- Início ---- */
+function esconderPreCarregador(){
+  const el = document.getElementById('pre-carregador');
+  if (!el) return;
+  el.classList.add('saindo');
+  setTimeout(() => el.remove(), 550);
+}
+
 async function iniciar(){
+  const inicio = Date.now();
   try{
     await carregarDados();
     renderTudo();
@@ -579,6 +795,9 @@ async function iniciar(){
   }catch(err){
     console.error(err);
     document.getElementById('grid-produtos').innerHTML = '<div class="estado-msg">Não foi possível carregar o catálogo agora. Tente novamente em instantes.</div>';
+  }finally{
+    const tempoRestante = Math.max(0, 500 - (Date.now() - inicio));
+    setTimeout(esconderPreCarregador, tempoRestante);
   }
 }
 iniciar();

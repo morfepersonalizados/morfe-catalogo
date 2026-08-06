@@ -1,24 +1,35 @@
 :root{
   --terracota: #4C2507;
-  --terracota-escuro: #351a05;
+  --terracota-2: #6b3510;
+  --terracota-escuro: #2c1504;
   --creme: #FFFBE2;
+  --creme-2: #FFF6CE;
   --dourado: #B18C35;
+  --dourado-claro: #D4AF52;
   --texto: #2b2418;
   --texto-claro: #8a7f6a;
   --branco: #ffffff;
   --sucesso: #25D366;
   --sombra: 0 1px 3px rgba(76,37,7,.08);
-  --sombra-lg: 0 8px 24px rgba(76,37,7,.16);
+  --sombra-lg: 0 8px 24px rgba(76,37,7,.18);
+  --sombra-dourada: 0 6px 20px rgba(177,140,53,.35);
+  --fonte-titulo: 'Fraunces', Georgia, serif;
+  --fonte-corpo: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-  background: var(--creme);
+  font-family: var(--fonte-corpo);
+  background:
+    radial-gradient(600px 400px at 100% 0%, rgba(177,140,53,.10), transparent 60%),
+    radial-gradient(500px 350px at 0% 100%, rgba(76,37,7,.06), transparent 60%),
+    var(--creme);
   color: var(--texto);
+  min-height:100vh;
 }
 a{color:inherit}
 button{font-family:inherit;cursor:pointer}
 input,select,textarea{font-family:inherit}
+h1,h2,h3,.fonte-titulo{ font-family: var(--fonte-titulo); }
 
 .btn{
   display:inline-flex;
@@ -26,17 +37,21 @@ input,select,textarea{font-family:inherit}
   justify-content:center;
   gap:6px;
   border:none;
-  border-radius:8px;
+  border-radius:9px;
   padding:10px 16px;
   font-size:14px;
   font-weight:700;
   text-decoration:none;
-  transition:opacity .15s, transform .1s;
+  transition:opacity .15s, transform .12s, box-shadow .2s;
 }
 .btn:active{transform:scale(.97)}
-.btn-primario{background:var(--terracota); color:var(--creme)}
-.btn-primario:hover{opacity:.9}
-.btn-dourado{background:var(--dourado); color:var(--terracota-escuro)}
+.btn-primario{
+  background: linear-gradient(135deg, var(--terracota-2), var(--terracota));
+  color:var(--creme);
+  box-shadow:0 3px 10px rgba(76,37,7,.3);
+}
+.btn-primario:hover{ box-shadow:0 5px 16px rgba(76,37,7,.4); transform:translateY(-1px) }
+.btn-dourado{background:linear-gradient(135deg, var(--dourado-claro), var(--dourado)); color:var(--terracota-escuro)}
 .btn-whatsapp{background:var(--sucesso); color:#fff}
 .btn-secundario{background:var(--branco); color:var(--terracota); border:1.5px solid var(--terracota)}
 .btn-perigo{background:#fff; color:#b3261e; border:1.5px solid #b3261e}
@@ -46,12 +61,13 @@ input,select,textarea{font-family:inherit}
   display:inline-block;
   font-size:11px;
   font-weight:700;
-  padding:3px 9px;
+  padding:3px 10px;
   border-radius:20px;
-  background:var(--dourado);
+  background:linear-gradient(135deg, var(--dourado-claro), var(--dourado));
   color:var(--terracota-escuro);
   text-transform:uppercase;
-  letter-spacing:.3px;
+  letter-spacing:.4px;
+  box-shadow: var(--sombra-dourada);
 }
 
 .campo{margin-bottom:14px}
@@ -63,8 +79,10 @@ input,select,textarea{font-family:inherit}
   border-radius:8px;
   font-size:14px;
   background:#fff;
+  transition: border-color .15s ease, box-shadow .15s ease;
 }
 .campo input:focus, .campo select:focus, .campo textarea:focus{
   outline:none;
   border-color:var(--dourado);
+  box-shadow:0 0 0 3px rgba(177,140,53,.2);
 }

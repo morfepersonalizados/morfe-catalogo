@@ -4,21 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Morfê — Admin do Catálogo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/brand.css">
 <style>
   body{ min-height:100vh }
   header{
-    background:var(--terracota); color:var(--creme);
+    background: linear-gradient(120deg, var(--terracota-2), var(--terracota));
+    color:var(--creme);
     padding:14px 20px; display:flex; justify-content:space-between; align-items:center;
   }
-  header h1{ font-size:16px; font-weight:800 }
+  header h1{ font-family:var(--fonte-titulo); font-size:19px; font-weight:600 }
   header button{ background:rgba(255,255,255,.15); border:none; color:var(--creme); padding:8px 14px; border-radius:7px; font-size:13px }
 
   #tela-login{
     max-width:360px; margin:80px auto; background:var(--branco);
     padding:28px; border-radius:14px; box-shadow:var(--sombra-lg);
   }
-  #tela-login h2{ margin-bottom:18px; color:var(--terracota) }
+  #tela-login h2{ font-family:var(--fonte-titulo); font-weight:600; font-size:21px; margin-bottom:18px; color:var(--terracota) }
   #erro-login{ color:#b3261e; font-size:13px; margin-bottom:10px; display:none }
 
   #app{ display:none; max-width:900px; margin:0 auto; padding:20px }
@@ -46,7 +50,7 @@
   .modal-fundo{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:70; align-items:center; justify-content:center; padding:20px; overflow-y:auto }
   .modal-fundo.aberto{ display:flex }
   .modal{ background:var(--branco); border-radius:14px; padding:24px; max-width:440px; width:100%; margin:auto }
-  .modal h3{ margin-bottom:16px; color:var(--terracota) }
+  .modal h3{ font-family:var(--fonte-titulo); font-weight:600; font-size:18px; margin-bottom:16px; color:var(--terracota) }
   .linha-cor{ display:flex; justify-content:space-between; align-items:center; padding:6px 0; font-size:13px }
   .linha-cor button{ background:none; border:none; color:#b3261e; font-size:12px }
   .add-cor{ display:flex; gap:8px; margin-top:8px }
