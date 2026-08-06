@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Morfê — Admin do Catálogo</title>
+<link rel="stylesheet" href="../assets/brand.css">
+<style>
+  body{ min-height:100vh }
+  header{
+    background:var(--terracota); color:var(--creme);
+    padding:14px 20px; display:flex; justify-content:space-between; align-items:center;
+  }
+  header h1{ font-size:16px; font-weight:800 }
+  header button{ background:rgba(255,255,255,.15); border:none; color:var(--creme); padding:8px 14px; border-radius:7px; font-size:13px }
+
+  #tela-login{
+    max-width:360px; margin:80px auto; background:var(--branco);
+    padding:28px; border-radius:14px; box-shadow:var(--sombra-lg);
+  }
+  #tela-login h2{ margin-bottom:18px; color:var(--terracota) }
+  #erro-login{ color:#b3261e; font-size:13px; margin-bottom:10px; display:none }
+
+  #app{ display:none; max-width:900px; margin:0 auto; padding:20px }
+
+  .abas{ display:flex; gap:8px; margin-bottom:18px }
+  .aba-btn{
+    background:var(--branco); border:1.5px solid #e4dcc8; padding:9px 16px;
+    border-radius:8px; font-size:14px; font-weight:600; color:var(--texto);
+  }
+  .aba-btn.ativa{ background:var(--terracota); color:var(--creme); border-color:var(--terracota) }
+
+  .painel-secao{ display:none }
+  .painel-secao.ativa{ display:block }
+
+  .lista-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:14px }
+
+  table{ width:100%; border-collapse:collapse; background:var(--branco); border-radius:10px; overflow:hidden; box-shadow:var(--sombra) }
+  th, td{ text-align:left; padding:10px 12px; font-size:13px; border-bottom:1px solid #f1ead6 }
+  th{ background:#f6f0dd; font-size:11px; text-transform:uppercase; color:var(--texto-claro) }
+  td.acoes{ display:flex; gap:6px; white-space:nowrap }
+  td.acoes button{ font-size:12px; padding:6px 10px }
+  .indisponivel{ opacity:.5 }
+  .tag-indisponivel{ font-size:10px; background:#e4dcc8; padding:2px 7px; border-radius:10px; margin-left:6px }
+
+  .modal-fundo{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:70; align-items:center; justify-content:center; padding:20px; overflow-y:auto }
+  .modal-fundo.aberto{ display:flex }
+  .modal{ background:var(--branco); border-radius:14px; padding:24px; max-width:440px; width:100%; margin:auto }
+  .modal h3{ margin-bottom:16px; color:var(--terracota) }
+  .linha-cor{ display:flex; justify-content:space-between; align-items:center; padding:6px 0; font-size:13px }
+  .linha-cor button{ background:none; border:none; color:#b3261e; font-size:12px }
+  .add-cor{ display:flex; gap:8px; margin-top:8px }
+  .add-cor input{ flex:1 }
+  .checkbox-linha{ display:flex; align-items:center; gap:8px; margin-bottom:14px }
+  .checkbox-linha input{ width:auto }
+  .modal-botoes{ display:flex; gap:10px; margin-top:18px }
+  .modal-botoes .btn{ flex:1 }
+</style>
+</head>
+<body>
+
+<div id="tela-login">
+  <h2>Admin — Morfê Catálogo</h2>
+  <div id="erro-login"></div>
+  <div class="campo">
+    <label>E-mail</label>
+    <input type="email" id="login-email">
+  </div>
+  <div class="campo">
+    <label>Senha</label>
+    <input type="password" id="login-senha">
+  </div>
+  <button class="btn btn-primario" style="width:100%" id="btn-login">Entrar</button>
+</div>
+
+<div id="app">
+  <header>
+    <h1>Admin — Catálogo Morfê</h1>
+    <button id="btn-logout">Sair</button>
+  </header>
+
+  <div style="padding:20px">
+    <div class="abas">
+      <button class="aba-btn ativa" data-aba="produtos">Produtos</button>
+      <button class="aba-btn" data-aba="categorias">Categorias</button>
+    </div>
+
+    <div class="painel-secao ativa" id="secao-produtos">
+      <div class="lista-header">
+        <strong id="contagem-produtos"></strong>
+        <button class="btn btn-primario" id="btn-novo-produto">+ Novo produto</button>
+      </div>
+      <table>
+        <thead><tr><th>Nome</th><th>Categoria</th><th>Preço</th><th>Status</th><th></th></tr></thead>
+        <tbody id="tabela-produtos"></tbody>
+      </table>
+    </div>
+
+    <div class="painel-secao" id="secao-categorias">
+      <div class="lista-header">
+        <strong id="contagem-categorias"></strong>
+        <button class="btn btn-primario" id="btn-nova-categoria">+ Nova categoria</button>
+      </div>
+      <table>
+        <thead><tr><th>Nome</th><th>Ordem</th><th>Produtos</th><th></th></tr></thead>
+        <tbody id="tabela-categorias"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal produto -->
+<div class="modal-fundo" id="modal-produto-fundo">
+  <div class="modal">
+    <h3 id="modal-produto-titulo">Novo produto</h3>
+    <div class="campo">
+      <label>Nome</label>
+      <input type="text" id="campo-nome">
+    </div>
+    <div class="campo">
+      <label>Categoria</label>
+      <select id="campo-categoria"></select>
+    </div>
+    <div class="campo">
+      <label>Preço (R$)</label>
+      <input type="text" id="campo-preco" placeholder="Ex: 45,00">
+    </div>
+    <div class="campo">
+      <label>Selo (opcional — ex: "Mais vendido")</label>
+      <input type="text" id="campo-badge">
+    </div>
+    <div class="checkbox-linha">
+      <input type="checkbox" id="campo-disponivel" checked>
+      <label for="campo-disponivel">Disponível na loja</label>
+    </div>
+
+    <div class="campo" id="bloco-cores" style="display:none">
+      <label>Cores / variações</label>
+      <div id="lista-cores"></div>
+      <div class="add-cor">
+        <input type="text" id="nova-cor" placeholder="Ex: Azul">
+        <button class="btn btn-secundario" id="btn-add-cor">+</button>
+      </div>
+    </div>
+
+    <div class="modal-botoes">
+      <button class="btn btn-secundario" id="btn-cancelar-produto">Cancelar</button>
+      <button class="btn btn-primario" id="btn-salvar-produto">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal categoria -->
+<div class="modal-fundo" id="modal-categoria-fundo">
+  <div class="modal">
+    <h3>Nova categoria</h3>
+    <div class="campo">
+      <label>Nome</label>
+      <input type="text" id="campo-cat-nome">
+    </div>
+    <div class="campo">
+      <label>Ordem de exibição</label>
+      <input type="number" id="campo-cat-ordem" value="0">
+    </div>
+    <div class="modal-botoes">
+      <button class="btn btn-secundario" id="btn-cancelar-categoria">Cancelar</button>
+      <button class="btn btn-primario" id="btn-salvar-categoria">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const SUPABASE_URL = "https://rzicwtwowfyogtcqekun.supabase.co";
+const SUPABASE_KEY = "sb_publishable_s4JUXdMlfy70pWIz780U9w_2IVSAI5t";
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let categorias = [];
+let produtos = [];
+let coresPorProduto = {};
+let produtoEditandoId = null;
+
+function formatarPreco(centavos){
+  return (centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+function precoParaCentavos(texto){
+  const limpo = texto.replace(/\./g, '').replace(',', '.').replace(/[^\d.]/g, '');
+  return Math.round(parseFloat(limpo || '0') * 100);
+}
+
+/* ---- Autenticação ---- */
+async function verificarSessao(){
+  const { data } = await supabase.auth.getSession();
+  if (data.session){
+    document.getElementById('tela-login').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    await carregarTudo();
+  } else {
+    document.getElementById('tela-login').style.display = 'block';
+    document.getElementById('app').style.display = 'none';
+  }
+}
+
+document.getElementById('btn-login').onclick = async () => {
+  const email = document.getElementById('login-email').value;
+  const senha = document.getElementById('login-senha').value;
+  const erroEl = document.getElementById('erro-login');
+  erroEl.style.display = 'none';
+  const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
+  if (error){
+    erroEl.textContent = 'Login inválido. Confira e-mail e senha.';
+    erroEl.style.display = 'block';
+    return;
+  }
+  await verificarSessao();
+};
+
+document.getElementById('btn-logout').onclick = async () => {
+  await supabase.auth.signOut();
+  await verificarSessao();
+};
+
+/* ---- Carregar dados ---- */
+async function carregarTudo(){
+  const [{ data: cats }, { data: prods }, { data: cores }] = await Promise.all([
+    supabase.from('catalog_categories').select('*').order('sort_order'),
+    supabase.from('catalog_products').select('*').order('sort_order'),
+    supabase.from('catalog_product_colors').select('*').order('sort_order')
+  ]);
+  categorias = cats || [];
+  produtos = prods || [];
+  coresPorProduto = {};
+  (cores || []).forEach(c => {
+    if (!coresPorProduto[c.product_id]) coresPorProduto[c.product_id] = [];
+    coresPorProduto[c.product_id].push(c);
+  });
+  renderProdutos();
+  renderCategorias();
+}
+
+/* ---- Abas ---- */
+document.querySelectorAll('.aba-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.aba-btn').forEach(b => b.classList.remove('ativa'));
+    document.querySelectorAll('.painel-secao').forEach(s => s.classList.remove('ativa'));
+    btn.classList.add('ativa');
+    document.getElementById('secao-' + btn.dataset.aba).classList.add('ativa');
+  };
+});
+
+/* ---- Renderizar produtos ---- */
+function renderProdutos(){
+  document.getElementById('contagem-produtos').textContent = `${produtos.length} produtos`;
+  const tbody = document.getElementById('tabela-produtos');
+  tbody.innerHTML = '';
+  produtos.forEach(p => {
+    const cat = categorias.find(c => c.id === p.category_id);
+    const tr = document.createElement('tr');
+    if (!p.is_available) tr.className = 'indisponivel';
+    tr.innerHTML = `
+      <td>${p.name}${p.badge ? ' <span class="badge">' + p.badge + '</span>' : ''}</td>
+      <td>${cat ? cat.name : '—'}</td>
+      <td>${formatarPreco(p.price_cents)}</td>
+      <td>${p.is_available ? 'Ativo' : '<span class="tag-indisponivel">Oculto</span>'}</td>
+      <td class="acoes">
+        <button class="btn btn-secundario" data-editar="${p.id}">Editar</button>
+        <button class="btn btn-perigo" data-excluir="${p.id}">Excluir</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('[data-editar]').forEach(b => b.onclick = () => abrirModalProduto(b.dataset.editar));
+  tbody.querySelectorAll('[data-excluir]').forEach(b => b.onclick = () => excluirProduto(b.dataset.excluir));
+}
+
+function renderCategorias(){
+  document.getElementById('contagem-categorias').textContent = `${categorias.length} categorias`;
+  const tbody = document.getElementById('tabela-categorias');
+  tbody.innerHTML = '';
+  categorias.forEach(c => {
+    const n = produtos.filter(p => p.category_id === c.id).length;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${c.name}</td>
+      <td>${c.sort_order}</td>
+      <td>${n}</td>
+      <td class="acoes"><button class="btn btn-perigo" data-excluir-cat="${c.id}">Excluir</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('[data-excluir-cat]').forEach(b => b.onclick = () => excluirCategoria(b.dataset.excluirCat));
+}
+
+/* ---- Modal produto ---- */
+function preencherSelectCategorias(){
+  const sel = document.getElementById('campo-categoria');
+  sel.innerHTML = categorias.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+}
+
+function renderListaCores(produtoId){
+  const el = document.getElementById('lista-cores');
+  const cores = coresPorProduto[produtoId] || [];
+  el.innerHTML = '';
+  cores.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'linha-cor';
+    div.innerHTML = `<span>${c.name}</span><button data-del-cor="${c.id}">remover</button>`;
+    el.appendChild(div);
+  });
+  el.querySelectorAll('[data-del-cor]').forEach(b => b.onclick = async () => {
+    await supabase.from('catalog_product_colors').delete().eq('id', b.dataset.delCor);
+    await carregarTudo();
+    renderListaCores(produtoId);
+  });
+}
+
+function abrirModalProduto(produtoId){
+  produtoEditandoId = produtoId || null;
+  preencherSelectCategorias();
+  const blocoCores = document.getElementById('bloco-cores');
+
+  if (produtoId){
+    const p = produtos.find(x => x.id === produtoId);
+    document.getElementById('modal-produto-titulo').textContent = 'Editar produto';
+    document.getElementById('campo-nome').value = p.name;
+    document.getElementById('campo-categoria').value = p.category_id || '';
+    document.getElementById('campo-preco').value = (p.price_cents / 100).toFixed(2).replace('.', ',');
+    document.getElementById('campo-badge').value = p.badge || '';
+    document.getElementById('campo-disponivel').checked = p.is_available;
+    blocoCores.style.display = 'block';
+    renderListaCores(produtoId);
+  } else {
+    document.getElementById('modal-produto-titulo').textContent = 'Novo produto';
+    document.getElementById('campo-nome').value = '';
+    document.getElementById('campo-preco').value = '';
+    document.getElementById('campo-badge').value = '';
+    document.getElementById('campo-disponivel').checked = true;
+    blocoCores.style.display = 'none';
+  }
+  document.getElementById('modal-produto-fundo').classList.add('aberto');
+}
+
+document.getElementById('btn-novo-produto').onclick = () => abrirModalProduto(null);
+document.getElementById('btn-cancelar-produto').onclick = () => document.getElementById('modal-produto-fundo').classList.remove('aberto');
+
+document.getElementById('btn-add-cor').onclick = async () => {
+  const nome = document.getElementById('nova-cor').value.trim();
+  if (!nome || !produtoEditandoId) return;
+  const maxOrdem = (coresPorProduto[produtoEditandoId] || []).length;
+  await supabase.from('catalog_product_colors').insert({ product_id: produtoEditandoId, name: nome, sort_order: maxOrdem + 1 });
+  document.getElementById('nova-cor').value = '';
+  await carregarTudo();
+  renderListaCores(produtoEditandoId);
+};
+
+document.getElementById('btn-salvar-produto').onclick = async () => {
+  const dados = {
+    name: document.getElementById('campo-nome').value.trim(),
+    category_id: document.getElementById('campo-categoria').value || null,
+    price_cents: precoParaCentavos(document.getElementById('campo-preco').value),
+    badge: document.getElementById('campo-badge').value.trim() || null,
+    is_available: document.getElementById('campo-disponivel').checked
+  };
+  if (!dados.name || !dados.price_cents){
+    alert('Preencha nome e preço.');
+    return;
+  }
+  if (produtoEditandoId){
+    await supabase.from('catalog_products').update(dados).eq('id', produtoEditandoId);
+  } else {
+    await supabase.from('catalog_products').insert(dados);
+  }
+  document.getElementById('modal-produto-fundo').classList.remove('aberto');
+  await carregarTudo();
+};
+
+async function excluirProduto(id){
+  if (!confirm('Excluir esse produto? Essa ação não pode ser desfeita.')) return;
+  await supabase.from('catalog_products').delete().eq('id', id);
+  await carregarTudo();
+}
+
+/* ---- Modal categoria ---- */
+document.getElementById('btn-nova-categoria').onclick = () => {
+  document.getElementById('campo-cat-nome').value = '';
+  document.getElementById('campo-cat-ordem').value = categorias.length;
+  document.getElementById('modal-categoria-fundo').classList.add('aberto');
+};
+document.getElementById('btn-cancelar-categoria').onclick = () => document.getElementById('modal-categoria-fundo').classList.remove('aberto');
+
+document.getElementById('btn-salvar-categoria').onclick = async () => {
+  const nome = document.getElementById('campo-cat-nome').value.trim();
+  const ordem = parseInt(document.getElementById('campo-cat-ordem').value) || 0;
+  if (!nome){ alert('Digite um nome.'); return; }
+  await supabase.from('catalog_categories').insert({ name: nome, sort_order: ordem });
+  document.getElementById('modal-categoria-fundo').classList.remove('aberto');
+  await carregarTudo();
+};
+
+async function excluirCategoria(id){
+  if (!confirm('Excluir essa categoria? Produtos ligados a ela ficam sem categoria, mas não são apagados.')) return;
+  await supabase.from('catalog_categories').delete().eq('id', id);
+  await carregarTudo();
+}
+
+verificarSessao();
+</script>
+
+</body>
+</html>

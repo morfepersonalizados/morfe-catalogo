@@ -19,7 +19,8 @@ Decisões e histórico completo: ver [memoria.md](memoria.md).
 
 ## Como trabalhar comigo
 - Ferramentas que o usuário já usa/tem conta: **GitHub, Vercel, Google Apps Script**. Supabase ele tem mas não usa há tempo.
-- Antes de acessar qualquer ferramenta/conta conectada (GitHub, Vercel, Supabase, etc.) ou fazer algo em sistema externo, **sempre perguntar antes e explicar o que vai ser feito e por quê** — mesmo com permissão já dada antes, confirmar de novo a cada ação relevante.
+- Ação básica/rotineira em ferramenta conectada (criar repositório, dar push, rodar migration já combinada, etc.): **não precisa perguntar antes** — só avisar o que foi feito.
+- Ação mais séria (algo destrutivo/irreversível, mexer em dados reais de produção/clientes, gastar dinheiro, trocar credenciais de segurança, mudança grande de arquitetura): **perguntar antes e explicar o que vai ser feito e por quê.**
 - Manter as coisas separadas e organizadas (design, código, dados, documentação) — nunca misturado — para que dê pra reverter ou recomeçar de uma base limpa se algo der errado.
 - `memoria.md`: atualizar proativamente sempre que fizer sentido, sem precisar perguntar.
 - Regras novas que o usuário disser na conversa: se for claramente uma regra, adicionar aqui direto; se não tiver certeza se cabe aqui, perguntar antes.
