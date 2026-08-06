@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Morfê Personalizados — Catálogo</title>
+<style>
+  :root{
+    --azul: #182E62;
+    --azul-escuro: #101f45;
+    --creme: #F9F1E4;
+    --dourado: #C9AC7D;
+    --cinza-texto: #4a4640;
+    --branco: #ffffff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--creme);
+    color: var(--cinza-texto);
+    padding-bottom: 40px;
+  }
+  header{
+    background: var(--azul);
+    color: white;
+    padding: 28px 20px 22px;
+    text-align: center;
+  }
+  header h1{
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -.2px;
+  }
+  header p{
+    font-size: 13px;
+    opacity: .85;
+    margin-top: 6px;
+  }
+  .categoria-nav{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding: 14px 16px;
+    background: var(--branco);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0,0,0,.06);
+  }
+  .categoria-nav a{
+    flex-shrink:0;
+    text-decoration:none;
+    font-size:13px;
+    font-weight:600;
+    color: var(--azul);
+    background: var(--creme);
+    padding: 7px 14px;
+    border-radius: 20px;
+  }
+  main{
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 20px 16px;
+  }
+  .categoria-secao{
+    margin-bottom: 32px;
+    scroll-margin-top: 70px;
+  }
+  .categoria-secao h2{
+    font-size: 17px;
+    color: var(--azul);
+    border-bottom: 2px solid var(--dourado);
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+  }
+  .produto-card{
+    background: var(--branco);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .produto-info .nome{
+    font-weight: 600;
+    font-size: 15px;
+    color: #24272e;
+  }
+  .produto-info .preco{
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--azul);
+    margin-top: 3px;
+  }
+  .btn-pedir{
+    flex-shrink:0;
+    background: #25D366;
+    color: white;
+    text-decoration:none;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 9px 14px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+  .btn-pedir:active{ opacity:.85 }
+  footer{
+    text-align:center;
+    padding: 24px 16px 10px;
+    font-size: 12px;
+    color: #8a8478;
+  }
+  .estado-msg{
+    text-align:center;
+    padding: 40px 20px;
+    color: #8a8478;
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Morfê Personalizados</h1>
+  <p>Catálogo de produtos — peça direto pelo WhatsApp</p>
+</header>
+
+<nav class="categoria-nav" id="nav-categorias"></nav>
+
+<main id="conteudo">
+  <div class="estado-msg">Carregando catálogo…</div>
+</main>
+
+<footer>
+  Morfê Personalizados · Manaus-AM
+</footer>
+
+<script>
+const SUPABASE_URL = "https://rzicwtwowfyogtcqekun.supabase.co";
+const SUPABASE_KEY = "sb_publishable_s4JUXdMlfy70pWIz780U9w_2IVSAI5t";
+const WHATSAPP_NUMERO = "5592994875346";
+
+function formatarPreco(centavos){
+  return (centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+function linkWhatsApp(nomeProduto, precoCentavos){
+  const msg = `Olá! Tenho interesse no produto: ${nomeProduto} (${formatarPreco(precoCentavos)}). Ainda está disponível?`;
+  return `https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(msg)}`;
+}
+
+function slugify(texto){
+  return texto.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-');
+}
+
+async function carregarCatalogo(){
+  const conteudo = document.getElementById('conteudo');
+  const nav = document.getElementById('nav-categorias');
+
+  try{
+    const headers = { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` };
+
+    const resCategorias = await fetch(
+      `${SUPABASE_URL}/rest/v1/catalog_categories?select=id,name,sort_order&order=sort_order`,
+      { headers }
+    );
+    const categorias = await resCategorias.json();
+
+    const resProdutos = await fetch(
+      `${SUPABASE_URL}/rest/v1/catalog_products?select=id,name,price_cents,sort_order,category_id&is_available=eq.true&order=sort_order`,
+      { headers }
+    );
+    const produtos = await resProdutos.json();
+
+    if(!Array.isArray(categorias) || !Array.isArray(produtos)){
+      throw new Error('Resposta inesperada da API');
+    }
+
+    conteudo.innerHTML = '';
+    nav.innerHTML = '';
+
+    categorias.forEach(cat => {
+      const produtosDaCategoria = produtos.filter(p => p.category_id === cat.id);
+      if(produtosDaCategoria.length === 0) return;
+
+      const slug = slugify(cat.name);
+
+      const navLink = document.createElement('a');
+      navLink.href = `#cat-${slug}`;
+      navLink.textContent = cat.name;
+      nav.appendChild(navLink);
+
+      const secao = document.createElement('section');
+      secao.className = 'categoria-secao';
+      secao.id = `cat-${slug}`;
+
+      const titulo = document.createElement('h2');
+      titulo.textContent = cat.name;
+      secao.appendChild(titulo);
+
+      produtosDaCategoria.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'produto-card';
+        card.innerHTML = `
+          <div class="produto-info">
+            <div class="nome">${p.name}</div>
+            <div class="preco">${formatarPreco(p.price_cents)}</div>
+          </div>
+          <a class="btn-pedir" target="_blank" rel="noopener" href="${linkWhatsApp(p.name, p.price_cents)}">Pedir</a>
+        `;
+        secao.appendChild(card);
+      });
+
+      conteudo.appendChild(secao);
+    });
+
+    if(conteudo.children.length === 0){
+      conteudo.innerHTML = '<div class="estado-msg">Nenhum produto disponível no momento.</div>';
+    }
+
+  }catch(err){
+    console.error(err);
+    conteudo.innerHTML = '<div class="estado-msg">Não foi possível carregar o catálogo agora. Tente novamente em instantes.</div>';
+  }
+}
+
+carregarCatalogo();
+</script>
+
+</body>
+</html>
