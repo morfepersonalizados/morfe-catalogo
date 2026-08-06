@@ -87,6 +87,7 @@
     <div class="abas">
       <button class="aba-btn ativa" data-aba="produtos">Produtos</button>
       <button class="aba-btn" data-aba="categorias">Categorias</button>
+      <button class="aba-btn" data-aba="artes">Artes</button>
     </div>
 
     <div class="painel-secao ativa" id="secao-produtos">
@@ -108,6 +109,18 @@
       <table>
         <thead><tr><th>Nome</th><th>Ordem</th><th>Produtos</th><th></th></tr></thead>
         <tbody id="tabela-categorias"></tbody>
+      </table>
+    </div>
+
+    <div class="painel-secao" id="secao-artes">
+      <p style="font-size:13px; color:var(--texto-claro); margin-bottom:14px">Artes/temas que aparecem como opção de personalização no catálogo (ex: Harry Potter, Times de Futebol). Não mudam o preço — o preço vem sempre do produto.</p>
+      <div class="lista-header">
+        <strong id="contagem-artes"></strong>
+        <button class="btn btn-primario" id="btn-nova-arte">+ Nova arte</button>
+      </div>
+      <table>
+        <thead><tr><th>Nome</th><th>Tema</th><th>Produtos vinculados</th><th></th></tr></thead>
+        <tbody id="tabela-artes"></tbody>
       </table>
     </div>
   </div>
@@ -173,6 +186,29 @@
   </div>
 </div>
 
+<!-- Modal arte -->
+<div class="modal-fundo" id="modal-arte-fundo">
+  <div class="modal">
+    <h3 id="modal-arte-titulo">Nova arte</h3>
+    <div class="campo">
+      <label>Nome (ex: Homem-Aranha)</label>
+      <input type="text" id="campo-arte-nome">
+    </div>
+    <div class="campo">
+      <label>Tema (ex: Séries e Filmes)</label>
+      <input type="text" id="campo-arte-tema">
+    </div>
+    <div class="campo">
+      <label>Disponível em quais produtos?</label>
+      <div id="lista-produtos-arte" style="max-height:220px; overflow-y:auto; border:1.5px solid #e4dcc8; border-radius:8px; padding:10px"></div>
+    </div>
+    <div class="modal-botoes">
+      <button class="btn btn-secundario" id="btn-cancelar-arte">Cancelar</button>
+      <button class="btn btn-primario" id="btn-salvar-arte">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -183,7 +219,10 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 let categorias = [];
 let produtos = [];
 let coresPorProduto = {};
+let artes = [];
+let produtosPorArte = {};
 let produtoEditandoId = null;
+let arteEditandoId = null;
 
 function formatarPreco(centavos){
   return (centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -227,10 +266,12 @@ document.getElementById('btn-logout').onclick = async () => {
 
 /* ---- Carregar dados ---- */
 async function carregarTudo(){
-  const [{ data: cats }, { data: prods }, { data: cores }] = await Promise.all([
+  const [{ data: cats }, { data: prods }, { data: cores }, { data: designs }, { data: vinculos }] = await Promise.all([
     supabase.from('catalog_categories').select('*').order('sort_order'),
     supabase.from('catalog_products').select('*').order('sort_order'),
-    supabase.from('catalog_product_colors').select('*').order('sort_order')
+    supabase.from('catalog_product_colors').select('*').order('sort_order'),
+    supabase.from('catalog_designs').select('*').order('theme').order('sort_order'),
+    supabase.from('catalog_product_designs').select('*')
   ]);
   categorias = cats || [];
   produtos = prods || [];
@@ -239,8 +280,15 @@ async function carregarTudo(){
     if (!coresPorProduto[c.product_id]) coresPorProduto[c.product_id] = [];
     coresPorProduto[c.product_id].push(c);
   });
+  artes = designs || [];
+  produtosPorArte = {};
+  (vinculos || []).forEach(v => {
+    if (!produtosPorArte[v.design_id]) produtosPorArte[v.design_id] = [];
+    produtosPorArte[v.design_id].push(v.product_id);
+  });
   renderProdutos();
   renderCategorias();
+  renderArtes();
 }
 
 /* ---- Abas ---- */
@@ -405,6 +453,88 @@ document.getElementById('btn-salvar-categoria').onclick = async () => {
 async function excluirCategoria(id){
   if (!confirm('Excluir essa categoria? Produtos ligados a ela ficam sem categoria, mas não são apagados.')) return;
   await supabase.from('catalog_categories').delete().eq('id', id);
+  await carregarTudo();
+}
+
+/* ---- Artes ---- */
+function renderArtes(){
+  document.getElementById('contagem-artes').textContent = `${artes.length} artes`;
+  const tbody = document.getElementById('tabela-artes');
+  tbody.innerHTML = '';
+  artes.forEach(a => {
+    const n = (produtosPorArte[a.id] || []).length;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${a.name}</td>
+      <td>${a.theme || '—'}</td>
+      <td>${n}</td>
+      <td class="acoes">
+        <button class="btn btn-secundario" data-editar-arte="${a.id}">Editar</button>
+        <button class="btn btn-perigo" data-excluir-arte="${a.id}">Excluir</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('[data-editar-arte]').forEach(b => b.onclick = () => abrirModalArte(b.dataset.editarArte));
+  tbody.querySelectorAll('[data-excluir-arte]').forEach(b => b.onclick = () => excluirArte(b.dataset.excluirArte));
+}
+
+function abrirModalArte(designId){
+  arteEditandoId = designId || null;
+  const ligados = designId ? (produtosPorArte[designId] || []) : [];
+
+  document.getElementById('modal-arte-titulo').textContent = designId ? 'Editar arte' : 'Nova arte';
+  document.getElementById('campo-arte-nome').value = designId ? artes.find(a => a.id === designId).name : '';
+  document.getElementById('campo-arte-tema').value = designId ? (artes.find(a => a.id === designId).theme || '') : '';
+
+  const listaEl = document.getElementById('lista-produtos-arte');
+  listaEl.innerHTML = '';
+  produtos.forEach(p => {
+    const label = document.createElement('label');
+    label.style.display = 'flex';
+    label.style.alignItems = 'center';
+    label.style.gap = '8px';
+    label.style.padding = '4px 0';
+    label.style.fontSize = '13px';
+    label.innerHTML = `<input type="checkbox" value="${p.id}" ${ligados.includes(p.id) ? 'checked' : ''} style="width:auto"> ${p.name}`;
+    listaEl.appendChild(label);
+  });
+
+  document.getElementById('modal-arte-fundo').classList.add('aberto');
+}
+
+document.getElementById('btn-nova-arte').onclick = () => abrirModalArte(null);
+document.getElementById('btn-cancelar-arte').onclick = () => document.getElementById('modal-arte-fundo').classList.remove('aberto');
+
+document.getElementById('btn-salvar-arte').onclick = async () => {
+  const nome = document.getElementById('campo-arte-nome').value.trim();
+  const tema = document.getElementById('campo-arte-tema').value.trim() || null;
+  if (!nome){ alert('Digite um nome pra arte.'); return; }
+
+  const produtosMarcados = [...document.querySelectorAll('#lista-produtos-arte input:checked')].map(i => i.value);
+
+  let designId = arteEditandoId;
+  if (designId){
+    await supabase.from('catalog_designs').update({ name: nome, theme: tema }).eq('id', designId);
+    await supabase.from('catalog_product_designs').delete().eq('design_id', designId);
+  } else {
+    const { data } = await supabase.from('catalog_designs').insert({ name: nome, theme: tema }).select().single();
+    designId = data.id;
+  }
+
+  if (produtosMarcados.length){
+    await supabase.from('catalog_product_designs').insert(
+      produtosMarcados.map(pid => ({ product_id: pid, design_id: designId }))
+    );
+  }
+
+  document.getElementById('modal-arte-fundo').classList.remove('aberto');
+  await carregarTudo();
+};
+
+async function excluirArte(id){
+  if (!confirm('Excluir essa arte? Ela deixa de aparecer como opção no catálogo.')) return;
+  await supabase.from('catalog_designs').delete().eq('id', id);
   await carregarTudo();
 }
 

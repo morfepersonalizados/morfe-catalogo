@@ -58,15 +58,24 @@
     display:flex;
     align-items:center;
     gap:12px;
-    max-width:1100px;
+    max-width:1440px;
     margin:0 auto;
     position:relative;
     z-index:1;
   }
-  .header-topo img{ height:40px; width:40px; border-radius:8px; flex-shrink:0 }
+  .marca-link{
+    display:flex; align-items:center; gap:12px; flex:1; min-width:0;
+    text-decoration:none; color:inherit;
+    transition: opacity .15s ease;
+  }
+  .marca-link:active{ opacity:.75 }
+  .header-topo img{
+    height:58px; width:58px; border-radius:14px; flex-shrink:0;
+    box-shadow: 0 0 0 2px rgba(255,251,226,.25), 0 6px 16px rgba(0,0,0,.3);
+  }
   .header-topo .marca{ flex:1; min-width:0 }
-  .header-topo .marca h1{ font-family:var(--fonte-titulo); font-size:19px; font-weight:700; letter-spacing:-.2px }
-  .header-topo .marca p{ font-size:11px; opacity:.8 }
+  .header-topo .marca h1{ font-family:var(--fonte-titulo); font-size:23px; font-weight:700; letter-spacing:-.2px }
+  .header-topo .marca p{ font-size:12px; opacity:.8; margin-top:2px }
   .icon-btn{
     background:rgba(255,255,255,.12);
     border:none;
@@ -106,7 +115,7 @@
   }
   .contagem.pop{ animation: badgePop .35s ease; }
 
-  .header-busca{ max-width:1100px; margin:10px auto 0; position:relative; z-index:1 }
+  .header-busca{ max-width:1440px; margin:10px auto 0; position:relative; z-index:1 }
   .header-busca input{
     width:100%;
     padding:10px 14px 10px 36px;
@@ -119,7 +128,7 @@
   .header-busca svg{ position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#a89a7a }
 
   .layout{
-    max-width:1100px;
+    max-width:1440px;
     margin:0 auto;
     display:grid;
     grid-template-columns:220px 1fr;
@@ -155,12 +164,19 @@
   .sidebar-item svg{ vertical-align:-3px; margin-right:6px }
   .sidebar-fav{ margin-top:12px; padding-top:12px; border-top:1px solid #eee2c8 }
 
-  .filtro-mobile-btn{
-    display:none;
-    margin:14px 18px 0;
-  }
+  .filtro-mobile-btn{ display:none; }
   @media (max-width:760px){
-    .filtro-mobile-btn{ display:flex; width:calc(100% - 36px) }
+    .filtro-mobile-btn{
+      display:flex;
+      position:fixed;
+      right:16px;
+      bottom:22px;
+      z-index:40;
+      width:auto;
+      padding:13px 20px;
+      border-radius:30px;
+      box-shadow: var(--sombra-lg), 0 0 0 1px rgba(76,37,7,.06);
+    }
   }
 
   /* Fundo/painel compartilhado (pedido, filtro mobile) */
@@ -195,6 +211,21 @@
     gap:14px;
     align-content:start;
   }
+  @media (max-width:760px){
+    .layout{ padding-bottom:90px; }
+    .grid{ grid-template-columns:1fr 1fr; gap:10px; }
+    .card{ padding:12px 11px 11px; gap:6px; }
+    .card .nome{ font-size:14px; padding-right:16px }
+    .card .preco{ font-size:18px }
+    .card .fav-btn{ top:9px; right:9px }
+    .card .fav-btn svg{ width:16px; height:16px }
+    .card .card-botoes .btn{ font-size:12.5px; padding:8px 8px }
+    .header-topo img{ height:42px; width:42px; border-radius:10px }
+    .header-topo .marca h1{ font-size:16px }
+    .header-topo .marca p{ font-size:10px }
+    .modal{ padding:18px; max-width:100% }
+    .modal-categoria{ margin-top:26px }
+  }
 
   @keyframes cardEntrada{
     from{ opacity:0; transform:translateY(16px) }
@@ -210,6 +241,7 @@
     flex-direction:column;
     gap:8px;
     overflow:hidden;
+    cursor:pointer;
     animation: cardEntrada .45s cubic-bezier(.2,.7,.3,1) backwards;
     transition: transform .28s cubic-bezier(.2,.7,.3,1), box-shadow .28s ease;
   }
@@ -314,13 +346,26 @@
   .modal{
     background:var(--branco); border-radius:14px; padding:22px;
     max-width:380px; width:100%;
+    position:relative;
     transform: scale(.9) translateY(10px);
     opacity:0;
     transition: transform .25s cubic-bezier(.2,.8,.2,1), opacity .25s ease;
   }
   .modal-fundo.aberto .modal{ transform: scale(1) translateY(0); opacity:1; }
-  .modal h3{ font-family:var(--fonte-titulo); font-size:19px; font-weight:600; margin-bottom:4px }
-  .modal .preco-modal{ font-family:var(--fonte-titulo); color:var(--terracota); font-weight:700; font-size:18px; margin-bottom:16px }
+  .btn-voltar-modal{
+    position:absolute; top:14px; left:14px;
+    width:32px; height:32px; border-radius:50%;
+    background:var(--creme); border:none; color:var(--terracota);
+    display:flex; align-items:center; justify-content:center;
+    transition: background-color .15s ease;
+  }
+  .btn-voltar-modal:hover{ background:#f0e6c8 }
+  .modal-categoria{ font-size:11px; color:var(--dourado); font-weight:700; text-transform:uppercase; letter-spacing:.6px; margin-bottom:4px; margin-top:30px }
+  .modal h3{ font-family:var(--fonte-titulo); font-size:20px; font-weight:600; margin-bottom:6px }
+  .modal .preco-modal{ font-family:var(--fonte-titulo); color:var(--terracota); font-weight:700; font-size:19px; margin-bottom:12px }
+  .modal-descricao{ font-size:13.5px; color:var(--texto-claro); line-height:1.5; margin-bottom:16px }
+  .modal-label{ display:block; font-size:12px; font-weight:700; color:var(--texto); margin-bottom:8px }
+  .modal-cores-bloco{ margin-bottom:6px }
   .opcoes-cor{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px }
   .opcao-cor{
     border:1.5px solid #e4dcc8; border-radius:8px;
@@ -352,26 +397,25 @@
   }
   #pre-carregador.saindo{ opacity:0; visibility:hidden; }
   .pre-logo img{
-    width:64px; height:64px; border-radius:16px;
+    width:40px; height:40px; border-radius:10px;
     animation: preLogoPulso 1.4s ease-in-out infinite;
-    box-shadow: 0 10px 32px rgba(0,0,0,.4);
+    box-shadow: 0 6px 20px rgba(0,0,0,.35);
   }
   @keyframes preLogoPulso{
-    0%,100%{ transform:scale(1); }
-    50%{ transform:scale(1.08); }
+    0%,100%{ transform:scale(1); opacity:.85 }
+    50%{ transform:scale(1.08); opacity:1 }
   }
-  .pre-pontos{ display:flex; gap:7px; }
-  .pre-pontos span{
-    width:8px; height:8px; border-radius:50%;
-    background:var(--dourado-claro);
-    animation: prePontoSobe 1s ease-in-out infinite;
+  .pre-liquido-nivel{ animation: preNivel 2.4s ease-in-out infinite alternate; }
+  @keyframes preNivel{
+    0%{ transform:translateY(48px); }
+    100%{ transform:translateY(2px); }
   }
-  .pre-pontos span:nth-child(2){ animation-delay:.15s }
-  .pre-pontos span:nth-child(3){ animation-delay:.3s }
-  @keyframes prePontoSobe{
-    0%,80%,100%{ transform:translateY(0); opacity:.5 }
-    40%{ transform:translateY(-9px); opacity:1 }
+  .pre-onda{ animation: preOnda 1.6s ease-in-out infinite; }
+  @keyframes preOnda{
+    0%,100%{ transform:translateX(0); }
+    50%{ transform:translateX(-20px); }
   }
+  .pre-texto{ color:var(--creme); font-family:var(--fonte-titulo); font-size:13px; opacity:.75; letter-spacing:.3px }
 </style>
 </head>
 <body>
@@ -380,16 +424,32 @@
 
 <div id="pre-carregador">
   <div class="pre-logo"><img src="assets/logo.png" alt="Morfê Personalizados"></div>
-  <div class="pre-pontos"><span></span><span></span><span></span></div>
+  <svg class="pre-caneca" viewBox="0 0 100 100" width="86" height="86">
+    <defs>
+      <clipPath id="clipCaneca">
+        <path d="M27 22h38v46a11 11 0 0 1-11 11H38a11 11 0 0 1-11-11V22Z"/>
+      </clipPath>
+    </defs>
+    <g clip-path="url(#clipCaneca)">
+      <g class="pre-liquido-nivel">
+        <path class="pre-onda" d="M0 20 Q12.5 14 25 20 T50 20 T75 20 T100 20 V70 H0 Z" fill="var(--dourado-claro)"/>
+      </g>
+    </g>
+    <path d="M27 22h38v46a11 11 0 0 1-11 11H38a11 11 0 0 1-11-11V22Z" fill="none" stroke="var(--creme)" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M65 34h7a8 8 0 0 1 0 16h-7" fill="none" stroke="var(--creme)" stroke-width="3" stroke-linecap="round"/>
+  </svg>
+  <div class="pre-texto">carregando o catálogo...</div>
 </div>
 
 <header>
   <div class="header-topo">
-    <img src="assets/logo.png" alt="Morfê Personalizados">
-    <div class="marca">
-      <h1>Morfê Personalizados</h1>
-      <p>Catálogo — peça direto pelo WhatsApp</p>
-    </div>
+    <a href="#" id="link-inicio" class="marca-link" title="Voltar ao início">
+      <img src="assets/logo.png" alt="Morfê Personalizados">
+      <div class="marca">
+        <h1>Morfê Personalizados</h1>
+        <p>Catálogo — peça direto pelo WhatsApp</p>
+      </div>
+    </a>
     <button class="icon-btn" id="btn-favoritos" title="Favoritos">
       <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7.2-4.5-9.6-9C.6 8.6 2 4.9 5.7 4.2c2-.4 4 .5 5 2.1a1 1 0 0 0 1.6 0c1-1.6 3-2.5 5-2.1C20.9 4.9 22.3 8.6 20.5 12 18.2 16.5 12 21 12 21Z"/></svg>
       <span class="contagem" id="contagem-favoritos">0</span>
@@ -454,11 +514,27 @@
 
 <div class="modal-fundo" id="modal-fundo">
   <div class="modal">
+    <button class="btn-voltar-modal" id="btn-voltar-modal" title="Voltar">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6 9 12l6 6"/></svg>
+    </button>
+    <div class="modal-categoria" id="modal-categoria"></div>
     <h3 id="modal-nome"></h3>
     <div class="preco-modal" id="modal-preco"></div>
-    <div class="opcoes-cor" id="modal-cores"></div>
+    <p class="modal-descricao" id="modal-descricao" style="display:none"></p>
+    <div class="modal-cores-bloco" id="modal-cores-bloco" style="display:none">
+      <label class="modal-label">Escolha a cor</label>
+      <div class="opcoes-cor" id="modal-cores"></div>
+    </div>
+    <div class="modal-artes-bloco" id="modal-artes-bloco" style="display:none">
+      <label class="modal-label">Tema/arte pronta</label>
+      <div class="opcoes-cor" id="modal-artes"></div>
+    </div>
+    <div class="campo modal-obs-bloco">
+      <label class="modal-label">Personalização (opcional)</label>
+      <input type="text" id="modal-observacao" placeholder="Ex: nome, time, tema de filme/série...">
+    </div>
     <div class="modal-botoes">
-      <button class="btn btn-secundario" id="modal-cancelar">Cancelar</button>
+      <button class="btn btn-secundario" id="modal-cancelar">Fechar</button>
       <button class="btn btn-primario" id="modal-confirmar">Adicionar à lista</button>
     </div>
   </div>
@@ -475,6 +551,7 @@ const ICONE_CORACAO = '<svg viewBox="0 0 24 24" width="18" height="18" stroke="c
 let categorias = [];
 let produtos = [];
 let coresPorProduto = {};
+let designsPorProduto = {};
 let categoriaAtiva = null;
 let somenteFavoritos = false;
 let termoBusca = '';
@@ -510,10 +587,11 @@ function corParaHex(nome){
 }
 
 async function carregarDados(){
-  const [resCat, resProd, resCores] = await Promise.all([
+  const [resCat, resProd, resCores, resVinculos] = await Promise.all([
     fetch(`${SUPABASE_URL}/rest/v1/catalog_categories?select=id,name,sort_order&order=sort_order`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_products?select=id,category_id,name,price_cents,description,badge,sort_order&is_available=eq.true&order=sort_order`, { headers: HEADERS }),
-    fetch(`${SUPABASE_URL}/rest/v1/catalog_product_colors?select=id,product_id,name,sort_order&order=sort_order`, { headers: HEADERS })
+    fetch(`${SUPABASE_URL}/rest/v1/catalog_product_colors?select=id,product_id,name,sort_order&order=sort_order`, { headers: HEADERS }),
+    fetch(`${SUPABASE_URL}/rest/v1/catalog_product_designs?select=product_id,catalog_designs(id,name,theme)`, { headers: HEADERS })
   ]);
   categorias = await resCat.json();
   produtos = await resProd.json();
@@ -522,6 +600,13 @@ async function carregarDados(){
   cores.forEach(c => {
     if (!coresPorProduto[c.product_id]) coresPorProduto[c.product_id] = [];
     coresPorProduto[c.product_id].push(c);
+  });
+  const vinculos = await resVinculos.json();
+  designsPorProduto = {};
+  vinculos.forEach(v => {
+    if (!v.catalog_designs) return;
+    if (!designsPorProduto[v.product_id]) designsPorProduto[v.product_id] = [];
+    designsPorProduto[v.product_id].push(v.catalog_designs);
   });
 }
 
@@ -606,8 +691,9 @@ function renderGrid(){
     `;
 
     const favBtn = card.querySelector('.fav-btn');
-    favBtn.onclick = () => alternarFavorito(p.id, favBtn);
-    card.querySelector('[data-add]').onclick = (e) => abrirAdicionar(p.id, e.currentTarget);
+    favBtn.onclick = (e) => { e.stopPropagation(); alternarFavorito(p.id, favBtn); };
+    card.querySelector('[data-add]').onclick = (e) => { e.stopPropagation(); abrirAdicionar(p.id, e.currentTarget); };
+    card.onclick = () => abrirDetalhe(p.id);
 
     grid.appendChild(card);
   });
@@ -642,50 +728,100 @@ function alternarFavorito(produtoId, botao){
   renderSidebar('sidebar-mobile');
 }
 
-/* ---- Adicionar à lista / modal de cor ---- */
+/* ---- Adicionar à lista / modal de detalhe ---- */
 let produtoModalId = null;
 let corModalSelecionada = null;
+let arteModalSelecionada = null;
 let origemAdicaoAtual = null;
 
-function abrirAdicionar(produtoId, botaoOrigem){
+function preencherModal(produtoId, botaoOrigem){
   const p = produtos.find(x => x.id === produtoId);
+  const cat = categorias.find(c => c.id === p.category_id);
   const cores = coresPorProduto[produtoId] || [];
-
-  if (cores.length === 0){
-    voarParaCarrinho(botaoOrigem);
-    adicionarAoPedido(p, null);
-    return;
-  }
+  const artes = designsPorProduto[produtoId] || [];
 
   produtoModalId = produtoId;
-  corModalSelecionada = cores[0].name;
-  origemAdicaoAtual = botaoOrigem;
+  corModalSelecionada = cores.length ? cores[0].name : null;
+  arteModalSelecionada = null;
+  origemAdicaoAtual = botaoOrigem || document.getElementById('modal-confirmar');
+
+  document.getElementById('modal-categoria').textContent = cat ? cat.name : '';
   document.getElementById('modal-nome').textContent = p.name;
   document.getElementById('modal-preco').textContent = formatarPreco(p.price_cents);
+  document.getElementById('modal-observacao').value = '';
+
+  const descEl = document.getElementById('modal-descricao');
+  if (p.description){
+    descEl.textContent = p.description;
+    descEl.style.display = 'block';
+  } else {
+    descEl.style.display = 'none';
+  }
+
+  const blocoCores = document.getElementById('modal-cores-bloco');
   const coresEl = document.getElementById('modal-cores');
   coresEl.innerHTML = '';
-  cores.forEach(c => {
-    const btn = document.createElement('button');
-    btn.className = 'opcao-cor' + (c.name === corModalSelecionada ? ' selecionada' : '');
-    btn.innerHTML = `<span style="background:${corParaHex(c.name)}"></span>${c.name}`;
-    btn.onclick = () => {
-      corModalSelecionada = c.name;
-      [...coresEl.children].forEach(el => el.classList.remove('selecionada'));
-      btn.classList.add('selecionada');
-    };
-    coresEl.appendChild(btn);
-  });
+  if (cores.length){
+    blocoCores.style.display = 'block';
+    cores.forEach(c => {
+      const btn = document.createElement('button');
+      btn.className = 'opcao-cor' + (c.name === corModalSelecionada ? ' selecionada' : '');
+      btn.innerHTML = `<span style="background:${corParaHex(c.name)}"></span>${c.name}`;
+      btn.onclick = () => {
+        corModalSelecionada = c.name;
+        [...coresEl.children].forEach(el => el.classList.remove('selecionada'));
+        btn.classList.add('selecionada');
+      };
+      coresEl.appendChild(btn);
+    });
+  } else {
+    blocoCores.style.display = 'none';
+  }
+
+  const blocoArtes = document.getElementById('modal-artes-bloco');
+  const artesEl = document.getElementById('modal-artes');
+  artesEl.innerHTML = '';
+  if (artes.length){
+    blocoArtes.style.display = 'block';
+    artes.forEach(a => {
+      const btn = document.createElement('button');
+      btn.className = 'opcao-cor';
+      btn.textContent = a.name;
+      btn.onclick = () => {
+        const jaSelecionada = arteModalSelecionada === a.name;
+        arteModalSelecionada = jaSelecionada ? null : a.name;
+        [...artesEl.children].forEach(el => el.classList.remove('selecionada'));
+        if (!jaSelecionada) btn.classList.add('selecionada');
+      };
+      artesEl.appendChild(btn);
+    });
+  } else {
+    blocoArtes.style.display = 'none';
+  }
+
   document.getElementById('modal-fundo').classList.add('aberto');
+}
+
+function abrirDetalhe(produtoId){
+  preencherModal(produtoId, null);
+}
+
+function abrirAdicionar(produtoId, botaoOrigem){
+  preencherModal(produtoId, botaoOrigem);
 }
 
 document.getElementById('modal-cancelar').onclick = () => {
   document.getElementById('modal-fundo').classList.remove('aberto');
 };
+document.getElementById('btn-voltar-modal').onclick = () => {
+  document.getElementById('modal-fundo').classList.remove('aberto');
+};
 document.getElementById('modal-confirmar').onclick = () => {
   const p = produtos.find(x => x.id === produtoModalId);
+  const observacao = document.getElementById('modal-observacao').value.trim();
   document.getElementById('modal-fundo').classList.remove('aberto');
   voarParaCarrinho(origemAdicaoAtual || document.getElementById('modal-confirmar'));
-  adicionarAoPedido(p, corModalSelecionada);
+  adicionarAoPedido(p, corModalSelecionada, arteModalSelecionada, observacao);
 };
 
 /* ---- Animação de voo até o carrinho ---- */
@@ -725,12 +861,12 @@ function voarParaCarrinho(elementoOrigem){
   }, 560);
 }
 
-function adicionarAoPedido(produto, cor){
-  const existente = listaPedido.find(i => i.product_id === produto.id && i.cor === cor);
+function adicionarAoPedido(produto, cor, arte, observacao){
+  const existente = listaPedido.find(i => i.product_id === produto.id && i.cor === cor && i.arte === (arte || null) && i.observacao === (observacao || ''));
   if (existente){
     existente.qtd += 1;
   } else {
-    listaPedido.push({ product_id: produto.id, nome: produto.name, preco_cents: produto.price_cents, cor, qtd: 1 });
+    listaPedido.push({ product_id: produto.id, nome: produto.name, preco_cents: produto.price_cents, cor, arte: arte || null, observacao: observacao || '', qtd: 1 });
   }
   salvarPedido();
   renderPainelPedido();
@@ -755,6 +891,8 @@ function renderPainelPedido(){
         <div class="info">
           <div class="nome">${item.nome}</div>
           ${item.cor ? `<div class="cor">Cor: ${item.cor}</div>` : ''}
+          ${item.arte ? `<div class="cor">Arte: ${item.arte}</div>` : ''}
+          ${item.observacao ? `<div class="cor">Obs: ${item.observacao}</div>` : ''}
           <div class="qtd">
             <button data-menos="${idx}">−</button>
             <span>${item.qtd}</span>
@@ -797,6 +935,8 @@ document.getElementById('btn-finalizar').onclick = () => {
   let msg = 'Olá! Gostaria de fazer o seguinte pedido:\n\n';
   listaPedido.forEach(item => {
     msg += `• ${item.nome}${item.cor ? ' (' + item.cor + ')' : ''} x${item.qtd} — ${formatarPreco(item.preco_cents * item.qtd)}\n`;
+    if (item.arte) msg += `   Arte: ${item.arte}\n`;
+    if (item.observacao) msg += `   Obs: ${item.observacao}\n`;
   });
   const total = listaPedido.reduce((s, i) => s + i.preco_cents * i.qtd, 0);
   msg += `\nTotal estimado: ${formatarPreco(total)}`;
@@ -818,6 +958,21 @@ document.getElementById('btn-favoritos').onclick = (e) => {
 document.getElementById('campo-busca').addEventListener('input', (e) => {
   termoBusca = e.target.value;
   renderGrid();
+});
+
+/* ---- Voltar ao início (clique na logo) ---- */
+document.getElementById('link-inicio').addEventListener('click', (e) => {
+  e.preventDefault();
+  categoriaAtiva = null;
+  somenteFavoritos = false;
+  termoBusca = '';
+  document.getElementById('campo-busca').value = '';
+  document.getElementById('btn-favoritos').classList.remove('ativo');
+  document.getElementById('modal-fundo').classList.remove('aberto');
+  document.getElementById('painel-fundo').classList.remove('aberto');
+  document.getElementById('filtro-mobile-painel').classList.remove('aberto');
+  renderTudo();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 /* ---- Filtro mobile ---- */
