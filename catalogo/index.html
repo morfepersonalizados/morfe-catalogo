@@ -359,6 +359,17 @@
   .painel-rodape{ padding:16px 18px; border-top:1px solid #eee2c8 }
   .painel-rodape .total{ display:flex; justify-content:space-between; font-weight:800; font-size:16px; margin-bottom:12px }
 
+  .painel-dados-cliente{ padding:14px 18px; border-top:1px solid #eee2c8; display:flex; flex-direction:column; gap:10px }
+  .painel-dados-cliente label{ display:block; font-size:12px; font-weight:700; color:var(--texto) }
+  .painel-dados-cliente input, .painel-dados-cliente select, .painel-dados-cliente textarea{
+    width:100%; margin-top:5px; padding:9px 10px; border:1px solid #e2d8b8; border-radius:8px;
+    font-family:var(--fonte-corpo); font-size:13px; color:var(--texto); background:#fff; resize:vertical;
+  }
+  .painel-dados-cliente input:focus, .painel-dados-cliente select:focus, .painel-dados-cliente textarea:focus{
+    outline:none; border-color:var(--dourado);
+  }
+  .painel-dados-cliente input.campo-erro{ border-color:#c0392b; box-shadow:0 0 0 1px #c0392b }
+
   /* Modal de seleção de cor */
   .modal-fundo{
     position:fixed; inset:0; z-index:70;
@@ -583,6 +594,24 @@
       </button>
     </div>
     <div class="painel-itens" id="painel-itens"></div>
+    <div class="painel-dados-cliente">
+      <label>Seu nome
+        <input type="text" id="campo-nome-cliente" placeholder="Como podemos te chamar?">
+      </label>
+      <label>É para presente ou uso pessoal?
+        <select id="campo-finalidade-cliente">
+          <option value="">Prefiro não dizer</option>
+          <option value="Presente">Presente</option>
+          <option value="Uso pessoal">Uso pessoal</option>
+        </select>
+      </label>
+      <label>Precisa para quando? (opcional)
+        <input type="text" id="campo-prazo-cliente" placeholder="Ex: até dia 20, sem pressa...">
+      </label>
+      <label>Outras informações (opcional)
+        <textarea id="campo-obs-cliente" rows="2" placeholder="Ex: horário pra retirar, referência de cor..."></textarea>
+      </label>
+    </div>
     <div class="painel-rodape">
       <div class="total"><span>Total estimado</span><span id="total-pedido">R$ 0,00</span></div>
       <button class="btn btn-whatsapp" style="width:100%" id="btn-finalizar">Enviar pedido no WhatsApp</button>
@@ -652,9 +681,11 @@ let termoBusca = '';
 
 let favoritos = new Set(JSON.parse(localStorage.getItem('morfe_favoritos') || '[]'));
 let listaPedido = JSON.parse(localStorage.getItem('morfe_lista_pedido') || '[]');
+let dadosCliente = JSON.parse(localStorage.getItem('morfe_dados_cliente') || '{}');
 
 function salvarFavoritos(){ localStorage.setItem('morfe_favoritos', JSON.stringify([...favoritos])); }
 function salvarPedido(){ localStorage.setItem('morfe_lista_pedido', JSON.stringify(listaPedido)); }
+function salvarDadosCliente(){ localStorage.setItem('morfe_dados_cliente', JSON.stringify(dadosCliente)); }
 
 function formatarPreco(centavos){
   return (centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -1083,9 +1114,47 @@ document.getElementById('painel-fundo').addEventListener('click', (e) => {
   if (e.target.id === 'painel-fundo') fecharPainelPedido();
 });
 
+/* ---- Dados do cliente (nome, presente/uso pessoal, prazo, obs) ---- */
+const campoNomeCliente = document.getElementById('campo-nome-cliente');
+const campoFinalidadeCliente = document.getElementById('campo-finalidade-cliente');
+const campoPrazoCliente = document.getElementById('campo-prazo-cliente');
+const campoObsCliente = document.getElementById('campo-obs-cliente');
+
+campoNomeCliente.value = dadosCliente.nome || '';
+campoFinalidadeCliente.value = dadosCliente.finalidade || '';
+campoPrazoCliente.value = dadosCliente.prazo || '';
+campoObsCliente.value = dadosCliente.obs || '';
+
+function capturarDadosCliente(){
+  dadosCliente = {
+    nome: campoNomeCliente.value.trim(),
+    finalidade: campoFinalidadeCliente.value,
+    prazo: campoPrazoCliente.value.trim(),
+    obs: campoObsCliente.value.trim(),
+  };
+  salvarDadosCliente();
+}
+[campoNomeCliente, campoFinalidadeCliente, campoPrazoCliente, campoObsCliente].forEach(el => {
+  el.addEventListener('input', capturarDadosCliente);
+  el.addEventListener('change', capturarDadosCliente);
+});
+campoNomeCliente.addEventListener('input', () => campoNomeCliente.classList.remove('campo-erro'));
+
 document.getElementById('btn-finalizar').onclick = () => {
   if (listaPedido.length === 0) return;
+  capturarDadosCliente();
+  if (!dadosCliente.nome){
+    campoNomeCliente.classList.add('campo-erro');
+    campoNomeCliente.focus();
+    campoNomeCliente.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
   let msg = 'Olá! Gostaria de fazer o seguinte pedido:\n\n';
+  msg += `Nome: ${dadosCliente.nome}\n`;
+  if (dadosCliente.finalidade) msg += `${dadosCliente.finalidade === 'Presente' ? 'É um presente' : 'É para uso pessoal'}\n`;
+  if (dadosCliente.prazo) msg += `Precisa para: ${dadosCliente.prazo}\n`;
+  msg += '\n';
   listaPedido.forEach(item => {
     msg += `• ${item.nome}${item.cor ? ' (' + item.cor + ')' : ''} x${item.qtd} — ${formatarPreco(item.preco_cents * item.qtd)}\n`;
     if (item.arte) msg += `   Arte: ${item.arte}\n`;
@@ -1093,6 +1162,7 @@ document.getElementById('btn-finalizar').onclick = () => {
   });
   const total = listaPedido.reduce((s, i) => s + i.preco_cents * i.qtd, 0);
   msg += `\nTotal estimado: ${formatarPreco(total)}`;
+  if (dadosCliente.obs) msg += `\n\nOutras informações: ${dadosCliente.obs}`;
   window.open(`https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(msg)}`, '_blank');
   listaPedido = [];
   salvarPedido();
