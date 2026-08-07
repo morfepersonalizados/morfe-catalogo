@@ -329,6 +329,7 @@
   }
   .card .fav-btn.pop{ animation: popCoracao .4s ease; }
   .card .categoria-label{ font-size:10.5px; color:var(--dourado); font-weight:700; text-transform:uppercase; letter-spacing:.6px }
+  .badges-linha{ display:flex; flex-wrap:wrap; gap:5px; margin-bottom:2px }
   .card .nome{ font-family:var(--fonte-titulo); font-size:16.5px; font-weight:600; line-height:1.28; padding-right:20px; color:#241f14 }
   .card .cores{ display:flex; gap:5px; align-items:center; flex-wrap:wrap }
   .card .cores span{
@@ -968,10 +969,23 @@ function tagMidia(url, alt, cssClass){
   return `<img class="${cssClass}" src="${url}" alt="${alt || ''}" loading="lazy">`;
 }
 
+const ROTULOS_BADGE = { mais_vendido: 'Mais vendido', destaque: 'Destaque' };
+function rotulosBadges(p){
+  const rotulos = (p.badges || []).map(b => ROTULOS_BADGE[b]).filter(Boolean);
+  const dias = (Date.now() - new Date(p.created_at).getTime()) / 86400000;
+  if (dias <= 21) rotulos.unshift('Novo');
+  return rotulos;
+}
+function prazoTexto(p){
+  if (p.prazo_dias === null || p.prazo_dias === undefined) return '';
+  if (p.prazo_dias === 0) return 'Mesmo dia';
+  return p.prazo_dias === 1 ? '1 dia útil' : `${p.prazo_dias} dias úteis`;
+}
+
 async function carregarDados(){
   const [resCat, resProd, resCores, resVinculos, resArtes, resSettings, resFaq, resDepoimentos, resMediaProd, resMediaArte] = await Promise.all([
     fetch(`${SUPABASE_URL}/rest/v1/catalog_categories?select=id,name,sort_order&order=sort_order`, { headers: HEADERS }),
-    fetch(`${SUPABASE_URL}/rest/v1/catalog_products?select=id,category_id,name,price_cents,description,badge,image_url,prazo_producao,sort_order&is_available=eq.true&order=sort_order`, { headers: HEADERS }),
+    fetch(`${SUPABASE_URL}/rest/v1/catalog_products?select=id,category_id,name,price_cents,description,badges,image_url,prazo_dias,created_at,sort_order&is_available=eq.true&order=sort_order`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_product_colors?select=id,product_id,name,sort_order&order=sort_order`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_product_designs?select=product_id,design_id,catalog_designs(id,name,theme,image_url)`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_designs?select=id,name,theme,image_url,sort_order&order=theme.nullslast,sort_order`, { headers: HEADERS }),
@@ -1119,7 +1133,7 @@ function renderGrid(){
     card.innerHTML = `
       ${p.image_url ? `<div class="card-imagem">${tagMidia(p.image_url, p.name)}</div>` : ''}
       <button class="fav-btn ${favoritos.has(p.id) ? 'ativo' : ''}" data-id="${p.id}">${ICONE_CORACAO}</button>
-      ${p.badge ? `<div class="badge">${p.badge}</div>` : ''}
+      ${rotulosBadges(p).length ? `<div class="badges-linha">${rotulosBadges(p).map(r => `<span class="badge">${r}</span>`).join('')}</div>` : ''}
       <div class="categoria-label">${cat ? cat.name : ''}</div>
       <div class="nome">${p.name}</div>
       ${coresHtml}
@@ -1190,8 +1204,9 @@ function preencherModal(produtoId, botaoOrigem){
   document.getElementById('modal-observacao').value = '';
 
   const prazoEl = document.getElementById('modal-prazo');
-  if (p.prazo_producao){
-    prazoEl.textContent = '⏱ Prazo: ' + p.prazo_producao;
+  const textoPrazo = prazoTexto(p);
+  if (textoPrazo){
+    prazoEl.textContent = '⏱ Prazo: ' + textoPrazo;
     prazoEl.style.display = 'inline-flex';
   } else {
     prazoEl.style.display = 'none';

@@ -323,12 +323,20 @@
       <input type="text" id="campo-preco" placeholder="Ex: 45,00">
     </div>
     <div class="campo">
-      <label>Selo (opcional — ex: "Mais vendido")</label>
-      <input type="text" id="campo-badge">
+      <label>Selo (opcional)</label>
+      <div class="checkbox-linha" style="margin-bottom:6px">
+        <input type="checkbox" id="campo-badge-vendido">
+        <label for="campo-badge-vendido">Mais vendido</label>
+      </div>
+      <div class="checkbox-linha" style="margin-bottom:6px">
+        <input type="checkbox" id="campo-badge-destaque">
+        <label for="campo-badge-destaque">Destaque</label>
+      </div>
+      <p class="galeria-aviso">O selo "Novo" aparece sozinho por 21 dias depois de cadastrar o produto — não precisa marcar.</p>
     </div>
     <div class="campo">
-      <label>Prazo de produção (opcional — ex: "Mesmo dia" ou "3 a 5 dias úteis")</label>
-      <input type="text" id="campo-prazo">
+      <label>Prazo de produção em dias úteis (opcional — 0 = mesmo dia)</label>
+      <input type="number" id="campo-prazo" min="0" placeholder="Ex: 0, 1, 3...">
     </div>
     <div class="checkbox-linha">
       <input type="checkbox" id="campo-disponivel" checked>
@@ -492,6 +500,19 @@ function tagPreviewMidia(url, tamanhoCss){
   return `<img src="${url}" style="width:${tamanhoCss}; height:${tamanhoCss}; object-fit:cover">`;
 }
 
+const RENOTULOS_BADGE = { mais_vendido: 'Mais vendido', destaque: 'Destaque' };
+function rotulosBadges(p){
+  const rotulos = (p.badges || []).map(b => RENOTULOS_BADGE[b]).filter(Boolean);
+  const dias = (Date.now() - new Date(p.created_at).getTime()) / 86400000;
+  if (dias <= 21) rotulos.unshift('Novo');
+  return rotulos;
+}
+function prazoTexto(p){
+  if (p.prazo_dias === null || p.prazo_dias === undefined) return '';
+  if (p.prazo_dias === 0) return 'Mesmo dia';
+  return p.prazo_dias === 1 ? '1 dia útil' : `${p.prazo_dias} dias úteis`;
+}
+
 function formatarPreco(centavos){
   return (centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
@@ -646,7 +667,7 @@ function renderProdutos(){
     tr.innerHTML = `
       <td style="display:flex; align-items:center; gap:8px">
         ${p.image_url ? `<span style="width:32px; height:32px; border-radius:6px; overflow:hidden; flex-shrink:0; display:block">${tagPreviewMidia(p.image_url, '32px')}</span>` : ''}
-        <span>${p.name}${p.badge ? ' <span class="badge">' + p.badge + '</span>' : ''}</span>
+        <span>${p.name}${rotulosBadges(p).map(r => ' <span class="badge">' + r + '</span>').join('')}</span>
       </td>
       <td>${cat ? cat.name : '—'}</td>
       <td>${formatarPreco(p.price_cents)}</td>
@@ -746,8 +767,9 @@ function abrirModalProduto(produtoId){
     document.getElementById('campo-nome').value = p.name;
     document.getElementById('campo-categoria').value = p.category_id || '';
     document.getElementById('campo-preco').value = (p.price_cents / 100).toFixed(2).replace('.', ',');
-    document.getElementById('campo-badge').value = p.badge || '';
-    document.getElementById('campo-prazo').value = p.prazo_producao || '';
+    document.getElementById('campo-badge-vendido').checked = (p.badges || []).includes('mais_vendido');
+    document.getElementById('campo-badge-destaque').checked = (p.badges || []).includes('destaque');
+    document.getElementById('campo-prazo').value = p.prazo_dias ?? '';
     document.getElementById('campo-disponivel').checked = p.is_available;
     imagemUrlAtual = p.image_url || null;
     blocoCores.style.display = 'block';
@@ -756,7 +778,8 @@ function abrirModalProduto(produtoId){
     document.getElementById('modal-produto-titulo').textContent = 'Novo produto';
     document.getElementById('campo-nome').value = '';
     document.getElementById('campo-preco').value = '';
-    document.getElementById('campo-badge').value = '';
+    document.getElementById('campo-badge-vendido').checked = false;
+    document.getElementById('campo-badge-destaque').checked = false;
     document.getElementById('campo-prazo').value = '';
     document.getElementById('campo-disponivel').checked = true;
     imagemUrlAtual = null;
@@ -768,6 +791,11 @@ function abrirModalProduto(produtoId){
 
 document.getElementById('btn-novo-produto').onclick = () => abrirModalProduto(null);
 document.getElementById('btn-cancelar-produto').onclick = () => document.getElementById('modal-produto-fundo').classList.remove('aberto');
+
+document.getElementById('campo-preco').addEventListener('blur', (e) => {
+  if (!e.target.value.trim()) return;
+  e.target.value = (precoParaCentavos(e.target.value) / 100).toFixed(2).replace('.', ',');
+});
 
 document.getElementById('campo-galeria-produto').addEventListener('change', async (e) => {
   const arquivos = [...e.target.files];
@@ -817,12 +845,16 @@ document.getElementById('btn-add-cor').onclick = async () => {
 };
 
 document.getElementById('btn-salvar-produto').onclick = async () => {
+  const badgesEscolhidos = [];
+  if (document.getElementById('campo-badge-vendido').checked) badgesEscolhidos.push('mais_vendido');
+  if (document.getElementById('campo-badge-destaque').checked) badgesEscolhidos.push('destaque');
+  const prazoTexto = document.getElementById('campo-prazo').value.trim();
   const dados = {
     name: document.getElementById('campo-nome').value.trim(),
     category_id: document.getElementById('campo-categoria').value || null,
     price_cents: precoParaCentavos(document.getElementById('campo-preco').value),
-    badge: document.getElementById('campo-badge').value.trim() || null,
-    prazo_producao: document.getElementById('campo-prazo').value.trim() || null,
+    badges: badgesEscolhidos,
+    prazo_dias: prazoTexto === '' ? null : parseInt(prazoTexto),
     is_available: document.getElementById('campo-disponivel').checked,
     image_url: imagemUrlAtual
   };
