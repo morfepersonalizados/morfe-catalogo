@@ -455,13 +455,12 @@
   .modal.modal-produto::-webkit-scrollbar-track{ background:transparent }
   .modal.modal-produto::-webkit-scrollbar-thumb{ background:#d8cfba; border-radius:10px }
   .modal-grid{
-    display:grid;
-    grid-template-columns:300px 1fr;
-    gap:28px;
+    display:flex;
+    flex-direction:column;
+    gap:20px;
   }
-  .modal-grid.sem-imagem{ grid-template-columns:1fr; }
   .modal-col-imagem .modal-imagem{
-    aspect-ratio:1/1;
+    aspect-ratio:16/9;
     border-radius:12px;
     overflow:hidden;
     background:var(--creme);
@@ -504,8 +503,7 @@
 
   @media (max-width:760px){
     .modal.modal-produto{ padding:16px; max-height:92vh }
-    .modal-grid{ grid-template-columns:1fr; gap:14px }
-    .modal-col-imagem .modal-imagem{ aspect-ratio:4/3 }
+    .modal-grid{ gap:14px }
   }
 
   .modal-relacionados-bloco{ margin-top:26px; padding-top:20px; border-top:1px solid #f1ead6 }
@@ -1379,7 +1377,6 @@ function preencherModal(produtoId, botaoOrigem){
 
   const imgBloco = document.getElementById('modal-imagem');
   const thumbsBloco = document.getElementById('modal-thumbs');
-  const grid = document.getElementById('modal-grid');
   const galeriaProdutoModal = galeriaDoProduto(p);
   const indiceVideoModal = indiceDoVideo(galeriaProdutoModal);
 
@@ -1398,7 +1395,6 @@ function preencherModal(produtoId, botaoOrigem){
 
   if (galeriaProdutoModal.length){
     imgBloco.style.display = 'block';
-    grid.classList.remove('sem-imagem');
     if (galeriaProdutoModal.length > 1){
       thumbsBloco.style.display = 'flex';
       thumbsBloco.innerHTML = galeriaProdutoModal.map((url, i) => `<div class="modal-thumb" data-i="${i}">${tagMidia(url, '')}</div>`).join('');
@@ -1414,7 +1410,6 @@ function preencherModal(produtoId, botaoOrigem){
     imgBloco.onclick = null;
     thumbsBloco.style.display = 'none';
     thumbsBloco.innerHTML = '';
-    grid.classList.add('sem-imagem');
   }
 
   renderRelacionados('bloco-relacionados-tema', 'relacionados-tema', produtosMesmoTema(produtoId));
