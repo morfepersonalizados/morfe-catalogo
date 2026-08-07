@@ -225,6 +225,26 @@
   .filtro-mobile-conteudo h3{ margin-bottom:12px; display:flex; justify-content:space-between; align-items:center }
   .btn-fechar-x{ background:none; border:none; color:var(--texto); padding:4px }
 
+  .galeria-artes-trigger{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    width:100%; margin-bottom:16px; padding:13px 18px;
+    background:linear-gradient(120deg, var(--terracota-2), var(--terracota));
+    color:var(--creme); border:none; border-radius:12px;
+    font-family:var(--fonte-titulo); font-size:14.5px; font-weight:600;
+    transition: transform .15s ease;
+  }
+  .galeria-artes-trigger:hover{ transform:translateY(-1px) }
+  .galeria-artes-trigger .seta{ transition: transform .15s ease }
+  .galeria-artes-trigger:hover .seta{ transform:translateX(3px) }
+
+  .filtro-arte-ativo{
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+    background:var(--creme); border-radius:10px; padding:9px 14px; margin-bottom:16px;
+    font-size:12.5px; color:var(--texto);
+  }
+  .filtro-arte-ativo strong{ color:var(--terracota) }
+  .filtro-arte-ativo button{ background:none; border:none; color:var(--texto-claro); font-size:12px; text-decoration:underline; padding:0; margin-left:auto }
+
   .grid{
     display:grid;
     grid-template-columns:repeat(auto-fill, minmax(250px, 1fr));
@@ -288,7 +308,7 @@
     aspect-ratio:1/1;
     background:var(--creme);
   }
-  .card-imagem img{ width:100%; height:100%; object-fit:cover; display:block }
+  .card-imagem img, .card-imagem video{ width:100%; height:100%; object-fit:cover; display:block }
   .card .fav-btn{
     position:absolute; top:12px; right:12px; z-index:2;
     width:30px; height:30px; border-radius:50%;
@@ -408,7 +428,7 @@
     overflow:hidden;
     background:var(--creme);
   }
-  .modal-col-imagem .modal-imagem img{ width:100%; height:100%; object-fit:cover; display:block }
+  .modal-col-imagem .modal-imagem img, .modal-col-imagem .modal-imagem video{ width:100%; height:100%; object-fit:cover; display:block }
   @media (max-width:760px){
     .modal.modal-produto{ padding:16px; max-height:92vh }
     .modal-grid{ grid-template-columns:1fr; gap:14px }
@@ -442,6 +462,34 @@
   .info-faq-item summary{ cursor:pointer; font-size:13.5px; font-weight:600; color:var(--texto); list-style:none }
   .info-faq-item summary::-webkit-details-marker{ display:none }
   .info-faq-item summary::before{ content:"+ "; color:var(--dourado); font-weight:700 }
+  .opcoes-arte{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:6px }
+  .opcao-arte{
+    width:76px; border:1.5px solid #e4dcc8; border-radius:10px; overflow:hidden;
+    background:#fff; text-align:center; transition: border-color .15s ease, transform .15s ease;
+  }
+  .opcao-arte:hover{ transform:translateY(-2px) }
+  .opcao-arte.selecionada{ border-color:var(--terracota); box-shadow:0 0 0 1.5px var(--terracota) }
+  .opcao-arte .opcao-arte-midia{ width:100%; aspect-ratio:1/1; background:var(--creme); display:flex; align-items:center; justify-content:center; overflow:hidden }
+  .opcao-arte .opcao-arte-midia img, .opcao-arte .opcao-arte-midia video{ width:100%; height:100%; object-fit:cover; display:block }
+  .opcao-arte .opcao-arte-midia .sem-midia{ font-size:9px; color:var(--texto-claro); padding:4px }
+  .opcao-arte .opcao-arte-nome{ font-size:10.5px; font-weight:600; padding:5px 4px; line-height:1.25; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden }
+  .modal-arte-outra{ font-size:12px; color:var(--texto-claro); background:none; border:none; text-decoration:underline; padding:0; margin-top:2px }
+
+  .galeria-tema-secao{ margin-bottom:24px }
+  .galeria-tema-secao h4{ font-family:var(--fonte-titulo); font-size:14.5px; font-weight:600; color:var(--terracota); margin-bottom:12px }
+  .galeria-artes-grid{ display:flex; flex-wrap:wrap; gap:12px }
+  .galeria-arte-card{
+    width:120px; cursor:pointer; border-radius:10px; overflow:hidden;
+    background:var(--creme); border:1px solid #f1ead6; text-align:center;
+    transition: transform .15s ease;
+  }
+  .galeria-arte-card:hover{ transform:translateY(-2px) }
+  .galeria-arte-card .galeria-arte-midia{ width:100%; aspect-ratio:1/1; background:#fff; display:flex; align-items:center; justify-content:center; overflow:hidden }
+  .galeria-arte-card .galeria-arte-midia img, .galeria-arte-card .galeria-arte-midia video{ width:100%; height:100%; object-fit:cover }
+  .galeria-arte-card .galeria-arte-midia .sem-midia{ font-size:10px; color:var(--texto-claro) }
+  .galeria-arte-card .galeria-arte-nome{ font-size:12px; font-weight:600; padding:7px 6px 3px; line-height:1.25 }
+  .galeria-arte-card .galeria-arte-qtd{ font-size:10.5px; color:var(--texto-claro); padding-bottom:7px }
+
   .info-faq-item[open] summary::before{ content:"– "; }
   .info-faq-item p{ margin-top:8px; font-size:13px; color:var(--texto-claro); line-height:1.55 }
   .info-depoimentos-lista{ display:flex; flex-direction:column; gap:14px }
@@ -611,6 +659,14 @@
 <div class="layout">
   <aside class="sidebar" id="sidebar-desktop"></aside>
   <main>
+    <button class="galeria-artes-trigger" id="btn-abrir-galeria-artes">
+      <span>✨ Escolha por tema/arte pronta</span>
+      <span class="seta">→</span>
+    </button>
+    <div class="filtro-arte-ativo" id="filtro-arte-ativo" style="display:none">
+      Mostrando produtos com a arte: <strong id="filtro-arte-nome"></strong>
+      <button id="limpar-filtro-arte">✕ limpar</button>
+    </div>
     <div class="grid" id="grid-produtos">
       <div class="estado-msg">Carregando catálogo…</div>
     </div>
@@ -689,7 +745,7 @@
     </button>
     <div class="modal-grid" id="modal-grid">
       <div class="modal-col-imagem">
-        <div class="modal-imagem" id="modal-imagem" style="display:none"><img id="modal-imagem-img" alt=""></div>
+        <div class="modal-imagem" id="modal-imagem" style="display:none"></div>
       </div>
       <div class="modal-col-info">
         <div class="modal-categoria" id="modal-categoria"></div>
@@ -702,11 +758,11 @@
           <div class="opcoes-cor" id="modal-cores"></div>
         </div>
         <div class="modal-artes-bloco" id="modal-artes-bloco" style="display:none">
-          <label class="modal-label">Tema/arte pronta</label>
-          <div class="opcoes-cor" id="modal-artes"></div>
+          <label class="modal-label">Escolha uma arte pronta</label>
+          <div class="opcoes-arte" id="modal-artes"></div>
         </div>
         <div class="campo modal-obs-bloco">
-          <label class="modal-label">Personalização (opcional)</label>
+          <label class="modal-label" id="modal-obs-label">Personalização (opcional)</label>
           <input type="text" id="modal-observacao" placeholder="Ex: nome, time, tema de filme/série...">
         </div>
         <div class="modal-botoes">
@@ -775,6 +831,17 @@
   </div>
 </div>
 
+<div class="modal-fundo" id="modal-galeria-fundo">
+  <div class="modal modal-info">
+    <button class="btn-fechar-x" id="fechar-galeria" title="Fechar">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <h3 class="info-titulo">Artes prontas</h3>
+    <p style="font-size:13px; color:var(--texto-claro); margin:-10px 0 18px">Clique numa arte pra ver quais produtos aceitam ela.</p>
+    <div id="galeria-artes-conteudo"></div>
+  </div>
+</div>
+
 <script>
 const SUPABASE_URL = "https://rzicwtwowfyogtcqekun.supabase.co";
 const SUPABASE_KEY = "sb_publishable_s4JUXdMlfy70pWIz780U9w_2IVSAI5t";
@@ -787,12 +854,15 @@ let categorias = [];
 let produtos = [];
 let coresPorProduto = {};
 let designsPorProduto = {};
+let todasArtes = [];
+let produtosPorArte = {};
 let settingsLoja = {};
 let faqLista = [];
 let depoimentosLista = [];
 let categoriaAtiva = null;
 let somenteFavoritos = false;
 let termoBusca = '';
+let arteAtiva = null;
 
 let favoritos = new Set(JSON.parse(localStorage.getItem('morfe_favoritos') || '[]'));
 let listaPedido = JSON.parse(localStorage.getItem('morfe_lista_pedido') || '[]');
@@ -826,12 +896,22 @@ function corParaHex(nome){
   return '#CCCCCC';
 }
 
+function ehVideo(url){
+  return /\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(url || '');
+}
+function tagMidia(url, alt, cssClass){
+  if (!url) return '';
+  if (ehVideo(url)) return `<video class="${cssClass}" src="${url}" autoplay muted loop playsinline></video>`;
+  return `<img class="${cssClass}" src="${url}" alt="${alt || ''}" loading="lazy">`;
+}
+
 async function carregarDados(){
-  const [resCat, resProd, resCores, resVinculos, resSettings, resFaq, resDepoimentos] = await Promise.all([
+  const [resCat, resProd, resCores, resVinculos, resArtes, resSettings, resFaq, resDepoimentos] = await Promise.all([
     fetch(`${SUPABASE_URL}/rest/v1/catalog_categories?select=id,name,sort_order&order=sort_order`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_products?select=id,category_id,name,price_cents,description,badge,image_url,prazo_producao,sort_order&is_available=eq.true&order=sort_order`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_product_colors?select=id,product_id,name,sort_order&order=sort_order`, { headers: HEADERS }),
-    fetch(`${SUPABASE_URL}/rest/v1/catalog_product_designs?select=product_id,catalog_designs(id,name,theme)`, { headers: HEADERS }),
+    fetch(`${SUPABASE_URL}/rest/v1/catalog_product_designs?select=product_id,design_id,catalog_designs(id,name,theme,image_url)`, { headers: HEADERS }),
+    fetch(`${SUPABASE_URL}/rest/v1/catalog_designs?select=id,name,theme,image_url,sort_order&order=theme.nullslast,sort_order`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_settings?select=quem_somos,pagamento,entrega,embalagem,troca_garantia&id=eq.1`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_faq?select=id,pergunta,resposta&order=sort_order`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_depoimentos?select=id,texto,imagem_url,autor&order=sort_order`, { headers: HEADERS })
@@ -846,11 +926,15 @@ async function carregarDados(){
   });
   const vinculos = await resVinculos.json();
   designsPorProduto = {};
+  produtosPorArte = {};
   vinculos.forEach(v => {
     if (!v.catalog_designs) return;
     if (!designsPorProduto[v.product_id]) designsPorProduto[v.product_id] = [];
     designsPorProduto[v.product_id].push(v.catalog_designs);
+    if (!produtosPorArte[v.design_id]) produtosPorArte[v.design_id] = [];
+    produtosPorArte[v.design_id].push(v.product_id);
   });
+  todasArtes = await resArtes.json();
   const settingsArr = await resSettings.json();
   settingsLoja = settingsArr[0] || {};
   faqLista = await resFaq.json();
@@ -900,6 +984,7 @@ function produtosFiltrados(){
     if (categoriaAtiva !== null && p.category_id !== categoriaAtiva) return false;
     if (somenteFavoritos && !favoritos.has(p.id)) return false;
     if (termoBusca && !normalizar(p.name).includes(normalizar(termoBusca))) return false;
+    if (arteAtiva && !(produtosPorArte[arteAtiva] || []).includes(p.id)) return false;
     return true;
   });
 }
@@ -926,7 +1011,7 @@ function renderGrid(){
       : '';
 
     card.innerHTML = `
-      ${p.image_url ? `<div class="card-imagem"><img src="${p.image_url}" alt="${p.name}" loading="lazy"></div>` : ''}
+      ${p.image_url ? `<div class="card-imagem">${tagMidia(p.image_url, p.name)}</div>` : ''}
       <button class="fav-btn ${favoritos.has(p.id) ? 'ativo' : ''}" data-id="${p.id}">${ICONE_CORACAO}</button>
       ${p.badge ? `<div class="badge">${p.badge}</div>` : ''}
       <div class="categoria-label">${cat ? cat.name : ''}</div>
@@ -1036,13 +1121,18 @@ function preencherModal(produtoId, botaoOrigem){
 
   const blocoArtes = document.getElementById('modal-artes-bloco');
   const artesEl = document.getElementById('modal-artes');
+  const obsLabel = document.getElementById('modal-obs-label');
   artesEl.innerHTML = '';
   if (artes.length){
     blocoArtes.style.display = 'block';
+    obsLabel.textContent = 'Não achou a arte que queria? Descreva aqui (opcional)';
     artes.forEach(a => {
       const btn = document.createElement('button');
-      btn.className = 'opcao-cor';
-      btn.textContent = a.name;
+      btn.className = 'opcao-arte';
+      btn.innerHTML = `
+        <div class="opcao-arte-midia">${a.image_url ? tagMidia(a.image_url, a.name) : '<span class="sem-midia">sem foto</span>'}</div>
+        <div class="opcao-arte-nome">${a.name}</div>
+      `;
       btn.onclick = () => {
         const jaSelecionada = arteModalSelecionada === a.name;
         arteModalSelecionada = jaSelecionada ? null : a.name;
@@ -1053,17 +1143,17 @@ function preencherModal(produtoId, botaoOrigem){
     });
   } else {
     blocoArtes.style.display = 'none';
+    obsLabel.textContent = 'Personalização (opcional)';
   }
 
   const imgBloco = document.getElementById('modal-imagem');
-  const imgEl = document.getElementById('modal-imagem-img');
   const grid = document.getElementById('modal-grid');
   if (p.image_url){
-    imgEl.src = p.image_url;
-    imgEl.alt = p.name;
+    imgBloco.innerHTML = tagMidia(p.image_url, p.name);
     imgBloco.style.display = 'block';
     grid.classList.remove('sem-imagem');
   } else {
+    imgBloco.innerHTML = '';
     imgBloco.style.display = 'none';
     grid.classList.add('sem-imagem');
   }
@@ -1359,6 +1449,72 @@ document.getElementById('modal-info-fundo').addEventListener('click', (e) => {
   if (e.target.id === 'modal-info-fundo') document.getElementById('modal-info-fundo').classList.remove('aberto');
 });
 
+/* ---- Galeria de artes prontas ---- */
+function renderGaleriaArtes(){
+  const artesComProduto = todasArtes.filter(a => (produtosPorArte[a.id] || []).length > 0);
+  document.getElementById('btn-abrir-galeria-artes').style.display = artesComProduto.length ? 'flex' : 'none';
+
+  const porTema = {};
+  artesComProduto.forEach(a => {
+    const tema = a.theme || 'Outras artes';
+    if (!porTema[tema]) porTema[tema] = [];
+    porTema[tema].push(a);
+  });
+
+  const conteudo = document.getElementById('galeria-artes-conteudo');
+  conteudo.innerHTML = Object.keys(porTema).map(tema => `
+    <div class="galeria-tema-secao">
+      <h4>${tema}</h4>
+      <div class="galeria-artes-grid">
+        ${porTema[tema].map(a => {
+          const n = (produtosPorArte[a.id] || []).length;
+          return `
+            <div class="galeria-arte-card" data-arte="${a.id}">
+              <div class="galeria-arte-midia">${a.image_url ? tagMidia(a.image_url, a.name) : '<span class="sem-midia">sem foto</span>'}</div>
+              <div class="galeria-arte-nome">${a.name}</div>
+              <div class="galeria-arte-qtd">${n} produto${n !== 1 ? 's' : ''}</div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  conteudo.querySelectorAll('[data-arte]').forEach(el => {
+    el.onclick = () => aplicarFiltroArte(el.dataset.arte);
+  });
+}
+
+function aplicarFiltroArte(designId){
+  arteAtiva = designId;
+  const arte = todasArtes.find(a => a.id === designId);
+  document.getElementById('filtro-arte-nome').textContent = arte ? arte.name : '';
+  document.getElementById('filtro-arte-ativo').style.display = 'flex';
+  document.getElementById('modal-galeria-fundo').classList.remove('aberto');
+  document.getElementById('modal-fundo').classList.remove('aberto');
+  categoriaAtiva = null;
+  somenteFavoritos = false;
+  renderTudo();
+  document.getElementById('grid-produtos').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function limparFiltroArte(){
+  arteAtiva = null;
+  document.getElementById('filtro-arte-ativo').style.display = 'none';
+  renderTudo();
+}
+
+document.getElementById('btn-abrir-galeria-artes').onclick = () => {
+  document.getElementById('modal-galeria-fundo').classList.add('aberto');
+};
+document.getElementById('fechar-galeria').onclick = () => {
+  document.getElementById('modal-galeria-fundo').classList.remove('aberto');
+};
+document.getElementById('modal-galeria-fundo').addEventListener('click', (e) => {
+  if (e.target.id === 'modal-galeria-fundo') document.getElementById('modal-galeria-fundo').classList.remove('aberto');
+});
+document.getElementById('limpar-filtro-arte').onclick = limparFiltroArte;
+
 /* ---- Favoritos (atalho no header) ---- */
 document.getElementById('btn-favoritos').onclick = (e) => {
   somenteFavoritos = !somenteFavoritos;
@@ -1378,6 +1534,8 @@ document.getElementById('link-inicio').addEventListener('click', (e) => {
   categoriaAtiva = null;
   somenteFavoritos = false;
   termoBusca = '';
+  arteAtiva = null;
+  document.getElementById('filtro-arte-ativo').style.display = 'none';
   document.getElementById('campo-busca').value = '';
   document.getElementById('btn-favoritos').classList.remove('ativo');
   document.getElementById('modal-fundo').classList.remove('aberto');
@@ -1411,6 +1569,7 @@ async function iniciar(){
     renderTudo();
     renderPainelPedido();
     renderModalInfo();
+    renderGaleriaArtes();
   }catch(err){
     console.error(err);
     document.getElementById('grid-produtos').innerHTML = '<div class="estado-msg">Não foi possível carregar o catálogo agora. Tente novamente em instantes.</div>';

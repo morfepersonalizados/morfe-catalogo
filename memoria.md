@@ -84,6 +84,12 @@
 
 - **2026-08-07** — Login do admin trocado de `alencarjv2015@gmail.com` (pessoal) para `morfepersonalizados@gmail.com` (da loja), a pedido do usuário. Reaproveitada uma conta que já existia nesse projeto Supabase (criada em 2026-07-18, sobra do e-commerce abandonado anterior, nunca vinculada ao catálogo) em vez de criar uma nova — só resetei a senha nela e adicionei em `catalog_admins`. Removido `alencarjv2015@gmail.com` da allowlist `catalog_admins` (não perde a conta, só perde acesso ao painel). Senha nova compartilhada direto com o usuário no chat, nunca fica salva em arquivo do projeto — se precisar, é só pedir reset de novo.
 
+- **2026-08-07** — Redesenhada a escolha de arte/tema, a partir de feedback do usuário ("não achei legal essa de a pessoa ter que escrever"). Considerei e recomendei **contra** a ideia de criar um produto separado pra cada combinação caneca+arte (explodiria pra até ~176 itens quase-duplicados, contradiz a decisão já tomada de preço vir só do modelo). Em vez disso:
+  - `catalog_designs.image_url` (coluna que já existia mas sem uso) ganhou upload no admin.
+  - Dentro do produto, a escolha de arte virou cartõezinhos visuais com foto (`.opcao-arte`), não mais texto puro. Campo de texto livre virou "Não achou a arte que queria? Descreva aqui" — fallback, não opção principal.
+  - Nova **galeria de artes** (botão "✨ Escolha por tema/arte pronta" acima da grade) — mostra todas as artes com produto vinculado, agrupadas por tema, com foto. Clicar numa arte filtra a grade de produtos pra só mostrar quem aceita ela (mesmo padrão de filtro de categoria/favoritos, combinável com eles, com chip visível pra limpar).
+  - Usuário pediu também **suporte a vídeo em loop** (mockups em vídeo) — implementado tanto pra arte quanto pra foto de produto: o admin aceita `image/*,video/*` no upload, e o catálogo detecta a extensão do arquivo (mp4/webm/mov/m4v) e renderiza `<video autoplay muted loop playsinline>` em vez de `<img>` automaticamente, em todo lugar que mostra a mídia (card da grade, quick-view do produto, cards de arte, galeria de artes, miniaturas do admin).
+
 ## Pendências / próximos passos
 - **Urgente**: consertar o deploy automático na Vercel (parado desde ontem ~20h15) — ver nota acima.
 - Configurar `catalogo.morfepersonalizados.com.br` na Vercel + DNS no provedor do domínio.

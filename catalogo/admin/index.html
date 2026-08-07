@@ -184,9 +184,9 @@
   <div class="modal">
     <h3 id="modal-produto-titulo">Novo produto</h3>
     <div class="campo">
-      <label>Foto do produto</label>
+      <label>Foto ou vídeo do produto (vídeo toca em loop, mudo)</label>
       <div id="preview-imagem" style="width:100%; aspect-ratio:1/1; max-width:180px; background:var(--creme); border-radius:8px; overflow:hidden; margin-bottom:8px; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--texto-claro)">sem foto</div>
-      <input type="file" id="campo-imagem" accept="image/*">
+      <input type="file" id="campo-imagem" accept="image/*,video/*">
       <div id="status-upload" style="font-size:12px; color:var(--texto-claro); margin-top:4px"></div>
     </div>
     <div class="campo">
@@ -253,6 +253,12 @@
 <div class="modal-fundo" id="modal-arte-fundo">
   <div class="modal">
     <h3 id="modal-arte-titulo">Nova arte</h3>
+    <div class="campo">
+      <label>Foto ou vídeo de exemplo (vídeo toca em loop, mudo)</label>
+      <div id="preview-arte-imagem" style="width:100%; aspect-ratio:1/1; max-width:180px; background:var(--creme); border-radius:8px; overflow:hidden; margin-bottom:8px; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--texto-claro)">sem foto</div>
+      <input type="file" id="campo-arte-imagem" accept="image/*,video/*">
+      <div id="status-upload-arte" style="font-size:12px; color:var(--texto-claro); margin-top:4px"></div>
+    </div>
     <div class="campo">
       <label>Nome (ex: Homem-Aranha)</label>
       <input type="text" id="campo-arte-nome">
@@ -340,11 +346,21 @@ let produtosPorArte = {};
 let produtoEditandoId = null;
 let imagemUrlAtual = null;
 let arteEditandoId = null;
+let imagemArteUrlAtual = null;
 let faq = [];
 let faqEditandoId = null;
 let depoimentos = [];
 let depoimentoEditandoId = null;
 let imagemDepoimentoUrlAtual = null;
+
+function ehVideo(url){
+  return /\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(url || '');
+}
+function tagPreviewMidia(url, tamanhoCss){
+  if (!url) return '';
+  if (ehVideo(url)) return `<video src="${url}" style="width:${tamanhoCss}; height:${tamanhoCss}; object-fit:cover" autoplay muted loop playsinline></video>`;
+  return `<img src="${url}" style="width:${tamanhoCss}; height:${tamanhoCss}; object-fit:cover">`;
+}
 
 function formatarPreco(centavos){
   return (centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -443,7 +459,7 @@ function renderProdutos(){
     if (!p.is_available) tr.className = 'indisponivel';
     tr.innerHTML = `
       <td style="display:flex; align-items:center; gap:8px">
-        ${p.image_url ? `<img src="${p.image_url}" style="width:32px; height:32px; border-radius:6px; object-fit:cover; flex-shrink:0">` : ''}
+        ${p.image_url ? `<span style="width:32px; height:32px; border-radius:6px; overflow:hidden; flex-shrink:0; display:block">${tagPreviewMidia(p.image_url, '32px')}</span>` : ''}
         <span>${p.name}${p.badge ? ' <span class="badge">' + p.badge + '</span>' : ''}</span>
       </td>
       <td>${cat ? cat.name : '—'}</td>
@@ -503,11 +519,7 @@ function renderListaCores(produtoId){
 
 function atualizarPreviewImagem(){
   const el = document.getElementById('preview-imagem');
-  if (imagemUrlAtual){
-    el.innerHTML = `<img src="${imagemUrlAtual}" style="width:100%; height:100%; object-fit:cover">`;
-  } else {
-    el.innerHTML = 'sem foto';
-  }
+  el.innerHTML = imagemUrlAtual ? tagPreviewMidia(imagemUrlAtual, '100%') : 'sem foto';
 }
 
 function abrirModalProduto(produtoId){
@@ -634,7 +646,10 @@ function renderArtes(){
     const n = (produtosPorArte[a.id] || []).length;
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${a.name}</td>
+      <td style="display:flex; align-items:center; gap:8px">
+        ${a.image_url ? `<span style="width:32px; height:32px; border-radius:6px; overflow:hidden; flex-shrink:0; display:block">${tagPreviewMidia(a.image_url, '32px')}</span>` : ''}
+        <span>${a.name}</span>
+      </td>
       <td>${a.theme || '—'}</td>
       <td>${n}</td>
       <td class="acoes">
@@ -651,10 +666,16 @@ function renderArtes(){
 function abrirModalArte(designId){
   arteEditandoId = designId || null;
   const ligados = designId ? (produtosPorArte[designId] || []) : [];
+  const arte = designId ? artes.find(a => a.id === designId) : null;
+
+  document.getElementById('campo-arte-imagem').value = '';
+  document.getElementById('status-upload-arte').textContent = '';
+  imagemArteUrlAtual = arte ? (arte.image_url || null) : null;
+  document.getElementById('preview-arte-imagem').innerHTML = imagemArteUrlAtual ? tagPreviewMidia(imagemArteUrlAtual, '100%') : 'sem foto';
 
   document.getElementById('modal-arte-titulo').textContent = designId ? 'Editar arte' : 'Nova arte';
-  document.getElementById('campo-arte-nome').value = designId ? artes.find(a => a.id === designId).name : '';
-  document.getElementById('campo-arte-tema').value = designId ? (artes.find(a => a.id === designId).theme || '') : '';
+  document.getElementById('campo-arte-nome').value = arte ? arte.name : '';
+  document.getElementById('campo-arte-tema').value = arte ? (arte.theme || '') : '';
 
   const listaEl = document.getElementById('lista-produtos-arte');
   listaEl.innerHTML = '';
@@ -675,6 +696,23 @@ function abrirModalArte(designId){
 document.getElementById('btn-nova-arte').onclick = () => abrirModalArte(null);
 document.getElementById('btn-cancelar-arte').onclick = () => document.getElementById('modal-arte-fundo').classList.remove('aberto');
 
+document.getElementById('campo-arte-imagem').addEventListener('change', async (e) => {
+  const arquivo = e.target.files[0];
+  if (!arquivo) return;
+  const statusEl = document.getElementById('status-upload-arte');
+  statusEl.textContent = 'Enviando...';
+  const caminho = `artes/${Date.now()}-${arquivo.name.replace(/[^a-zA-Z0-9._-]/g, '')}`;
+  const { error } = await supabase.storage.from('catalog-images').upload(caminho, arquivo, { upsert: true });
+  if (error){
+    statusEl.textContent = 'Erro ao enviar: ' + error.message;
+    return;
+  }
+  const { data } = supabase.storage.from('catalog-images').getPublicUrl(caminho);
+  imagemArteUrlAtual = data.publicUrl;
+  document.getElementById('preview-arte-imagem').innerHTML = tagPreviewMidia(imagemArteUrlAtual, '100%');
+  statusEl.textContent = 'Enviado.';
+});
+
 document.getElementById('btn-salvar-arte').onclick = async () => {
   const nome = document.getElementById('campo-arte-nome').value.trim();
   const tema = document.getElementById('campo-arte-tema').value.trim() || null;
@@ -684,10 +722,10 @@ document.getElementById('btn-salvar-arte').onclick = async () => {
 
   let designId = arteEditandoId;
   if (designId){
-    await supabase.from('catalog_designs').update({ name: nome, theme: tema }).eq('id', designId);
+    await supabase.from('catalog_designs').update({ name: nome, theme: tema, image_url: imagemArteUrlAtual }).eq('id', designId);
     await supabase.from('catalog_product_designs').delete().eq('design_id', designId);
   } else {
-    const { data } = await supabase.from('catalog_designs').insert({ name: nome, theme: tema }).select().single();
+    const { data } = await supabase.from('catalog_designs').insert({ name: nome, theme: tema, image_url: imagemArteUrlAtual }).select().single();
     designId = data.id;
   }
 
