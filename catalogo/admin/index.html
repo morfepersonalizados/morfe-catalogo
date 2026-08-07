@@ -353,6 +353,10 @@
       <input type="text" id="campo-nome">
     </div>
     <div class="campo">
+      <label>Descrição (opcional — aparece no catálogo)</label>
+      <textarea id="campo-descricao" rows="3"></textarea>
+    </div>
+    <div class="campo">
       <label>Categoria</label>
       <select id="campo-categoria"></select>
     </div>
@@ -889,6 +893,7 @@ function abrirModalProduto(produtoId){
     const p = produtos.find(x => x.id === produtoId);
     document.getElementById('modal-produto-titulo').textContent = 'Editar produto';
     document.getElementById('campo-nome').value = p.name;
+    document.getElementById('campo-descricao').value = p.description || '';
     document.getElementById('campo-categoria').value = p.category_id || '';
     document.getElementById('campo-preco').value = (p.price_cents / 100).toFixed(2).replace('.', ',');
     document.getElementById('campo-badge-vendido').checked = (p.badges || []).includes('mais_vendido');
@@ -901,6 +906,7 @@ function abrirModalProduto(produtoId){
   } else {
     document.getElementById('modal-produto-titulo').textContent = 'Novo produto';
     document.getElementById('campo-nome').value = '';
+    document.getElementById('campo-descricao').value = '';
     document.getElementById('campo-preco').value = '';
     document.getElementById('campo-badge-vendido').checked = false;
     document.getElementById('campo-badge-destaque').checked = false;
@@ -982,6 +988,7 @@ document.getElementById('btn-salvar-produto').onclick = async () => {
   const prazoTexto = document.getElementById('campo-prazo').value.trim();
   const dados = {
     name: document.getElementById('campo-nome').value.trim(),
+    description: document.getElementById('campo-descricao').value.trim() || null,
     category_id: document.getElementById('campo-categoria').value || null,
     price_cents: precoParaCentavos(document.getElementById('campo-preco').value),
     badges: badgesEscolhidos,
@@ -995,11 +1002,18 @@ document.getElementById('btn-salvar-produto').onclick = async () => {
   }
   if (produtoEditandoId){
     await supabase.from('catalog_products').update(dados).eq('id', produtoEditandoId);
+    document.getElementById('modal-produto-fundo').classList.remove('aberto');
+    await carregarTudo();
   } else {
-    await supabase.from('catalog_products').insert(dados);
+    const { data: novo } = await supabase.from('catalog_products').insert(dados).select().single();
+    await carregarTudo();
+    if (novo){
+      abrirModalProduto(novo.id);
+      document.getElementById('status-galeria-produto').textContent = 'Produto salvo! Agora já pode adicionar mais fotos/vídeos abaixo.';
+    } else {
+      document.getElementById('modal-produto-fundo').classList.remove('aberto');
+    }
   }
-  document.getElementById('modal-produto-fundo').classList.remove('aberto');
-  await carregarTudo();
 };
 
 async function excluirProduto(id){
