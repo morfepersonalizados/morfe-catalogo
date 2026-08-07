@@ -301,6 +301,7 @@
       <label>Foto ou vídeo de capa (vídeo toca em loop, mudo)</label>
       <div id="preview-imagem" style="width:100%; aspect-ratio:1/1; max-width:180px; background:var(--creme); border-radius:8px; overflow:hidden; margin-bottom:8px; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--texto-claro)">sem foto</div>
       <input type="file" id="campo-imagem" accept="image/*,video/*">
+      <button type="button" class="btn btn-secundario" id="btn-remover-imagem" style="margin-top:6px; font-size:12px; padding:6px 10px">Remover foto</button>
       <div id="status-upload" style="font-size:12px; color:var(--texto-claro); margin-top:4px"></div>
     </div>
     <div class="campo" id="bloco-galeria-produto" style="display:none">
@@ -386,6 +387,7 @@
       <label>Foto ou vídeo de capa (vídeo toca em loop, mudo)</label>
       <div id="preview-arte-imagem" style="width:100%; aspect-ratio:1/1; max-width:180px; background:var(--creme); border-radius:8px; overflow:hidden; margin-bottom:8px; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--texto-claro)">sem foto</div>
       <input type="file" id="campo-arte-imagem" accept="image/*,video/*">
+      <button type="button" class="btn btn-secundario" id="btn-remover-arte-imagem" style="margin-top:6px; font-size:12px; padding:6px 10px">Remover foto</button>
       <div id="status-upload-arte" style="font-size:12px; color:var(--texto-claro); margin-top:4px"></div>
     </div>
     <div class="campo" id="bloco-galeria-arte" style="display:none">
@@ -454,6 +456,7 @@
       <label>Foto/print (opcional — só use se quiser mostrar a imagem em vez do texto)</label>
       <div id="preview-depoimento-imagem" style="width:100%; max-width:220px; background:var(--creme); border-radius:8px; overflow:hidden; margin-bottom:8px; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--texto-claro); min-height:60px">sem imagem</div>
       <input type="file" id="campo-depoimento-imagem" accept="image/*">
+      <button type="button" class="btn btn-secundario" id="btn-remover-depoimento-imagem" style="margin-top:6px; font-size:12px; padding:6px 10px">Remover foto</button>
       <div id="status-upload-depoimento" style="font-size:12px; color:var(--texto-claro); margin-top:4px"></div>
     </div>
     <div class="campo">
@@ -834,6 +837,13 @@ document.getElementById('campo-imagem').addEventListener('change', async (e) => 
   statusEl.textContent = 'Imagem enviada.';
 });
 
+document.getElementById('btn-remover-imagem').onclick = () => {
+  imagemUrlAtual = null;
+  document.getElementById('campo-imagem').value = '';
+  document.getElementById('status-upload').textContent = '';
+  atualizarPreviewImagem();
+};
+
 document.getElementById('btn-add-cor').onclick = async () => {
   const nome = document.getElementById('nova-cor').value.trim();
   if (!nome || !produtoEditandoId) return;
@@ -1000,6 +1010,13 @@ document.getElementById('campo-arte-imagem').addEventListener('change', async (e
   document.getElementById('preview-arte-imagem').innerHTML = tagPreviewMidia(imagemArteUrlAtual, '100%');
   statusEl.textContent = 'Enviado.';
 });
+
+document.getElementById('btn-remover-arte-imagem').onclick = () => {
+  imagemArteUrlAtual = null;
+  document.getElementById('campo-arte-imagem').value = '';
+  document.getElementById('status-upload-arte').textContent = '';
+  document.getElementById('preview-arte-imagem').innerHTML = 'sem foto';
+};
 
 document.getElementById('campo-galeria-arte').addEventListener('change', async (e) => {
   const arquivos = [...e.target.files];
@@ -1173,6 +1190,13 @@ document.getElementById('campo-depoimento-imagem').addEventListener('change', as
   atualizarPreviewDepoimento();
   statusEl.textContent = 'Imagem enviada.';
 });
+
+document.getElementById('btn-remover-depoimento-imagem').onclick = () => {
+  imagemDepoimentoUrlAtual = null;
+  document.getElementById('campo-depoimento-imagem').value = '';
+  document.getElementById('status-upload-depoimento').textContent = '';
+  atualizarPreviewDepoimento();
+};
 
 document.getElementById('btn-salvar-depoimento').onclick = async () => {
   const dados = {

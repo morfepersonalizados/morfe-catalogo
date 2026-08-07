@@ -34,14 +34,30 @@
     bottom:-18%; left:-12%; width:55%; height:55%;
     background:radial-gradient(circle, rgba(76,37,7,.10), transparent 65%);
   }
-  .fundo-lampada{
-    top:20%; left:58%; width:36%; height:36%;
-    animation: fundoLampadaRespira 9s ease-in-out infinite -4.5s;
+  .fundo-blob-3{
+    top:30%; left:-14%; width:42%; height:42%;
+    background:radial-gradient(circle, rgba(212,175,82,.16), transparent 65%);
   }
-  .fundo-lampada svg{ width:100%; height:100%; }
-  @keyframes fundoLampadaRespira{
-    0%,100%{ opacity:.04; }
-    50%{ opacity:.09; }
+  .fundo-blob-4{
+    bottom:-14%; right:-8%; width:48%; height:48%;
+    background:radial-gradient(circle, rgba(76,37,7,.13), transparent 65%);
+  }
+  .fundo-lampada svg, .fundo-caneca svg, .fundo-estrela svg{ width:100%; height:100%; }
+  .fundo-lampada{
+    top:14%; left:60%; width:30%; height:30%;
+    animation: fundoIconeRespira 9s ease-in-out infinite -4.5s;
+  }
+  .fundo-caneca{
+    bottom:10%; left:6%; width:17%; height:17%;
+    animation: fundoIconeRespira 10s ease-in-out infinite -2s;
+  }
+  .fundo-estrela{
+    top:8%; right:16%; width:13%; height:13%;
+    animation: fundoIconeRespira 7s ease-in-out infinite -5.5s;
+  }
+  @keyframes fundoIconeRespira{
+    0%,100%{ opacity:.05; }
+    50%{ opacity:.12; }
   }
 
   header{
@@ -245,6 +261,13 @@
   .filtro-arte-ativo strong{ color:var(--terracota) }
   .filtro-arte-ativo button{ background:none; border:none; color:var(--texto-claro); font-size:12px; text-decoration:underline; padding:0; margin-left:auto }
 
+  .barra-ordenar{ display:flex; align-items:center; justify-content:flex-end; gap:8px; margin-bottom:14px }
+  .barra-ordenar label{ font-size:12.5px; color:var(--texto-claro) }
+  .barra-ordenar select{
+    font-size:12.5px; padding:7px 10px; border-radius:8px; border:1.5px solid #e4dcc8;
+    background:var(--branco); color:var(--texto); font-family:var(--fonte-corpo);
+  }
+
   .grid{
     display:grid;
     grid-template-columns:repeat(auto-fill, minmax(250px, 1fr));
@@ -307,8 +330,16 @@
     margin:-17px -16px 4px;
     aspect-ratio:1/1;
     background:var(--creme);
+    position:relative;
   }
   .card-imagem img, .card-imagem video{ width:100%; height:100%; object-fit:cover; display:block }
+  .badge-video{
+    position:absolute; z-index:2; display:flex; align-items:center; gap:4px;
+    background:rgba(0,0,0,.6); color:#fff; font-size:10.5px; font-weight:700;
+    padding:4px 9px 4px 7px; border-radius:20px; pointer-events:none;
+  }
+  .badge-video svg{ flex-shrink:0 }
+  .card-imagem .badge-video{ top:8px; left:8px }
   .card .fav-btn{
     position:absolute; top:12px; right:12px; z-index:2;
     width:30px; height:30px; border-radius:50%;
@@ -433,9 +464,11 @@
     border-radius:12px;
     overflow:hidden;
     background:var(--creme);
+    position:relative;
   }
   .modal-col-imagem .modal-imagem img, .modal-col-imagem .modal-imagem video{ width:100%; height:100%; object-fit:cover; display:block }
   .modal-col-imagem .modal-imagem{ cursor:zoom-in }
+  .modal-imagem .badge-video{ top:10px; left:10px; font-size:12px; padding:5px 11px 5px 8px; pointer-events:auto; cursor:pointer }
   .modal-thumbs{ display:flex; gap:8px; margin-top:8px; flex-wrap:wrap }
   .modal-thumb{
     width:52px; height:52px; border-radius:8px; overflow:hidden; cursor:pointer;
@@ -639,12 +672,28 @@
 <div id="fundo-interativo">
   <div class="fundo-camada fundo-blob-1" data-profundidade="16"></div>
   <div class="fundo-camada fundo-blob-2" data-profundidade="26"></div>
+  <div class="fundo-camada fundo-blob-3" data-profundidade="20"></div>
+  <div class="fundo-camada fundo-blob-4" data-profundidade="30"></div>
   <div class="fundo-camada fundo-lampada" data-profundidade="38">
     <svg viewBox="0 0 100 100" fill="none" stroke="var(--dourado)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M50 10c-14 0-24 10-24 23 0 9 5 15 9 20 3 3 5 6 5 10h20c0-4 2-7 5-10 4-5 9-11 9-20 0-13-10-23-24-23Z"/>
       <path d="M42 68h16M44 76h12M47 84h6"/>
       <path d="M50 20v14M40 34l7 6M60 34l-7 6" stroke-width="1.6"/>
       <path d="M50 2v6M20 22l5 4M80 22l-5 4" stroke-width="1.6" opacity=".6"/>
+    </svg>
+  </div>
+  <div class="fundo-camada fundo-caneca" data-profundidade="24">
+    <svg viewBox="0 0 100 100" fill="none" stroke="var(--terracota)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 30h40v34a12 12 0 0 1-12 12H34a12 12 0 0 1-12-12V30Z"/>
+      <path d="M62 38h8a9 9 0 0 1 0 18h-8" stroke-width="1.6"/>
+      <path d="M30 24c0-6 4-10 4-16" stroke-width="1.4" opacity=".6"/>
+      <path d="M44 24c0-8 6-12 6-18" stroke-width="1.4" opacity=".6"/>
+    </svg>
+  </div>
+  <div class="fundo-camada fundo-estrela" data-profundidade="44">
+    <svg viewBox="0 0 100 100" fill="none" stroke="var(--dourado)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M50 10c2 18 10 26 28 28-18 2-26 10-28 28-2-18-10-26-28-28 18-2 26-10 28-28Z"/>
+      <path d="M78 70c1 8 5 12 13 13-8 1-12 5-13 13-1-8-5-12-13-13 8-1 12-5 13-13Z" stroke-width="1.4" opacity=".7"/>
     </svg>
   </div>
 </div>
@@ -711,6 +760,15 @@
     <div class="filtro-arte-ativo" id="filtro-arte-ativo" style="display:none">
       Mostrando produtos com a arte: <strong id="filtro-arte-nome"></strong>
       <button id="limpar-filtro-arte">✕ limpar</button>
+    </div>
+    <div class="barra-ordenar">
+      <label for="campo-ordenar">Ordenar por</label>
+      <select id="campo-ordenar">
+        <option value="">Padrão</option>
+        <option value="preco_asc">Menor preço</option>
+        <option value="preco_desc">Maior preço</option>
+        <option value="mais_pedido">Mais pedido</option>
+      </select>
     </div>
     <div class="grid" id="grid-produtos">
       <div class="estado-msg">Carregando catálogo…</div>
@@ -927,6 +985,8 @@ let categoriaAtiva = null;
 let somenteFavoritos = false;
 let termoBusca = '';
 let arteAtiva = null;
+let ordenacaoAtiva = '';
+let interessePorProduto = {};
 
 let favoritos = new Set(JSON.parse(localStorage.getItem('morfe_favoritos') || '[]'));
 let listaPedido = JSON.parse(localStorage.getItem('morfe_lista_pedido') || '[]');
@@ -976,6 +1036,16 @@ function rotulosBadges(p){
   if (dias <= 21) rotulos.unshift('Novo');
   return rotulos;
 }
+const ICONE_PLAY = '<svg viewBox="0 0 24 24" width="9" height="9" fill="currentColor"><path d="M6 4l14 8-14 8V4Z"/></svg>';
+const ICONE_EXPANDIR_SVG = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>';
+const ICONE_PLAY_SVG = '<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M7 4l13 8-13 8V4Z"/></svg>';
+function indiceDoVideo(galeria){
+  return galeria.findIndex(ehVideo);
+}
+function tagBadgeVideo(galeria){
+  return indiceDoVideo(galeria) === -1 ? '' : `<div class="badge-video">${ICONE_PLAY} Vídeo</div>`;
+}
+
 function prazoTexto(p){
   if (p.prazo_dias === null || p.prazo_dias === undefined) return '';
   if (p.prazo_dias === 0) return 'Mesmo dia';
@@ -983,7 +1053,7 @@ function prazoTexto(p){
 }
 
 async function carregarDados(){
-  const [resCat, resProd, resCores, resVinculos, resArtes, resSettings, resFaq, resDepoimentos, resMediaProd, resMediaArte] = await Promise.all([
+  const [resCat, resProd, resCores, resVinculos, resArtes, resSettings, resFaq, resDepoimentos, resMediaProd, resMediaArte, resInteresse] = await Promise.all([
     fetch(`${SUPABASE_URL}/rest/v1/catalog_categories?select=id,name,sort_order&order=sort_order`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_products?select=id,category_id,name,price_cents,description,badges,image_url,prazo_dias,created_at,sort_order&is_available=eq.true&order=sort_order`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_product_colors?select=id,product_id,name,sort_order&order=sort_order`, { headers: HEADERS }),
@@ -993,7 +1063,8 @@ async function carregarDados(){
     fetch(`${SUPABASE_URL}/rest/v1/catalog_faq?select=id,pergunta,resposta&order=sort_order`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_depoimentos?select=id,texto,imagem_url,autor&order=sort_order`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_product_media?select=product_id,url,sort_order&order=sort_order`, { headers: HEADERS }),
-    fetch(`${SUPABASE_URL}/rest/v1/catalog_design_media?select=design_id,url,sort_order&order=sort_order`, { headers: HEADERS })
+    fetch(`${SUPABASE_URL}/rest/v1/catalog_design_media?select=design_id,url,sort_order&order=sort_order`, { headers: HEADERS }),
+    fetch(`${SUPABASE_URL}/rest/v1/catalog_interesse?select=product_id`, { headers: HEADERS })
   ]);
   categorias = await resCat.json();
   produtos = await resProd.json();
@@ -1030,6 +1101,19 @@ async function carregarDados(){
     if (!mediaPorArte[m.design_id]) mediaPorArte[m.design_id] = [];
     mediaPorArte[m.design_id].push(m.url);
   });
+  const interesse = await resInteresse.json();
+  interessePorProduto = {};
+  interesse.forEach(i => {
+    interessePorProduto[i.product_id] = (interessePorProduto[i.product_id] || 0) + 1;
+  });
+}
+
+function registrarInteresse(produtoId){
+  fetch(`${SUPABASE_URL}/rest/v1/catalog_interesse`, {
+    method: 'POST',
+    headers: { ...HEADERS, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+    body: JSON.stringify({ product_id: produtoId })
+  }).catch(() => {});
 }
 
 function galeriaDoProduto(p){
@@ -1109,9 +1193,17 @@ function produtosFiltrados(){
   });
 }
 
+function aplicarOrdenacao(lista){
+  const arr = [...lista];
+  if (ordenacaoAtiva === 'preco_asc') arr.sort((a, b) => a.price_cents - b.price_cents);
+  else if (ordenacaoAtiva === 'preco_desc') arr.sort((a, b) => b.price_cents - a.price_cents);
+  else if (ordenacaoAtiva === 'mais_pedido') arr.sort((a, b) => (interessePorProduto[b.id] || 0) - (interessePorProduto[a.id] || 0));
+  return arr;
+}
+
 function renderGrid(){
   const grid = document.getElementById('grid-produtos');
-  const lista = produtosFiltrados();
+  const lista = aplicarOrdenacao(produtosFiltrados());
   grid.innerHTML = '';
 
   if (lista.length === 0){
@@ -1131,7 +1223,7 @@ function renderGrid(){
       : '';
 
     card.innerHTML = `
-      ${p.image_url ? `<div class="card-imagem">${tagMidia(p.image_url, p.name)}</div>` : ''}
+      ${p.image_url ? `<div class="card-imagem">${tagMidia(p.image_url, p.name)}${tagBadgeVideo(galeriaDoProduto(p))}</div>` : ''}
       <button class="fav-btn ${favoritos.has(p.id) ? 'ativo' : ''}" data-id="${p.id}">${ICONE_CORACAO}</button>
       ${rotulosBadges(p).length ? `<div class="badges-linha">${rotulosBadges(p).map(r => `<span class="badge">${r}</span>`).join('')}</div>` : ''}
       <div class="categoria-label">${cat ? cat.name : ''}</div>
@@ -1249,6 +1341,7 @@ function preencherModal(produtoId, botaoOrigem){
     obsLabel.textContent = 'Não achou a arte que queria? Descreva aqui (opcional)';
     artes.forEach(a => {
       const galeriaArte = galeriaDaArte(a);
+      const idxVideoArte = indiceDoVideo(galeriaArte);
       const btn = document.createElement('div');
       btn.className = 'opcao-arte';
       btn.setAttribute('role', 'button');
@@ -1256,7 +1349,7 @@ function preencherModal(produtoId, botaoOrigem){
       btn.innerHTML = `
         <div class="opcao-arte-midia">
           ${a.image_url ? tagMidia(a.image_url, a.name) : '<span class="sem-midia">sem foto</span>'}
-          ${galeriaArte.length > 1 ? `<button type="button" class="galeria-arte-expandir" title="Ver todas as fotos/vídeos"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>` : ''}
+          ${galeriaArte.length > 1 ? `<button type="button" class="galeria-arte-expandir" title="${idxVideoArte !== -1 ? 'Ver vídeo' : 'Ver todas as fotos'}">${idxVideoArte !== -1 ? ICONE_PLAY_SVG : ICONE_EXPANDIR_SVG}</button>` : ''}
         </div>
         <div class="opcao-arte-nome">${a.name}</div>
       `;
@@ -1273,7 +1366,7 @@ function preencherModal(produtoId, botaoOrigem){
       if (btnExpandir){
         btnExpandir.onclick = (e) => {
           e.stopPropagation();
-          abrirLightbox(galeriaArte, 0);
+          abrirLightbox(galeriaArte, idxVideoArte !== -1 ? idxVideoArte : 0);
         };
       }
       artesEl.appendChild(btn);
@@ -1287,10 +1380,18 @@ function preencherModal(produtoId, botaoOrigem){
   const thumbsBloco = document.getElementById('modal-thumbs');
   const grid = document.getElementById('modal-grid');
   const galeriaProdutoModal = galeriaDoProduto(p);
+  const indiceVideoModal = indiceDoVideo(galeriaProdutoModal);
 
   function mostrarMidiaModal(indice){
-    imgBloco.innerHTML = tagMidia(galeriaProdutoModal[indice], p.name);
+    imgBloco.innerHTML = tagMidia(galeriaProdutoModal[indice], p.name) + (indiceVideoModal !== -1 ? `<div class="badge-video">${ICONE_PLAY} Vídeo</div>` : '');
     imgBloco.onclick = () => abrirLightbox(galeriaProdutoModal, indice);
+    const badgeVideoEl = imgBloco.querySelector('.badge-video');
+    if (badgeVideoEl){
+      badgeVideoEl.onclick = (e) => {
+        e.stopPropagation();
+        abrirLightbox(galeriaProdutoModal, indiceVideoModal);
+      };
+    }
     [...thumbsBloco.children].forEach((el, i) => el.classList.toggle('ativa', i === indice));
   }
 
@@ -1423,6 +1524,7 @@ function voarParaCarrinho(elementoOrigem){
 }
 
 function adicionarAoPedido(produto, cor, arte, observacao){
+  registrarInteresse(produto.id);
   const existente = listaPedido.find(i => i.product_id === produto.id && i.cor === cor && i.arte === (arte || null) && i.observacao === (observacao || ''));
   if (existente){
     existente.qtd += 1;
@@ -1626,11 +1728,12 @@ function renderGaleriaArtes(){
         ${porTema[tema].map(a => {
           const n = (produtosPorArte[a.id] || []).length;
           const galeria = galeriaDaArte(a);
+          const idxVideo = indiceDoVideo(galeria);
           return `
             <div class="galeria-arte-card" data-arte="${a.id}">
               <div class="galeria-arte-midia">
                 ${a.image_url ? tagMidia(a.image_url, a.name) : '<span class="sem-midia">sem foto</span>'}
-                ${galeria.length > 1 ? `<button class="galeria-arte-expandir" data-expandir="${a.id}" title="Ver mais fotos"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>` : ''}
+                ${galeria.length > 1 ? `<button class="galeria-arte-expandir" data-expandir="${a.id}" title="${idxVideo !== -1 ? 'Ver vídeo' : 'Ver mais fotos'}">${idxVideo !== -1 ? ICONE_PLAY_SVG : ICONE_EXPANDIR_SVG}</button>` : ''}
               </div>
               <div class="galeria-arte-nome">${a.name}</div>
               <div class="galeria-arte-qtd">${n} produto${n !== 1 ? 's' : ''}</div>
@@ -1648,7 +1751,9 @@ function renderGaleriaArtes(){
     el.onclick = (e) => {
       e.stopPropagation();
       const arte = todasArtes.find(a => a.id === el.dataset.expandir);
-      abrirLightbox(galeriaDaArte(arte), 0);
+      const galeriaArte = galeriaDaArte(arte);
+      const idxVideo = indiceDoVideo(galeriaArte);
+      abrirLightbox(galeriaArte, idxVideo !== -1 ? idxVideo : 0);
     };
   });
 }
@@ -1706,6 +1811,11 @@ document.getElementById('btn-favoritos').onclick = (e) => {
 /* ---- Busca ---- */
 document.getElementById('campo-busca').addEventListener('input', (e) => {
   termoBusca = e.target.value;
+  renderGrid();
+});
+
+document.getElementById('campo-ordenar').addEventListener('change', (e) => {
+  ordenacaoAtiva = e.target.value;
   renderGrid();
 });
 
