@@ -510,6 +510,18 @@
   .modal-relacionados-bloco h4{ font-family:var(--fonte-titulo); font-size:15px; font-weight:600; color:var(--terracota); margin-bottom:12px }
   .relacionados-linha{ display:flex; gap:12px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; -ms-overflow-style:none }
   .relacionados-linha::-webkit-scrollbar{ display:none }
+  .relacionados-wrap{ position:relative }
+  .relacionados-seta{
+    display:none; position:absolute; top:38%; transform:translateY(-50%);
+    width:32px; height:32px; border-radius:50%;
+    background:var(--branco); border:1px solid #e4dcc8; box-shadow:var(--sombra);
+    align-items:center; justify-content:center; color:var(--terracota); z-index:2;
+  }
+  .relacionados-seta-esq{ left:-14px }
+  .relacionados-seta-dir{ right:-14px }
+  @media (hover:hover) and (pointer:fine){
+    .relacionados-seta{ display:flex }
+  }
   .relacionado-card{
     flex-shrink:0; width:120px; cursor:pointer;
     border-radius:10px; overflow:hidden; background:var(--creme);
@@ -587,10 +599,11 @@
   .depoimento-card .depoimento-autor::before{ content:"— " }
 
   .btn-voltar-modal{
-    position:absolute; top:14px; left:14px;
-    width:32px; height:32px; border-radius:50%;
+    position:absolute; top:14px; left:14px; z-index:3;
+    width:40px; height:40px; border-radius:50%;
     background:var(--creme); border:none; color:var(--terracota);
     display:flex; align-items:center; justify-content:center;
+    box-shadow:0 2px 8px rgba(0,0,0,.25);
     transition: background-color .15s ease;
   }
   .btn-voltar-modal:hover{ background:#f0e6c8 }
@@ -885,7 +898,6 @@
           <input type="text" id="modal-observacao" placeholder="Ex: nome, time, tema de filme/série...">
         </div>
         <div class="modal-botoes">
-          <button class="btn btn-secundario" id="modal-cancelar">Fechar</button>
           <button class="btn btn-primario" id="modal-confirmar">Adicionar à lista</button>
         </div>
       </div>
@@ -893,11 +905,27 @@
 
     <div class="modal-relacionados-bloco" id="bloco-relacionados-tema" style="display:none">
       <h4>Mais desse tema</h4>
-      <div class="relacionados-linha" id="relacionados-tema"></div>
+      <div class="relacionados-wrap">
+        <div class="relacionados-linha" id="relacionados-tema"></div>
+        <button class="relacionados-seta relacionados-seta-esq" data-alvo="relacionados-tema" title="Ver anteriores">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6 9 12l6 6"/></svg>
+        </button>
+        <button class="relacionados-seta relacionados-seta-dir" data-alvo="relacionados-tema" title="Ver mais">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+        </button>
+      </div>
     </div>
     <div class="modal-relacionados-bloco" id="bloco-relacionados-cat" style="display:none">
       <h4>Mais parecidos</h4>
-      <div class="relacionados-linha" id="relacionados-cat"></div>
+      <div class="relacionados-wrap">
+        <div class="relacionados-linha" id="relacionados-cat"></div>
+        <button class="relacionados-seta relacionados-seta-esq" data-alvo="relacionados-cat" title="Ver anteriores">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6 9 12l6 6"/></svg>
+        </button>
+        <button class="relacionados-seta relacionados-seta-dir" data-alvo="relacionados-cat" title="Ver mais">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -1468,12 +1496,18 @@ function abrirAdicionar(produtoId, botaoOrigem){
   preencherModal(produtoId, botaoOrigem);
 }
 
-document.getElementById('modal-cancelar').onclick = () => {
-  document.getElementById('modal-fundo').classList.remove('aberto');
-};
 document.getElementById('btn-voltar-modal').onclick = () => {
   document.getElementById('modal-fundo').classList.remove('aberto');
 };
+
+document.querySelectorAll('.relacionados-seta').forEach(btn => {
+  const direcao = btn.classList.contains('relacionados-seta-esq') ? -1 : 1;
+  btn.onclick = () => {
+    const linha = document.getElementById(btn.dataset.alvo);
+    linha.scrollBy({ left: direcao * 260, behavior: 'smooth' });
+  };
+});
+
 document.getElementById('modal-confirmar').onclick = () => {
   const p = produtos.find(x => x.id === produtoModalId);
   const observacao = document.getElementById('modal-observacao').value.trim();
