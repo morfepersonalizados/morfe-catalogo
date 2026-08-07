@@ -117,6 +117,14 @@
   .checkbox-linha input{ width:auto }
   .modal-botoes{ display:flex; gap:10px; margin-top:18px }
   .modal-botoes .btn{ flex:1 }
+
+  .lista-galeria{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px }
+  .galeria-item{ position:relative; width:60px; height:60px; border-radius:8px; overflow:hidden; background:var(--creme) }
+  .galeria-item button{
+    position:absolute; top:2px; right:2px; width:18px; height:18px; border-radius:50%;
+    background:rgba(0,0,0,.55); color:#fff; border:none; font-size:11px; line-height:1;
+  }
+  .galeria-aviso{ font-size:12px; color:var(--texto-claro) }
 </style>
 </head>
 <body>
@@ -290,11 +298,18 @@
   <div class="modal">
     <h3 id="modal-produto-titulo">Novo produto</h3>
     <div class="campo">
-      <label>Foto ou vídeo do produto (vídeo toca em loop, mudo)</label>
+      <label>Foto ou vídeo de capa (vídeo toca em loop, mudo)</label>
       <div id="preview-imagem" style="width:100%; aspect-ratio:1/1; max-width:180px; background:var(--creme); border-radius:8px; overflow:hidden; margin-bottom:8px; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--texto-claro)">sem foto</div>
       <input type="file" id="campo-imagem" accept="image/*,video/*">
       <div id="status-upload" style="font-size:12px; color:var(--texto-claro); margin-top:4px"></div>
     </div>
+    <div class="campo" id="bloco-galeria-produto" style="display:none">
+      <label>Fotos/vídeos adicionais (galeria)</label>
+      <div class="lista-galeria" id="lista-galeria-produto"></div>
+      <input type="file" id="campo-galeria-produto" accept="image/*,video/*">
+      <div id="status-galeria-produto" style="font-size:12px; color:var(--texto-claro); margin-top:4px"></div>
+    </div>
+    <p class="campo galeria-aviso" id="aviso-galeria-produto">Salve o produto primeiro pra poder adicionar fotos/vídeos extras.</p>
     <div class="campo">
       <label>Nome</label>
       <input type="text" id="campo-nome">
@@ -360,11 +375,18 @@
   <div class="modal">
     <h3 id="modal-arte-titulo">Nova arte</h3>
     <div class="campo">
-      <label>Foto ou vídeo de exemplo (vídeo toca em loop, mudo)</label>
+      <label>Foto ou vídeo de capa (vídeo toca em loop, mudo)</label>
       <div id="preview-arte-imagem" style="width:100%; aspect-ratio:1/1; max-width:180px; background:var(--creme); border-radius:8px; overflow:hidden; margin-bottom:8px; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--texto-claro)">sem foto</div>
       <input type="file" id="campo-arte-imagem" accept="image/*,video/*">
       <div id="status-upload-arte" style="font-size:12px; color:var(--texto-claro); margin-top:4px"></div>
     </div>
+    <div class="campo" id="bloco-galeria-arte" style="display:none">
+      <label>Fotos/vídeos adicionais (galeria)</label>
+      <div class="lista-galeria" id="lista-galeria-arte"></div>
+      <input type="file" id="campo-galeria-arte" accept="image/*,video/*">
+      <div id="status-galeria-arte" style="font-size:12px; color:var(--texto-claro); margin-top:4px"></div>
+    </div>
+    <p class="campo galeria-aviso" id="aviso-galeria-arte">Salve a arte primeiro pra poder adicionar fotos/vídeos extras.</p>
     <div class="campo">
       <label>Nome (ex: Homem-Aranha)</label>
       <input type="text" id="campo-arte-nome">
@@ -458,6 +480,8 @@ let faqEditandoId = null;
 let depoimentos = [];
 let depoimentoEditandoId = null;
 let imagemDepoimentoUrlAtual = null;
+let mediaPorProduto = {};
+let mediaPorArte = {};
 
 function ehVideo(url){
   return /\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(url || '');
@@ -510,7 +534,7 @@ document.getElementById('btn-logout').onclick = async () => {
 
 /* ---- Carregar dados ---- */
 async function carregarTudo(){
-  const [{ data: cats }, { data: prods }, { data: cores }, { data: designs }, { data: vinculos }, { data: faqs }, { data: deps }, { data: settingsRows }] = await Promise.all([
+  const [{ data: cats }, { data: prods }, { data: cores }, { data: designs }, { data: vinculos }, { data: faqs }, { data: deps }, { data: settingsRows }, { data: mediaProd }, { data: mediaArte }] = await Promise.all([
     supabase.from('catalog_categories').select('*').order('sort_order'),
     supabase.from('catalog_products').select('*').order('sort_order'),
     supabase.from('catalog_product_colors').select('*').order('sort_order'),
@@ -518,7 +542,9 @@ async function carregarTudo(){
     supabase.from('catalog_product_designs').select('*'),
     supabase.from('catalog_faq').select('*').order('sort_order'),
     supabase.from('catalog_depoimentos').select('*').order('sort_order'),
-    supabase.from('catalog_settings').select('*').eq('id', 1)
+    supabase.from('catalog_settings').select('*').eq('id', 1),
+    supabase.from('catalog_product_media').select('*').order('sort_order'),
+    supabase.from('catalog_design_media').select('*').order('sort_order')
   ]);
   categorias = cats || [];
   produtos = prods || [];
@@ -535,6 +561,16 @@ async function carregarTudo(){
   });
   faq = faqs || [];
   depoimentos = deps || [];
+  mediaPorProduto = {};
+  (mediaProd || []).forEach(m => {
+    if (!mediaPorProduto[m.product_id]) mediaPorProduto[m.product_id] = [];
+    mediaPorProduto[m.product_id].push(m);
+  });
+  mediaPorArte = {};
+  (mediaArte || []).forEach(m => {
+    if (!mediaPorArte[m.design_id]) mediaPorArte[m.design_id] = [];
+    mediaPorArte[m.design_id].push(m);
+  });
   const settingsLoja = (settingsRows && settingsRows[0]) || {};
   renderProdutos();
   renderCategorias();
@@ -672,12 +708,37 @@ function atualizarPreviewImagem(){
   el.innerHTML = imagemUrlAtual ? tagPreviewMidia(imagemUrlAtual, '100%') : 'sem foto';
 }
 
+function renderGaleriaProdutoModal(produtoId){
+  const bloco = document.getElementById('bloco-galeria-produto');
+  const aviso = document.getElementById('aviso-galeria-produto');
+  if (!produtoId){
+    bloco.style.display = 'none';
+    aviso.style.display = 'block';
+    return;
+  }
+  bloco.style.display = 'block';
+  aviso.style.display = 'none';
+  const itens = mediaPorProduto[produtoId] || [];
+  const listaEl = document.getElementById('lista-galeria-produto');
+  listaEl.innerHTML = itens.map(m => `
+    <div class="galeria-item">${tagPreviewMidia(m.url, '60px')}<button data-del-media="${m.id}">✕</button></div>
+  `).join('');
+  listaEl.querySelectorAll('[data-del-media]').forEach(b => b.onclick = async () => {
+    await supabase.from('catalog_product_media').delete().eq('id', b.dataset.delMedia);
+    await carregarTudo();
+    renderGaleriaProdutoModal(produtoId);
+  });
+}
+
 function abrirModalProduto(produtoId){
   produtoEditandoId = produtoId || null;
   preencherSelectCategorias();
   const blocoCores = document.getElementById('bloco-cores');
   document.getElementById('campo-imagem').value = '';
   document.getElementById('status-upload').textContent = '';
+  document.getElementById('campo-galeria-produto').value = '';
+  document.getElementById('status-galeria-produto').textContent = '';
+  renderGaleriaProdutoModal(produtoId);
 
   if (produtoId){
     const p = produtos.find(x => x.id === produtoId);
@@ -707,6 +768,23 @@ function abrirModalProduto(produtoId){
 
 document.getElementById('btn-novo-produto').onclick = () => abrirModalProduto(null);
 document.getElementById('btn-cancelar-produto').onclick = () => document.getElementById('modal-produto-fundo').classList.remove('aberto');
+
+document.getElementById('campo-galeria-produto').addEventListener('change', async (e) => {
+  const arquivo = e.target.files[0];
+  if (!arquivo || !produtoEditandoId) return;
+  const statusEl = document.getElementById('status-galeria-produto');
+  statusEl.textContent = 'Enviando...';
+  const caminho = `products-galeria/${Date.now()}-${arquivo.name.replace(/[^a-zA-Z0-9._-]/g, '')}`;
+  const { error } = await supabase.storage.from('catalog-images').upload(caminho, arquivo, { upsert: true });
+  if (error){ statusEl.textContent = 'Erro ao enviar: ' + error.message; return; }
+  const { data } = supabase.storage.from('catalog-images').getPublicUrl(caminho);
+  const maxOrdem = (mediaPorProduto[produtoEditandoId] || []).length;
+  await supabase.from('catalog_product_media').insert({ product_id: produtoEditandoId, url: data.publicUrl, sort_order: maxOrdem });
+  e.target.value = '';
+  statusEl.textContent = 'Adicionado.';
+  await carregarTudo();
+  renderGaleriaProdutoModal(produtoEditandoId);
+});
 
 document.getElementById('campo-imagem').addEventListener('change', async (e) => {
   const arquivo = e.target.files[0];
@@ -813,6 +891,28 @@ function renderArtes(){
   tbody.querySelectorAll('[data-excluir-arte]').forEach(b => b.onclick = () => excluirArte(b.dataset.excluirArte));
 }
 
+function renderGaleriaArteModal(designId){
+  const bloco = document.getElementById('bloco-galeria-arte');
+  const aviso = document.getElementById('aviso-galeria-arte');
+  if (!designId){
+    bloco.style.display = 'none';
+    aviso.style.display = 'block';
+    return;
+  }
+  bloco.style.display = 'block';
+  aviso.style.display = 'none';
+  const itens = mediaPorArte[designId] || [];
+  const listaEl = document.getElementById('lista-galeria-arte');
+  listaEl.innerHTML = itens.map(m => `
+    <div class="galeria-item">${tagPreviewMidia(m.url, '60px')}<button data-del-media-arte="${m.id}">✕</button></div>
+  `).join('');
+  listaEl.querySelectorAll('[data-del-media-arte]').forEach(b => b.onclick = async () => {
+    await supabase.from('catalog_design_media').delete().eq('id', b.dataset.delMediaArte);
+    await carregarTudo();
+    renderGaleriaArteModal(designId);
+  });
+}
+
 function abrirModalArte(designId){
   arteEditandoId = designId || null;
   const ligados = designId ? (produtosPorArte[designId] || []) : [];
@@ -820,6 +920,9 @@ function abrirModalArte(designId){
 
   document.getElementById('campo-arte-imagem').value = '';
   document.getElementById('status-upload-arte').textContent = '';
+  document.getElementById('campo-galeria-arte').value = '';
+  document.getElementById('status-galeria-arte').textContent = '';
+  renderGaleriaArteModal(designId);
   imagemArteUrlAtual = arte ? (arte.image_url || null) : null;
   document.getElementById('preview-arte-imagem').innerHTML = imagemArteUrlAtual ? tagPreviewMidia(imagemArteUrlAtual, '100%') : 'sem foto';
 
@@ -861,6 +964,23 @@ document.getElementById('campo-arte-imagem').addEventListener('change', async (e
   imagemArteUrlAtual = data.publicUrl;
   document.getElementById('preview-arte-imagem').innerHTML = tagPreviewMidia(imagemArteUrlAtual, '100%');
   statusEl.textContent = 'Enviado.';
+});
+
+document.getElementById('campo-galeria-arte').addEventListener('change', async (e) => {
+  const arquivo = e.target.files[0];
+  if (!arquivo || !arteEditandoId) return;
+  const statusEl = document.getElementById('status-galeria-arte');
+  statusEl.textContent = 'Enviando...';
+  const caminho = `artes-galeria/${Date.now()}-${arquivo.name.replace(/[^a-zA-Z0-9._-]/g, '')}`;
+  const { error } = await supabase.storage.from('catalog-images').upload(caminho, arquivo, { upsert: true });
+  if (error){ statusEl.textContent = 'Erro ao enviar: ' + error.message; return; }
+  const { data } = supabase.storage.from('catalog-images').getPublicUrl(caminho);
+  const maxOrdem = (mediaPorArte[arteEditandoId] || []).length;
+  await supabase.from('catalog_design_media').insert({ design_id: arteEditandoId, url: data.publicUrl, sort_order: maxOrdem });
+  e.target.value = '';
+  statusEl.textContent = 'Adicionado.';
+  await carregarTudo();
+  renderGaleriaArteModal(arteEditandoId);
 });
 
 document.getElementById('btn-salvar-arte').onclick = async () => {
