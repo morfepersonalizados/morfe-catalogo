@@ -430,6 +430,26 @@
   .relacionado-card .relacionado-info{ padding:8px 9px }
   .relacionado-card .relacionado-nome{ font-size:12px; font-weight:600; line-height:1.25; margin-bottom:3px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden }
   .relacionado-card .relacionado-preco{ font-size:12.5px; font-weight:800; color:var(--terracota) }
+
+  /* Modal de informações (como comprar / dúvidas) */
+  .modal.modal-info{ max-width:560px; max-height:85vh; overflow-y:auto }
+  .info-titulo{ font-family:var(--fonte-titulo); font-size:20px; font-weight:600; margin:6px 0 18px; padding-right:20px }
+  .info-secao{ margin-bottom:22px }
+  .info-secao h4{ font-family:var(--fonte-titulo); font-size:14.5px; font-weight:600; color:var(--terracota); margin-bottom:8px }
+  .info-secao p{ font-size:13.5px; color:var(--texto-claro); line-height:1.55 }
+  .info-passos{ padding-left:18px; font-size:13.5px; color:var(--texto-claro); line-height:1.9 }
+  .info-faq-item{ border-bottom:1px solid #f1ead6; padding:10px 0 }
+  .info-faq-item summary{ cursor:pointer; font-size:13.5px; font-weight:600; color:var(--texto); list-style:none }
+  .info-faq-item summary::-webkit-details-marker{ display:none }
+  .info-faq-item summary::before{ content:"+ "; color:var(--dourado); font-weight:700 }
+  .info-faq-item[open] summary::before{ content:"– "; }
+  .info-faq-item p{ margin-top:8px; font-size:13px; color:var(--texto-claro); line-height:1.55 }
+  .info-depoimentos-lista{ display:flex; flex-direction:column; gap:12px }
+  .depoimento-card{ background:var(--creme); border-radius:10px; padding:12px 14px }
+  .depoimento-card img{ width:100%; border-radius:8px; display:block; margin-bottom:8px }
+  .depoimento-card .depoimento-texto{ font-size:13px; color:var(--texto); line-height:1.5; font-style:italic }
+  .depoimento-card .depoimento-autor{ font-size:11.5px; color:var(--texto-claro); font-weight:700; margin-top:6px }
+
   .btn-voltar-modal{
     position:absolute; top:14px; left:14px;
     width:32px; height:32px; border-radius:50%;
@@ -441,6 +461,10 @@
   .modal-categoria{ font-size:11px; color:var(--dourado); font-weight:700; text-transform:uppercase; letter-spacing:.6px; margin-bottom:4px; margin-top:30px }
   .modal h3{ font-family:var(--fonte-titulo); font-size:20px; font-weight:600; margin-bottom:6px }
   .modal .preco-modal{ font-family:var(--fonte-titulo); color:var(--terracota); font-weight:700; font-size:19px; margin-bottom:12px }
+  .modal-prazo{
+    display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--texto);
+    background:var(--creme); border-radius:20px; padding:5px 12px; margin:-6px 0 14px; width:fit-content;
+  }
   .modal-descricao{ font-size:13.5px; color:var(--texto-claro); line-height:1.5; margin-bottom:16px }
   .modal-label{ display:block; font-size:12px; font-weight:700; color:var(--texto); margin-bottom:8px }
   .modal-cores-bloco{ margin-bottom:6px }
@@ -473,6 +497,7 @@
     display:inline-flex; align-items:center; gap:6px;
     color:var(--texto-claro); text-decoration:none; font-size:12px; font-weight:600;
     transition: color .15s ease;
+    background:none; border:none; padding:0; font-family:var(--fonte-corpo); cursor:pointer;
   }
   .footer-social:hover{ color:var(--terracota) }
 
@@ -591,6 +616,14 @@
     </svg>
     @morfepersonalizados
   </a>
+  <button class="footer-social" id="btn-abrir-info">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9"/>
+      <path d="M12 11v6"/>
+      <circle cx="12" cy="7.5" r=".9" fill="currentColor" stroke="none"/>
+    </svg>
+    Como comprar / Dúvidas
+  </button>
 </footer>
 
 <div class="sobreposicao" id="filtro-mobile-painel">
@@ -651,6 +684,7 @@
         <div class="modal-categoria" id="modal-categoria"></div>
         <h3 id="modal-nome"></h3>
         <div class="preco-modal" id="modal-preco"></div>
+        <div class="modal-prazo" id="modal-prazo" style="display:none"></div>
         <p class="modal-descricao" id="modal-descricao" style="display:none"></p>
         <div class="modal-cores-bloco" id="modal-cores-bloco" style="display:none">
           <label class="modal-label">Escolha a cor</label>
@@ -682,6 +716,54 @@
   </div>
 </div>
 
+<div class="modal-fundo" id="modal-info-fundo">
+  <div class="modal modal-info">
+    <button class="btn-fechar-x" id="fechar-info" title="Fechar">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <h3 class="info-titulo">Como comprar / Dúvidas</h3>
+
+    <div class="info-secao">
+      <h4>Como funciona</h4>
+      <ol class="info-passos">
+        <li>Escolha o produto, a cor e o tema/arte (quando tiver)</li>
+        <li>Adicione à sua lista — dá pra juntar vários itens</li>
+        <li>Envie o pedido pelo WhatsApp com um clique</li>
+        <li>Combinamos pagamento, prazo e entrega por lá</li>
+      </ol>
+    </div>
+
+    <div class="info-secao" id="info-pagamento" style="display:none">
+      <h4>Formas de pagamento</h4>
+      <p id="info-pagamento-texto"></p>
+    </div>
+    <div class="info-secao" id="info-entrega" style="display:none">
+      <h4>Entrega e retirada</h4>
+      <p id="info-entrega-texto"></p>
+    </div>
+    <div class="info-secao" id="info-embalagem" style="display:none">
+      <h4>Embalagem</h4>
+      <p id="info-embalagem-texto"></p>
+    </div>
+    <div class="info-secao" id="info-troca" style="display:none">
+      <h4>Troca e garantia</h4>
+      <p id="info-troca-texto"></p>
+    </div>
+    <div class="info-secao" id="info-faq-bloco" style="display:none">
+      <h4>Perguntas frequentes</h4>
+      <div id="info-faq-lista"></div>
+    </div>
+    <div class="info-secao" id="info-quemsomos-bloco" style="display:none">
+      <h4>Quem somos</h4>
+      <p id="info-quemsomos-texto"></p>
+    </div>
+    <div class="info-secao" id="info-depoimentos-bloco" style="display:none">
+      <h4>O que dizem sobre a gente</h4>
+      <div id="info-depoimentos-lista" class="info-depoimentos-lista"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 const SUPABASE_URL = "https://rzicwtwowfyogtcqekun.supabase.co";
 const SUPABASE_KEY = "sb_publishable_s4JUXdMlfy70pWIz780U9w_2IVSAI5t";
@@ -694,6 +776,9 @@ let categorias = [];
 let produtos = [];
 let coresPorProduto = {};
 let designsPorProduto = {};
+let settingsLoja = {};
+let faqLista = [];
+let depoimentosLista = [];
 let categoriaAtiva = null;
 let somenteFavoritos = false;
 let termoBusca = '';
@@ -731,11 +816,14 @@ function corParaHex(nome){
 }
 
 async function carregarDados(){
-  const [resCat, resProd, resCores, resVinculos] = await Promise.all([
+  const [resCat, resProd, resCores, resVinculos, resSettings, resFaq, resDepoimentos] = await Promise.all([
     fetch(`${SUPABASE_URL}/rest/v1/catalog_categories?select=id,name,sort_order&order=sort_order`, { headers: HEADERS }),
-    fetch(`${SUPABASE_URL}/rest/v1/catalog_products?select=id,category_id,name,price_cents,description,badge,image_url,sort_order&is_available=eq.true&order=sort_order`, { headers: HEADERS }),
+    fetch(`${SUPABASE_URL}/rest/v1/catalog_products?select=id,category_id,name,price_cents,description,badge,image_url,prazo_producao,sort_order&is_available=eq.true&order=sort_order`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_product_colors?select=id,product_id,name,sort_order&order=sort_order`, { headers: HEADERS }),
-    fetch(`${SUPABASE_URL}/rest/v1/catalog_product_designs?select=product_id,catalog_designs(id,name,theme)`, { headers: HEADERS })
+    fetch(`${SUPABASE_URL}/rest/v1/catalog_product_designs?select=product_id,catalog_designs(id,name,theme)`, { headers: HEADERS }),
+    fetch(`${SUPABASE_URL}/rest/v1/catalog_settings?select=quem_somos,pagamento,entrega,embalagem,troca_garantia&id=eq.1`, { headers: HEADERS }),
+    fetch(`${SUPABASE_URL}/rest/v1/catalog_faq?select=id,pergunta,resposta&order=sort_order`, { headers: HEADERS }),
+    fetch(`${SUPABASE_URL}/rest/v1/catalog_depoimentos?select=id,texto,imagem_url,autor&order=sort_order`, { headers: HEADERS })
   ]);
   categorias = await resCat.json();
   produtos = await resProd.json();
@@ -752,6 +840,10 @@ async function carregarDados(){
     if (!designsPorProduto[v.product_id]) designsPorProduto[v.product_id] = [];
     designsPorProduto[v.product_id].push(v.catalog_designs);
   });
+  const settingsArr = await resSettings.json();
+  settingsLoja = settingsArr[0] || {};
+  faqLista = await resFaq.json();
+  depoimentosLista = await resDepoimentos.json();
 }
 
 function contarPorCategoria(catId){
@@ -894,6 +986,14 @@ function preencherModal(produtoId, botaoOrigem){
   document.getElementById('modal-nome').textContent = p.name;
   document.getElementById('modal-preco').textContent = formatarPreco(p.price_cents);
   document.getElementById('modal-observacao').value = '';
+
+  const prazoEl = document.getElementById('modal-prazo');
+  if (p.prazo_producao){
+    prazoEl.textContent = '⏱ Prazo: ' + p.prazo_producao;
+    prazoEl.style.display = 'inline-flex';
+  } else {
+    prazoEl.style.display = 'none';
+  }
 
   const descEl = document.getElementById('modal-descricao');
   if (p.description){
@@ -1189,6 +1289,65 @@ document.getElementById('btn-finalizar').onclick = () => {
   fecharPainelPedido();
 };
 
+/* ---- Modal "Como comprar / Dúvidas" ---- */
+function renderModalInfo(){
+  const secoes = [
+    ['info-pagamento', 'info-pagamento-texto', settingsLoja.pagamento],
+    ['info-entrega', 'info-entrega-texto', settingsLoja.entrega],
+    ['info-embalagem', 'info-embalagem-texto', settingsLoja.embalagem],
+    ['info-troca', 'info-troca-texto', settingsLoja.troca_garantia],
+    ['info-quemsomos-bloco', 'info-quemsomos-texto', settingsLoja.quem_somos],
+  ];
+  secoes.forEach(([blocoId, textoId, valor]) => {
+    const bloco = document.getElementById(blocoId);
+    if (valor){
+      document.getElementById(textoId).textContent = valor;
+      bloco.style.display = 'block';
+    } else {
+      bloco.style.display = 'none';
+    }
+  });
+
+  const faqBloco = document.getElementById('info-faq-bloco');
+  const faqLista_el = document.getElementById('info-faq-lista');
+  if (faqLista.length){
+    faqBloco.style.display = 'block';
+    faqLista_el.innerHTML = faqLista.map(f => `
+      <details class="info-faq-item">
+        <summary>${f.pergunta}</summary>
+        <p>${f.resposta}</p>
+      </details>
+    `).join('');
+  } else {
+    faqBloco.style.display = 'none';
+  }
+
+  const depBloco = document.getElementById('info-depoimentos-bloco');
+  const depLista_el = document.getElementById('info-depoimentos-lista');
+  if (depoimentosLista.length){
+    depBloco.style.display = 'block';
+    depLista_el.innerHTML = depoimentosLista.map(d => `
+      <div class="depoimento-card">
+        ${d.imagem_url ? `<img src="${d.imagem_url}" alt="Depoimento${d.autor ? ' de ' + d.autor : ''}">` : ''}
+        ${d.texto ? `<div class="depoimento-texto">"${d.texto}"</div>` : ''}
+        ${d.autor ? `<div class="depoimento-autor">— ${d.autor}</div>` : ''}
+      </div>
+    `).join('');
+  } else {
+    depBloco.style.display = 'none';
+  }
+}
+
+document.getElementById('btn-abrir-info').onclick = () => {
+  document.getElementById('modal-info-fundo').classList.add('aberto');
+};
+document.getElementById('fechar-info').onclick = () => {
+  document.getElementById('modal-info-fundo').classList.remove('aberto');
+};
+document.getElementById('modal-info-fundo').addEventListener('click', (e) => {
+  if (e.target.id === 'modal-info-fundo') document.getElementById('modal-info-fundo').classList.remove('aberto');
+});
+
 /* ---- Favoritos (atalho no header) ---- */
 document.getElementById('btn-favoritos').onclick = (e) => {
   somenteFavoritos = !somenteFavoritos;
@@ -1240,6 +1399,7 @@ async function iniciar(){
     await carregarDados();
     renderTudo();
     renderPainelPedido();
+    renderModalInfo();
   }catch(err){
     console.error(err);
     document.getElementById('grid-produtos').innerHTML = '<div class="estado-msg">Não foi possível carregar o catálogo agora. Tente novamente em instantes.</div>';

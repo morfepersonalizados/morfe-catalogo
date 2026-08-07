@@ -63,6 +63,15 @@
 
 - **2026-08-06** — Adicionado link do Instagram (`@morfepersonalizados`) no rodapé, discreto (ícone + texto pequeno, não compete com o botão de WhatsApp que é a ação principal). Facebook não foi adicionado — usuário só confirmou o Instagram como rede ativa.
 
+- **2026-08-06** — Auditoria de "o que um catálogo profissional precisa" (usuário trouxe um mega-prompt genérico feito no ChatGPT para gerar essa lista): avaliei e filtrei pro contexto real da Morfê (loja pequena, sob encomenda, sem checkout) — a maior parte do prompt original era ruído de e-commerce/B2B grande (SKU, margem, CRM, avaliação com estrela, "o que a Apple faria") que não se aplica aqui. Do que sobrou, implementado nessa leva:
+  - **Prazo de produção por produto**: campo livre (`catalog_products.prazo_producao`) preenchido pelo admin produto a produto, porque varia por peça e quantidade (não dá pra fixar um prazo geral do site) — mostrado como selo no quick-view.
+  - **Bloco "Como comprar / Dúvidas"** (novo modal, acessível por link no rodapé): como funciona (passo a passo), formas de pagamento, entrega/retirada, embalagem, troca e garantia, FAQ (accordion) e espaço pra "quem somos" e depoimentos — tudo isso vem de tabelas novas (`catalog_settings` linha única, `catalog_faq`, `catalog_depoimentos`) editáveis pelo admin, sem precisar mexer no código depois.
+  - Conteúdo real já cadastrado (fornecido pelo usuário): pagamento (Pix, cartão via Mercado Pago), entrega (por conta do cliente, Uber Entrega ou retirada), embalagem (sacola sempre; caneca também vai em caixinha, azulejo só na sacola), 5 perguntas de FAQ.
+  - **Troca/garantia**: usuário pediu ajuda pra definir. Rascunho aplicado seguindo prática padrão pra produto sob encomenda/personalizado: sem troca por arrependimento, troca/reparo grátis em caso de defeito reportado em até 7 dias. Fica marcado como rascunho até o usuário confirmar/ajustar — editável na aba "Loja" do admin.
+  - **Depoimentos**: não dá pra eu acessar o WhatsApp da loja pra coletar (sem essa capacidade/ferramenta) — combinado que o usuário encaminha prints/textos das conversas e eu cadastro via admin (aba "Depoimentos", aceita print de imagem ou texto).
+  - **"Quem somos"**: texto ainda não escrito — perguntei pro usuário há quanto tempo a loja existe, se é só ele que faz tudo, e o que diferencia da concorrência. Campo já existe na aba "Loja" do admin, só falta o conteúdo.
+  - Admin ganhou 3 abas novas: **Loja** (formulário único de configurações gerais), **FAQ** (lista simples) e **Depoimentos** (lista com upload de imagem reaproveitando o bucket `catalog-images`, pasta `depoimentos/`).
+
 ## Pendências / próximos passos
 - Testar o link ao vivo (https://morfe-catalogo-xfyv.vercel.app) no celular, vindo do WhatsApp/Instagram como um cliente real faria.
 - Considerar domínio próprio (ex: catalogo.morfepersonalizados.com.br) em vez do domínio `.vercel.app` padrão, quando fizer sentido.

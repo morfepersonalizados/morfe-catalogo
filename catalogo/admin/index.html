@@ -88,6 +88,9 @@
       <button class="aba-btn ativa" data-aba="produtos">Produtos</button>
       <button class="aba-btn" data-aba="categorias">Categorias</button>
       <button class="aba-btn" data-aba="artes">Artes</button>
+      <button class="aba-btn" data-aba="faq">FAQ</button>
+      <button class="aba-btn" data-aba="depoimentos">Depoimentos</button>
+      <button class="aba-btn" data-aba="loja">Loja</button>
     </div>
 
     <div class="painel-secao ativa" id="secao-produtos">
@@ -123,6 +126,56 @@
         <tbody id="tabela-artes"></tbody>
       </table>
     </div>
+
+    <div class="painel-secao" id="secao-faq">
+      <p style="font-size:13px; color:var(--texto-claro); margin-bottom:14px">Perguntas frequentes que aparecem no catálogo, no link "Como comprar / Dúvidas".</p>
+      <div class="lista-header">
+        <strong id="contagem-faq"></strong>
+        <button class="btn btn-primario" id="btn-nova-faq">+ Nova pergunta</button>
+      </div>
+      <table>
+        <thead><tr><th>Pergunta</th><th>Ordem</th><th></th></tr></thead>
+        <tbody id="tabela-faq"></tbody>
+      </table>
+    </div>
+
+    <div class="painel-secao" id="secao-depoimentos">
+      <p style="font-size:13px; color:var(--texto-claro); margin-bottom:14px">Depoimentos de clientes (texto ou print de conversa) que aparecem no catálogo, no link "Como comprar / Dúvidas".</p>
+      <div class="lista-header">
+        <strong id="contagem-depoimentos"></strong>
+        <button class="btn btn-primario" id="btn-novo-depoimento">+ Novo depoimento</button>
+      </div>
+      <table>
+        <thead><tr><th></th><th>Texto / Autor</th><th>Ordem</th><th></th></tr></thead>
+        <tbody id="tabela-depoimentos"></tbody>
+      </table>
+    </div>
+
+    <div class="painel-secao" id="secao-loja">
+      <p style="font-size:13px; color:var(--texto-claro); margin-bottom:14px">Informações gerais que aparecem no catálogo, no link "Como comprar / Dúvidas". Deixe em branco pra não mostrar aquele bloco.</p>
+      <div class="campo">
+        <label>Quem somos</label>
+        <textarea id="loja-quem-somos" rows="4" placeholder="Um textinho curto sobre a loja..."></textarea>
+      </div>
+      <div class="campo">
+        <label>Formas de pagamento</label>
+        <textarea id="loja-pagamento" rows="2"></textarea>
+      </div>
+      <div class="campo">
+        <label>Entrega e retirada</label>
+        <textarea id="loja-entrega" rows="2"></textarea>
+      </div>
+      <div class="campo">
+        <label>Embalagem</label>
+        <textarea id="loja-embalagem" rows="2"></textarea>
+      </div>
+      <div class="campo">
+        <label>Troca e garantia</label>
+        <textarea id="loja-troca" rows="3"></textarea>
+      </div>
+      <button class="btn btn-primario" id="btn-salvar-loja">Salvar informações</button>
+      <span id="status-loja" style="font-size:12px; color:var(--texto-claro); margin-left:10px"></span>
+    </div>
   </div>
 </div>
 
@@ -151,6 +204,10 @@
     <div class="campo">
       <label>Selo (opcional — ex: "Mais vendido")</label>
       <input type="text" id="campo-badge">
+    </div>
+    <div class="campo">
+      <label>Prazo de produção (opcional — ex: "Mesmo dia" ou "3 a 5 dias úteis")</label>
+      <input type="text" id="campo-prazo">
     </div>
     <div class="checkbox-linha">
       <input type="checkbox" id="campo-disponivel" checked>
@@ -215,6 +272,58 @@
   </div>
 </div>
 
+<!-- Modal FAQ -->
+<div class="modal-fundo" id="modal-faq-fundo">
+  <div class="modal">
+    <h3 id="modal-faq-titulo">Nova pergunta</h3>
+    <div class="campo">
+      <label>Pergunta</label>
+      <input type="text" id="campo-faq-pergunta">
+    </div>
+    <div class="campo">
+      <label>Resposta</label>
+      <textarea id="campo-faq-resposta" rows="3"></textarea>
+    </div>
+    <div class="campo">
+      <label>Ordem de exibição</label>
+      <input type="number" id="campo-faq-ordem" value="0">
+    </div>
+    <div class="modal-botoes">
+      <button class="btn btn-secundario" id="btn-cancelar-faq">Cancelar</button>
+      <button class="btn btn-primario" id="btn-salvar-faq">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal depoimento -->
+<div class="modal-fundo" id="modal-depoimento-fundo">
+  <div class="modal">
+    <h3 id="modal-depoimento-titulo">Novo depoimento</h3>
+    <div class="campo">
+      <label>Print da conversa (opcional)</label>
+      <div id="preview-depoimento-imagem" style="width:100%; max-width:220px; background:var(--creme); border-radius:8px; overflow:hidden; margin-bottom:8px; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--texto-claro); min-height:60px">sem imagem</div>
+      <input type="file" id="campo-depoimento-imagem" accept="image/*">
+      <div id="status-upload-depoimento" style="font-size:12px; color:var(--texto-claro); margin-top:4px"></div>
+    </div>
+    <div class="campo">
+      <label>Texto (opcional, se não usar print)</label>
+      <textarea id="campo-depoimento-texto" rows="3" placeholder="Trecho do depoimento do cliente"></textarea>
+    </div>
+    <div class="campo">
+      <label>Autor (opcional — nome ou iniciais)</label>
+      <input type="text" id="campo-depoimento-autor" placeholder="Ex: Camila R.">
+    </div>
+    <div class="campo">
+      <label>Ordem de exibição</label>
+      <input type="number" id="campo-depoimento-ordem" value="0">
+    </div>
+    <div class="modal-botoes">
+      <button class="btn btn-secundario" id="btn-cancelar-depoimento">Cancelar</button>
+      <button class="btn btn-primario" id="btn-salvar-depoimento">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -230,6 +339,11 @@ let produtosPorArte = {};
 let produtoEditandoId = null;
 let imagemUrlAtual = null;
 let arteEditandoId = null;
+let faq = [];
+let faqEditandoId = null;
+let depoimentos = [];
+let depoimentoEditandoId = null;
+let imagemDepoimentoUrlAtual = null;
 
 function formatarPreco(centavos){
   return (centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -273,12 +387,15 @@ document.getElementById('btn-logout').onclick = async () => {
 
 /* ---- Carregar dados ---- */
 async function carregarTudo(){
-  const [{ data: cats }, { data: prods }, { data: cores }, { data: designs }, { data: vinculos }] = await Promise.all([
+  const [{ data: cats }, { data: prods }, { data: cores }, { data: designs }, { data: vinculos }, { data: faqs }, { data: deps }, { data: settingsRows }] = await Promise.all([
     supabase.from('catalog_categories').select('*').order('sort_order'),
     supabase.from('catalog_products').select('*').order('sort_order'),
     supabase.from('catalog_product_colors').select('*').order('sort_order'),
     supabase.from('catalog_designs').select('*').order('theme').order('sort_order'),
-    supabase.from('catalog_product_designs').select('*')
+    supabase.from('catalog_product_designs').select('*'),
+    supabase.from('catalog_faq').select('*').order('sort_order'),
+    supabase.from('catalog_depoimentos').select('*').order('sort_order'),
+    supabase.from('catalog_settings').select('*').eq('id', 1)
   ]);
   categorias = cats || [];
   produtos = prods || [];
@@ -293,9 +410,15 @@ async function carregarTudo(){
     if (!produtosPorArte[v.design_id]) produtosPorArte[v.design_id] = [];
     produtosPorArte[v.design_id].push(v.product_id);
   });
+  faq = faqs || [];
+  depoimentos = deps || [];
+  const settingsLoja = (settingsRows && settingsRows[0]) || {};
   renderProdutos();
   renderCategorias();
   renderArtes();
+  renderFaq();
+  renderDepoimentos();
+  preencherFormLoja(settingsLoja);
 }
 
 /* ---- Abas ---- */
@@ -400,6 +523,7 @@ function abrirModalProduto(produtoId){
     document.getElementById('campo-categoria').value = p.category_id || '';
     document.getElementById('campo-preco').value = (p.price_cents / 100).toFixed(2).replace('.', ',');
     document.getElementById('campo-badge').value = p.badge || '';
+    document.getElementById('campo-prazo').value = p.prazo_producao || '';
     document.getElementById('campo-disponivel').checked = p.is_available;
     imagemUrlAtual = p.image_url || null;
     blocoCores.style.display = 'block';
@@ -409,6 +533,7 @@ function abrirModalProduto(produtoId){
     document.getElementById('campo-nome').value = '';
     document.getElementById('campo-preco').value = '';
     document.getElementById('campo-badge').value = '';
+    document.getElementById('campo-prazo').value = '';
     document.getElementById('campo-disponivel').checked = true;
     imagemUrlAtual = null;
     blocoCores.style.display = 'none';
@@ -453,6 +578,7 @@ document.getElementById('btn-salvar-produto').onclick = async () => {
     category_id: document.getElementById('campo-categoria').value || null,
     price_cents: precoParaCentavos(document.getElementById('campo-preco').value),
     badge: document.getElementById('campo-badge').value.trim() || null,
+    prazo_producao: document.getElementById('campo-prazo').value.trim() || null,
     is_available: document.getElementById('campo-disponivel').checked,
     image_url: imagemUrlAtual
   };
@@ -579,6 +705,174 @@ async function excluirArte(id){
   await supabase.from('catalog_designs').delete().eq('id', id);
   await carregarTudo();
 }
+
+/* ---- FAQ ---- */
+function renderFaq(){
+  document.getElementById('contagem-faq').textContent = `${faq.length} perguntas`;
+  const tbody = document.getElementById('tabela-faq');
+  tbody.innerHTML = '';
+  faq.forEach(f => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${f.pergunta}</td>
+      <td>${f.sort_order}</td>
+      <td class="acoes">
+        <button class="btn btn-secundario" data-editar-faq="${f.id}">Editar</button>
+        <button class="btn btn-perigo" data-excluir-faq="${f.id}">Excluir</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('[data-editar-faq]').forEach(b => b.onclick = () => abrirModalFaq(b.dataset.editarFaq));
+  tbody.querySelectorAll('[data-excluir-faq]').forEach(b => b.onclick = () => excluirFaq(b.dataset.excluirFaq));
+}
+
+function abrirModalFaq(id){
+  faqEditandoId = id || null;
+  const item = id ? faq.find(f => f.id === id) : null;
+  document.getElementById('modal-faq-titulo').textContent = id ? 'Editar pergunta' : 'Nova pergunta';
+  document.getElementById('campo-faq-pergunta').value = item ? item.pergunta : '';
+  document.getElementById('campo-faq-resposta').value = item ? item.resposta : '';
+  document.getElementById('campo-faq-ordem').value = item ? item.sort_order : faq.length;
+  document.getElementById('modal-faq-fundo').classList.add('aberto');
+}
+
+document.getElementById('btn-nova-faq').onclick = () => abrirModalFaq(null);
+document.getElementById('btn-cancelar-faq').onclick = () => document.getElementById('modal-faq-fundo').classList.remove('aberto');
+
+document.getElementById('btn-salvar-faq').onclick = async () => {
+  const dados = {
+    pergunta: document.getElementById('campo-faq-pergunta').value.trim(),
+    resposta: document.getElementById('campo-faq-resposta').value.trim(),
+    sort_order: parseInt(document.getElementById('campo-faq-ordem').value) || 0
+  };
+  if (!dados.pergunta || !dados.resposta){ alert('Preencha a pergunta e a resposta.'); return; }
+  if (faqEditandoId){
+    await supabase.from('catalog_faq').update(dados).eq('id', faqEditandoId);
+  } else {
+    await supabase.from('catalog_faq').insert(dados);
+  }
+  document.getElementById('modal-faq-fundo').classList.remove('aberto');
+  await carregarTudo();
+};
+
+async function excluirFaq(id){
+  if (!confirm('Excluir essa pergunta?')) return;
+  await supabase.from('catalog_faq').delete().eq('id', id);
+  await carregarTudo();
+}
+
+/* ---- Depoimentos ---- */
+function renderDepoimentos(){
+  document.getElementById('contagem-depoimentos').textContent = `${depoimentos.length} depoimentos`;
+  const tbody = document.getElementById('tabela-depoimentos');
+  tbody.innerHTML = '';
+  depoimentos.forEach(d => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${d.imagem_url ? `<img src="${d.imagem_url}" style="width:32px; height:32px; border-radius:6px; object-fit:cover">` : '—'}</td>
+      <td>${d.texto ? d.texto.slice(0, 60) + (d.texto.length > 60 ? '…' : '') : '(só print)'}${d.autor ? ' — ' + d.autor : ''}</td>
+      <td>${d.sort_order}</td>
+      <td class="acoes">
+        <button class="btn btn-secundario" data-editar-depoimento="${d.id}">Editar</button>
+        <button class="btn btn-perigo" data-excluir-depoimento="${d.id}">Excluir</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('[data-editar-depoimento]').forEach(b => b.onclick = () => abrirModalDepoimento(b.dataset.editarDepoimento));
+  tbody.querySelectorAll('[data-excluir-depoimento]').forEach(b => b.onclick = () => excluirDepoimento(b.dataset.excluirDepoimento));
+}
+
+function atualizarPreviewDepoimento(){
+  const el = document.getElementById('preview-depoimento-imagem');
+  if (imagemDepoimentoUrlAtual){
+    el.innerHTML = `<img src="${imagemDepoimentoUrlAtual}" style="width:100%; display:block">`;
+  } else {
+    el.innerHTML = 'sem imagem';
+  }
+}
+
+function abrirModalDepoimento(id){
+  depoimentoEditandoId = id || null;
+  const item = id ? depoimentos.find(d => d.id === id) : null;
+  document.getElementById('campo-depoimento-imagem').value = '';
+  document.getElementById('status-upload-depoimento').textContent = '';
+  document.getElementById('modal-depoimento-titulo').textContent = id ? 'Editar depoimento' : 'Novo depoimento';
+  document.getElementById('campo-depoimento-texto').value = item ? (item.texto || '') : '';
+  document.getElementById('campo-depoimento-autor').value = item ? (item.autor || '') : '';
+  document.getElementById('campo-depoimento-ordem').value = item ? item.sort_order : depoimentos.length;
+  imagemDepoimentoUrlAtual = item ? (item.imagem_url || null) : null;
+  atualizarPreviewDepoimento();
+  document.getElementById('modal-depoimento-fundo').classList.add('aberto');
+}
+
+document.getElementById('btn-novo-depoimento').onclick = () => abrirModalDepoimento(null);
+document.getElementById('btn-cancelar-depoimento').onclick = () => document.getElementById('modal-depoimento-fundo').classList.remove('aberto');
+
+document.getElementById('campo-depoimento-imagem').addEventListener('change', async (e) => {
+  const arquivo = e.target.files[0];
+  if (!arquivo) return;
+  const statusEl = document.getElementById('status-upload-depoimento');
+  statusEl.textContent = 'Enviando...';
+  const caminho = `depoimentos/${Date.now()}-${arquivo.name.replace(/[^a-zA-Z0-9._-]/g, '')}`;
+  const { error } = await supabase.storage.from('catalog-images').upload(caminho, arquivo, { upsert: true });
+  if (error){
+    statusEl.textContent = 'Erro ao enviar imagem: ' + error.message;
+    return;
+  }
+  const { data } = supabase.storage.from('catalog-images').getPublicUrl(caminho);
+  imagemDepoimentoUrlAtual = data.publicUrl;
+  atualizarPreviewDepoimento();
+  statusEl.textContent = 'Imagem enviada.';
+});
+
+document.getElementById('btn-salvar-depoimento').onclick = async () => {
+  const dados = {
+    texto: document.getElementById('campo-depoimento-texto').value.trim() || null,
+    autor: document.getElementById('campo-depoimento-autor').value.trim() || null,
+    sort_order: parseInt(document.getElementById('campo-depoimento-ordem').value) || 0,
+    imagem_url: imagemDepoimentoUrlAtual
+  };
+  if (!dados.texto && !dados.imagem_url){ alert('Preencha o texto ou envie um print.'); return; }
+  if (depoimentoEditandoId){
+    await supabase.from('catalog_depoimentos').update(dados).eq('id', depoimentoEditandoId);
+  } else {
+    await supabase.from('catalog_depoimentos').insert(dados);
+  }
+  document.getElementById('modal-depoimento-fundo').classList.remove('aberto');
+  await carregarTudo();
+};
+
+async function excluirDepoimento(id){
+  if (!confirm('Excluir esse depoimento?')) return;
+  await supabase.from('catalog_depoimentos').delete().eq('id', id);
+  await carregarTudo();
+}
+
+/* ---- Loja (informações gerais) ---- */
+function preencherFormLoja(settingsLoja){
+  document.getElementById('loja-quem-somos').value = settingsLoja.quem_somos || '';
+  document.getElementById('loja-pagamento').value = settingsLoja.pagamento || '';
+  document.getElementById('loja-entrega').value = settingsLoja.entrega || '';
+  document.getElementById('loja-embalagem').value = settingsLoja.embalagem || '';
+  document.getElementById('loja-troca').value = settingsLoja.troca_garantia || '';
+}
+
+document.getElementById('btn-salvar-loja').onclick = async () => {
+  const dados = {
+    quem_somos: document.getElementById('loja-quem-somos').value.trim() || null,
+    pagamento: document.getElementById('loja-pagamento').value.trim() || null,
+    entrega: document.getElementById('loja-entrega').value.trim() || null,
+    embalagem: document.getElementById('loja-embalagem').value.trim() || null,
+    troca_garantia: document.getElementById('loja-troca').value.trim() || null
+  };
+  const statusEl = document.getElementById('status-loja');
+  statusEl.textContent = 'Salvando...';
+  const { error } = await supabase.from('catalog_settings').update(dados).eq('id', 1);
+  statusEl.textContent = error ? 'Erro ao salvar.' : 'Salvo!';
+  setTimeout(() => statusEl.textContent = '', 2500);
+};
 
 verificarSessao();
 </script>
