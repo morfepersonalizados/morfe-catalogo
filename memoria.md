@@ -61,6 +61,8 @@
 - Chinelo: usuário decidiu não cadastrar por enquanto ("pode continuar sem chinelo").
 - **2026-08-06** — Lista de pedido ganhou um bloco de "dados do cliente" antes do botão de finalizar, a pedido do usuário ("deveria ter algo tipo a pessoa colocar o nome dela, se é presente ou uso pessoal, informações que ajudariam na hora do pedido"): nome (obrigatório — bloqueia o envio e destaca o campo em vermelho se vazio, sem usar `alert()`), presente ou uso pessoal (select opcional), "precisa para quando" (texto livre opcional, prazo/data) e um campo de observação geral do pedido (opcional, diferente da observação por item que já existia). Tudo salvo em `localStorage` (`morfe_dados_cliente`) e persistido entre visitas — cliente que já preencheu o nome uma vez não precisa digitar de novo. Mensagem do WhatsApp agora abre com nome/finalidade/prazo antes da lista de itens, e fecha com as observações gerais depois do total.
 
+- **2026-08-06** — Adicionado link do Instagram (`@morfepersonalizados`) no rodapé, discreto (ícone + texto pequeno, não compete com o botão de WhatsApp que é a ação principal). Facebook não foi adicionado — usuário só confirmou o Instagram como rede ativa.
+
 ## Pendências / próximos passos
 - Testar o link ao vivo (https://morfe-catalogo-xfyv.vercel.app) no celular, vindo do WhatsApp/Instagram como um cliente real faria.
 - Considerar domínio próprio (ex: catalogo.morfepersonalizados.com.br) em vez do domínio `.vercel.app` padrão, quando fizer sentido.
