@@ -566,12 +566,13 @@
   .depoimento-card .depoimento-autor::before{ content:"— " }
 
   .btn-voltar-modal{
-    position:absolute; top:14px; left:14px; z-index:3;
+    position:sticky; top:14px; z-index:3;
     width:40px; height:40px; border-radius:50%;
     background:var(--creme); border:none; color:var(--terracota);
     display:flex; align-items:center; justify-content:center;
     box-shadow:0 2px 8px rgba(0,0,0,.25);
     transition: background-color .15s ease;
+    margin:0 0 -54px 14px;
   }
   .btn-voltar-modal:hover{ background:#f0e6c8 }
   .modal-categoria{ font-size:11px; color:var(--dourado); font-weight:700; text-transform:uppercase; letter-spacing:.6px; margin-bottom:4px; margin-top:30px }
