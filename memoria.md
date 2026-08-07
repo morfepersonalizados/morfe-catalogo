@@ -72,6 +72,13 @@
   - **"Quem somos"**: texto ainda não escrito — perguntei pro usuário há quanto tempo a loja existe, se é só ele que faz tudo, e o que diferencia da concorrência. Campo já existe na aba "Loja" do admin, só falta o conteúdo.
   - Admin ganhou 3 abas novas: **Loja** (formulário único de configurações gerais), **FAQ** (lista simples) e **Depoimentos** (lista com upload de imagem reaproveitando o bucket `catalog-images`, pasta `depoimentos/`).
 
+- **2026-08-07** — Troca/garantia reescrita com base em pesquisa real (o rascunho anterior era só uma prática comum, sem checar a lei). Achado importante: o direito de arrependimento (CDC Art. 49, 7 dias) tecnicamente vale mesmo pra produto personalizado — a lei não abre exceção explícita — mas jurisprudência do TJSP reconhece que, se a loja informa claramente **antes da compra** que personalizado não tem troca por arrependimento (porque não dá pra reaproveitar pra outro cliente), o consumidor fica vinculado a essa política. Por isso o texto ficou explícito e é mostrado antes do pedido ser fechado (no bloco "Como comprar/Dúvidas"). A garantia contra defeito de fabricação passou a citar o prazo real da lei — 90 dias após o recebimento (CDC Art. 26, bem durável) — em vez do "7 dias" inventado antes. Atualizado em `catalog_settings.troca_garantia` e na resposta correspondente do FAQ.
+- **2026-08-07** — Depoimentos redesenhados: usuário não queria print de WhatsApp aparecendo no site, queria algo "mais bonito e diferente". Trocado o cartão de depoimento pra uma citação estilizada (aspas decorativas grandes, texto em Fraunces itálico, barra dourada lateral, nome do cliente em destaque) — texto é a opção principal agora; upload de print continua existindo no admin mas como alternativa secundária, não o padrão.
+- Fotos reais dos produtos: usuário vai subir ele mesmo pelo admin (upload já existe), não preciso fazer nada aqui.
+- Chinelo: usuário decidiu que cadastra ele mesmo se/quando for o caso.
+- Cores faltando (Tarja Branca, Glitter, Mágica, Vidro Fosco): não é pendência — usuário confirmou que esses modelos realmente não têm variação de cor (ex: a tarjada só existe na versão tarjada).
+- Domínio próprio: usuário tem `morfepersonalizados.com.br` registrado. Perguntei como ele quer estruturar (catálogo no domínio raiz vs. subdomínio tipo `catalogo.morfepersonalizados.com.br`, deixando o domínio raiz livre pra outra coisa) antes de dar o passo a passo de configuração — decisão em aberto.
+
 ## Pendências / próximos passos
 - Testar o link ao vivo (https://morfe-catalogo-xfyv.vercel.app) no celular, vindo do WhatsApp/Instagram como um cliente real faria.
 - Considerar domínio próprio (ex: catalogo.morfepersonalizados.com.br) em vez do domínio `.vercel.app` padrão, quando fizer sentido.
