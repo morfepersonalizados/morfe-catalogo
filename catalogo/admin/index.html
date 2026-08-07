@@ -118,12 +118,21 @@
   .modal-botoes{ display:flex; gap:10px; margin-top:18px }
   .modal-botoes .btn{ flex:1 }
 
-  .lista-galeria{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px }
-  .galeria-item{ position:relative; width:60px; height:60px; border-radius:8px; overflow:hidden; background:var(--creme) }
-  .galeria-item button{
-    position:absolute; top:2px; right:2px; width:18px; height:18px; border-radius:50%;
-    background:rgba(0,0,0,.55); color:#fff; border:none; font-size:11px; line-height:1;
+  .lista-galeria{ display:flex; flex-direction:column; gap:6px; margin-bottom:10px }
+  .galeria-item{
+    display:flex; align-items:center; gap:8px;
+    border:1px solid #e4dcc8; border-radius:8px; padding:6px 8px; background:var(--branco);
   }
+  .galeria-item-thumb{ width:44px; height:44px; border-radius:6px; overflow:hidden; flex-shrink:0; background:var(--creme) }
+  .galeria-item-acoes{ display:flex; gap:4px; margin-left:auto; flex-shrink:0 }
+  .galeria-item-acoes button{
+    background:var(--branco); border:1px solid #e4dcc8; border-radius:6px;
+    width:26px; height:26px; font-size:12px; color:var(--texto);
+  }
+  .galeria-item-acoes button:hover{ background:var(--creme) }
+  .galeria-item-acoes button:disabled{ opacity:.35; cursor:not-allowed }
+  .galeria-item-acoes button.capa-btn{ width:auto; padding:0 8px; font-size:11px; white-space:nowrap; color:var(--terracota); font-weight:600 }
+  .galeria-item-acoes button.del-btn{ color:#b3261e }
   .galeria-aviso{ font-size:12px; color:var(--texto-claro) }
   .preview-capa-wrap{ position:relative; width:100%; max-width:180px; margin-bottom:8px }
   .btn-remover-capa{
@@ -289,6 +298,10 @@
         <label>Troca e garantia</label>
         <textarea id="loja-troca" rows="3"></textarea>
       </div>
+      <div class="campo">
+        <label>Selo "Novo" fica ativo por quantos dias após cadastrar o produto?</label>
+        <input type="number" id="loja-dias-novo" min="0" style="max-width:120px">
+      </div>
       <button class="btn btn-primario" id="btn-salvar-loja">Salvar informações</button>
       <span id="status-loja" style="font-size:12px; color:var(--texto-claro); margin-left:10px"></span>
     </div>
@@ -370,7 +383,7 @@
 <!-- Modal categoria -->
 <div class="modal-fundo" id="modal-categoria-fundo">
   <div class="modal">
-    <h3>Nova categoria</h3>
+    <h3 id="modal-categoria-titulo">Nova categoria</h3>
     <div class="campo">
       <label>Nome</label>
       <input type="text" id="campo-cat-nome">
@@ -514,11 +527,12 @@ function tagPreviewMidia(url, tamanhoCss){
   return `<img src="${url}" style="width:${tamanhoCss}; height:${tamanhoCss}; object-fit:cover">`;
 }
 
+let diasSeloNovo = 21;
 const RENOTULOS_BADGE = { mais_vendido: 'Mais vendido', destaque: 'Destaque' };
 function rotulosBadges(p){
   const rotulos = (p.badges || []).map(b => RENOTULOS_BADGE[b]).filter(Boolean);
   const dias = (Date.now() - new Date(p.created_at).getTime()) / 86400000;
-  if (dias <= 21) rotulos.unshift('Novo');
+  if (diasSeloNovo > 0 && dias <= diasSeloNovo) rotulos.unshift('Novo');
   return rotulos;
 }
 function prazoTexto(p){
@@ -607,12 +621,12 @@ async function carregarTudo(){
     mediaPorArte[m.design_id].push(m);
   });
   const settingsLoja = (settingsRows && settingsRows[0]) || {};
+  preencherFormLoja(settingsLoja);
   renderProdutos();
   renderCategorias();
   renderArtes();
   renderFaq();
   renderDepoimentos();
-  preencherFormLoja(settingsLoja);
   renderVisaoGeral();
 }
 
@@ -708,10 +722,14 @@ function renderCategorias(){
       <td>${c.name}</td>
       <td>${c.sort_order}</td>
       <td>${n}</td>
-      <td class="acoes"><button class="btn btn-perigo" data-excluir-cat="${c.id}">Excluir</button></td>
+      <td class="acoes">
+        <button class="btn btn-secundario" data-editar-cat="${c.id}">Editar</button>
+        <button class="btn btn-perigo" data-excluir-cat="${c.id}">Excluir</button>
+      </td>
     `;
     tbody.appendChild(tr);
   });
+  tbody.querySelectorAll('[data-editar-cat]').forEach(b => b.onclick = () => abrirModalCategoria(b.dataset.editarCat));
   tbody.querySelectorAll('[data-excluir-cat]').forEach(b => b.onclick = () => excluirCategoria(b.dataset.excluirCat));
 }
 
@@ -753,16 +771,55 @@ function renderGaleriaProdutoModal(produtoId){
   }
   bloco.style.display = 'block';
   aviso.style.display = 'none';
-  const itens = mediaPorProduto[produtoId] || [];
+  const itens = [...(mediaPorProduto[produtoId] || [])].sort((a, b) => a.sort_order - b.sort_order);
   const listaEl = document.getElementById('lista-galeria-produto');
-  listaEl.innerHTML = itens.map(m => `
-    <div class="galeria-item">${tagPreviewMidia(m.url, '60px')}<button data-del-media="${m.id}">✕</button></div>
+  listaEl.innerHTML = itens.map((m, i) => `
+    <div class="galeria-item">
+      <div class="galeria-item-thumb">${tagPreviewMidia(m.url, '44px')}</div>
+      <div class="galeria-item-acoes">
+        <button data-mover-cima="${m.id}" ${i === 0 ? 'disabled' : ''} title="Mover pra cima">↑</button>
+        <button data-mover-baixo="${m.id}" ${i === itens.length - 1 ? 'disabled' : ''} title="Mover pra baixo">↓</button>
+        <button class="capa-btn" data-tornar-capa="${m.id}" title="Usar como capa">★ Capa</button>
+        <button class="del-btn" data-del-media="${m.id}" title="Remover">✕</button>
+      </div>
+    </div>
   `).join('');
   listaEl.querySelectorAll('[data-del-media]').forEach(b => b.onclick = async () => {
     await supabase.from('catalog_product_media').delete().eq('id', b.dataset.delMedia);
     await carregarTudo();
     renderGaleriaProdutoModal(produtoId);
   });
+  listaEl.querySelectorAll('[data-mover-cima]').forEach(b => b.onclick = () => moverGaleriaProduto(produtoId, b.dataset.moverCima, -1));
+  listaEl.querySelectorAll('[data-mover-baixo]').forEach(b => b.onclick = () => moverGaleriaProduto(produtoId, b.dataset.moverBaixo, 1));
+  listaEl.querySelectorAll('[data-tornar-capa]').forEach(b => b.onclick = () => tornarCapaProduto(produtoId, b.dataset.tornarCapa));
+}
+
+async function moverGaleriaProduto(produtoId, mediaId, direcao){
+  const itens = [...(mediaPorProduto[produtoId] || [])].sort((a, b) => a.sort_order - b.sort_order);
+  const i = itens.findIndex(m => m.id === mediaId);
+  const j = i + direcao;
+  if (i === -1 || j < 0 || j >= itens.length) return;
+  const a = itens[i], b = itens[j];
+  await supabase.from('catalog_product_media').update({ sort_order: b.sort_order }).eq('id', a.id);
+  await supabase.from('catalog_product_media').update({ sort_order: a.sort_order }).eq('id', b.id);
+  await carregarTudo();
+  renderGaleriaProdutoModal(produtoId);
+}
+
+async function tornarCapaProduto(produtoId, mediaId){
+  const item = (mediaPorProduto[produtoId] || []).find(m => m.id === mediaId);
+  if (!item) return;
+  const capaAntiga = imagemUrlAtual;
+  imagemUrlAtual = item.url;
+  atualizarPreviewImagem();
+  await supabase.from('catalog_products').update({ image_url: item.url }).eq('id', produtoId);
+  if (capaAntiga){
+    await supabase.from('catalog_product_media').update({ url: capaAntiga }).eq('id', mediaId);
+  } else {
+    await supabase.from('catalog_product_media').delete().eq('id', mediaId);
+  }
+  await carregarTudo();
+  renderGaleriaProdutoModal(produtoId);
 }
 
 function abrirModalProduto(produtoId){
@@ -899,18 +956,29 @@ async function excluirProduto(id){
 }
 
 /* ---- Modal categoria ---- */
-document.getElementById('btn-nova-categoria').onclick = () => {
-  document.getElementById('campo-cat-nome').value = '';
-  document.getElementById('campo-cat-ordem').value = categorias.length;
+let categoriaEditandoId = null;
+
+function abrirModalCategoria(categoriaId){
+  categoriaEditandoId = categoriaId || null;
+  const c = categoriaId ? categorias.find(x => x.id === categoriaId) : null;
+  document.getElementById('modal-categoria-titulo').textContent = categoriaId ? 'Editar categoria' : 'Nova categoria';
+  document.getElementById('campo-cat-nome').value = c ? c.name : '';
+  document.getElementById('campo-cat-ordem').value = c ? c.sort_order : categorias.length;
   document.getElementById('modal-categoria-fundo').classList.add('aberto');
-};
+}
+
+document.getElementById('btn-nova-categoria').onclick = () => abrirModalCategoria(null);
 document.getElementById('btn-cancelar-categoria').onclick = () => document.getElementById('modal-categoria-fundo').classList.remove('aberto');
 
 document.getElementById('btn-salvar-categoria').onclick = async () => {
   const nome = document.getElementById('campo-cat-nome').value.trim();
   const ordem = parseInt(document.getElementById('campo-cat-ordem').value) || 0;
   if (!nome){ alert('Digite um nome.'); return; }
-  await supabase.from('catalog_categories').insert({ name: nome, sort_order: ordem });
+  if (categoriaEditandoId){
+    await supabase.from('catalog_categories').update({ name: nome, sort_order: ordem }).eq('id', categoriaEditandoId);
+  } else {
+    await supabase.from('catalog_categories').insert({ name: nome, sort_order: ordem });
+  }
   document.getElementById('modal-categoria-fundo').classList.remove('aberto');
   await carregarTudo();
 };
@@ -957,16 +1025,55 @@ function renderGaleriaArteModal(designId){
   }
   bloco.style.display = 'block';
   aviso.style.display = 'none';
-  const itens = mediaPorArte[designId] || [];
+  const itens = [...(mediaPorArte[designId] || [])].sort((a, b) => a.sort_order - b.sort_order);
   const listaEl = document.getElementById('lista-galeria-arte');
-  listaEl.innerHTML = itens.map(m => `
-    <div class="galeria-item">${tagPreviewMidia(m.url, '60px')}<button data-del-media-arte="${m.id}">✕</button></div>
+  listaEl.innerHTML = itens.map((m, i) => `
+    <div class="galeria-item">
+      <div class="galeria-item-thumb">${tagPreviewMidia(m.url, '44px')}</div>
+      <div class="galeria-item-acoes">
+        <button data-mover-cima="${m.id}" ${i === 0 ? 'disabled' : ''} title="Mover pra cima">↑</button>
+        <button data-mover-baixo="${m.id}" ${i === itens.length - 1 ? 'disabled' : ''} title="Mover pra baixo">↓</button>
+        <button class="capa-btn" data-tornar-capa="${m.id}" title="Usar como capa">★ Capa</button>
+        <button class="del-btn" data-del-media-arte="${m.id}" title="Remover">✕</button>
+      </div>
+    </div>
   `).join('');
   listaEl.querySelectorAll('[data-del-media-arte]').forEach(b => b.onclick = async () => {
     await supabase.from('catalog_design_media').delete().eq('id', b.dataset.delMediaArte);
     await carregarTudo();
     renderGaleriaArteModal(designId);
   });
+  listaEl.querySelectorAll('[data-mover-cima]').forEach(b => b.onclick = () => moverGaleriaArte(designId, b.dataset.moverCima, -1));
+  listaEl.querySelectorAll('[data-mover-baixo]').forEach(b => b.onclick = () => moverGaleriaArte(designId, b.dataset.moverBaixo, 1));
+  listaEl.querySelectorAll('[data-tornar-capa]').forEach(b => b.onclick = () => tornarCapaArte(designId, b.dataset.tornarCapa));
+}
+
+async function moverGaleriaArte(designId, mediaId, direcao){
+  const itens = [...(mediaPorArte[designId] || [])].sort((a, b) => a.sort_order - b.sort_order);
+  const i = itens.findIndex(m => m.id === mediaId);
+  const j = i + direcao;
+  if (i === -1 || j < 0 || j >= itens.length) return;
+  const a = itens[i], b = itens[j];
+  await supabase.from('catalog_design_media').update({ sort_order: b.sort_order }).eq('id', a.id);
+  await supabase.from('catalog_design_media').update({ sort_order: a.sort_order }).eq('id', b.id);
+  await carregarTudo();
+  renderGaleriaArteModal(designId);
+}
+
+async function tornarCapaArte(designId, mediaId){
+  const item = (mediaPorArte[designId] || []).find(m => m.id === mediaId);
+  if (!item) return;
+  const capaAntiga = imagemArteUrlAtual;
+  imagemArteUrlAtual = item.url;
+  document.getElementById('preview-arte-imagem').innerHTML = tagPreviewMidia(imagemArteUrlAtual, '100%');
+  await supabase.from('catalog_designs').update({ image_url: item.url }).eq('id', designId);
+  if (capaAntiga){
+    await supabase.from('catalog_design_media').update({ url: capaAntiga }).eq('id', mediaId);
+  } else {
+    await supabase.from('catalog_design_media').delete().eq('id', mediaId);
+  }
+  await carregarTudo();
+  renderGaleriaArteModal(designId);
 }
 
 function abrirModalArte(designId){
@@ -1239,6 +1346,8 @@ function preencherFormLoja(settingsLoja){
   document.getElementById('loja-entrega').value = settingsLoja.entrega || '';
   document.getElementById('loja-embalagem').value = settingsLoja.embalagem || '';
   document.getElementById('loja-troca').value = settingsLoja.troca_garantia || '';
+  document.getElementById('loja-dias-novo').value = settingsLoja.dias_selo_novo ?? 21;
+  diasSeloNovo = settingsLoja.dias_selo_novo ?? 21;
 }
 
 document.getElementById('btn-salvar-loja').onclick = async () => {
@@ -1247,7 +1356,8 @@ document.getElementById('btn-salvar-loja').onclick = async () => {
     pagamento: document.getElementById('loja-pagamento').value.trim() || null,
     entrega: document.getElementById('loja-entrega').value.trim() || null,
     embalagem: document.getElementById('loja-embalagem').value.trim() || null,
-    troca_garantia: document.getElementById('loja-troca').value.trim() || null
+    troca_garantia: document.getElementById('loja-troca').value.trim() || null,
+    dias_selo_novo: parseInt(document.getElementById('loja-dias-novo').value) || 0
   };
   const statusEl = document.getElementById('status-loja');
   statusEl.textContent = 'Salvando...';

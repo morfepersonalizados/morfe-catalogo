@@ -108,6 +108,18 @@
   - **Selo "Ver vídeo"**: inspirado na página de produto da Gocase que o usuário mandou (adotei só a parte do selo de vídeo — descartei "Ver em 3D" por não ter essa capacidade, descartei miniaturas verticais e acordeão de descrição por baixo retorno pro tamanho do catálogo). Aparece no card do produto, na imagem principal do quick-view, e nos cards de arte (ali substitui o ícone de "expandir" por um ícone de play) — sempre que a galeria daquele item tem pelo menos um vídeo, e clicar pula direto pra ele.
 - **2026-08-08** — Usuário pediu explicitamente pra eu não responder no meio quando ele manda várias coisas empilhadas — só uma resposta consolidada no final (salvo como preferência de colaboração na memória do Claude, fora deste repositório).
 
+- **2026-08-08** — Nova leva de correções e pedidos, a partir de teste ao vivo no celular e notebook:
+  - **Bug corrigido**: lightbox aparecia atrás de qualquer modal aberto (produto, galeria de artes) — causa era z-index empatado (70) com o lightbox vindo antes no HTML; quem vem depois no DOM ganha em empate, e o lightbox sempre perdia. Resolvido dando z-index próprio (90) só pro lightbox.
+  - **Quick-view do produto reformulado**: era 2 colunas (imagem 300px + info) no desktop, virando 1 coluna só no celular. Agora é sempre empilhado (imagem larga em cima, info embaixo) em qualquer tamanho de tela — usuário pediu porque a maioria acessa pelo celular, e a imagem virou sempre paisagem (16:9) em vez de quadrada, cortando bem menos as fotos reais dos mockups (que são largas).
+  - **Botão "Fechar" removido** do quick-view — fazia a mesma coisa que a seta de voltar no canto, que só ficou maior (32px→40px) e com sombra pra aparecer bem em cima de qualquer foto.
+  - **Setas de navegação** nos carrosséis "Mais desse tema"/"Mais parecidos" — só aparecem em telas com mouse/trackpad (`hover:hover`), escondidas em touch porque no celular já se usa o dedo.
+  - **Clicar na arte agora abre a visualização** (antes só o iconezinho pequeno de play/expandir abria — fácil de não achar, principalmente no celular). Clicar na imagem da arte abre o lightbox; clicar fora da imagem (nome) continua selecionando/filtrando.
+  - **Selo "Novo" configurável**: dias editáveis na aba Loja do admin (0 = desativado), em vez de 21 fixo no código.
+  - **Galeria de produto e arte ganhou reordenação**: setas ↑↓ pra mudar a ordem, e botão "★ Capa" pra promover qualquer foto da galeria a capa (troca de lugar com a capa atual, nada se perde). Antes só dava pra remover.
+  - **Categoria agora pode ser editada** no admin (antes só criar/excluir).
+  - **Hover nos cards do catálogo** (não nos cards de arte): passando o mouse num produto com mais de uma foto/vídeo, fica alternando entre elas automaticamente — só em telas com mouse (não afeta celular).
+  - **Botão de remover foto de capa** virou um X no canto da miniatura (era um botão "Remover foto" separado embaixo), no mesmo padrão da galeria.
+
 ## Pendências / próximos passos
 - **Urgente**: consertar o deploy automático na Vercel (parado desde ontem ~20h15) — ver nota acima.
 - Configurar `catalogo.morfepersonalizados.com.br` na Vercel + DNS no provedor do domínio.
