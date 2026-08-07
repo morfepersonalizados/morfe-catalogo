@@ -125,6 +125,11 @@
     background:rgba(0,0,0,.55); color:#fff; border:none; font-size:11px; line-height:1;
   }
   .galeria-aviso{ font-size:12px; color:var(--texto-claro) }
+  .preview-capa-wrap{ position:relative; width:100%; max-width:180px; margin-bottom:8px }
+  .btn-remover-capa{
+    position:absolute; top:6px; right:6px; width:24px; height:24px; border-radius:50%;
+    background:rgba(0,0,0,.6); color:#fff; border:none; font-size:13px; line-height:1; z-index:2;
+  }
 </style>
 </head>
 <body>
@@ -299,9 +304,11 @@
     <h3 id="modal-produto-titulo">Novo produto</h3>
     <div class="campo">
       <label>Foto ou vídeo de capa (vídeo toca em loop, mudo)</label>
-      <div id="preview-imagem" style="width:100%; aspect-ratio:1/1; max-width:180px; background:var(--creme); border-radius:8px; overflow:hidden; margin-bottom:8px; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--texto-claro)">sem foto</div>
+      <div class="preview-capa-wrap">
+        <div id="preview-imagem" style="width:100%; aspect-ratio:1/1; background:var(--creme); border-radius:8px; overflow:hidden; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--texto-claro)">sem foto</div>
+        <button type="button" class="btn-remover-capa" id="btn-remover-imagem" title="Remover foto">✕</button>
+      </div>
       <input type="file" id="campo-imagem" accept="image/*,video/*">
-      <button type="button" class="btn btn-secundario" id="btn-remover-imagem" style="margin-top:6px; font-size:12px; padding:6px 10px">Remover foto</button>
       <div id="status-upload" style="font-size:12px; color:var(--texto-claro); margin-top:4px"></div>
     </div>
     <div class="campo" id="bloco-galeria-produto" style="display:none">
@@ -385,9 +392,11 @@
     <h3 id="modal-arte-titulo">Nova arte</h3>
     <div class="campo">
       <label>Foto ou vídeo de capa (vídeo toca em loop, mudo)</label>
-      <div id="preview-arte-imagem" style="width:100%; aspect-ratio:1/1; max-width:180px; background:var(--creme); border-radius:8px; overflow:hidden; margin-bottom:8px; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--texto-claro)">sem foto</div>
+      <div class="preview-capa-wrap">
+        <div id="preview-arte-imagem" style="width:100%; aspect-ratio:1/1; background:var(--creme); border-radius:8px; overflow:hidden; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--texto-claro)">sem foto</div>
+        <button type="button" class="btn-remover-capa" id="btn-remover-arte-imagem" title="Remover foto">✕</button>
+      </div>
       <input type="file" id="campo-arte-imagem" accept="image/*,video/*">
-      <button type="button" class="btn btn-secundario" id="btn-remover-arte-imagem" style="margin-top:6px; font-size:12px; padding:6px 10px">Remover foto</button>
       <div id="status-upload-arte" style="font-size:12px; color:var(--texto-claro); margin-top:4px"></div>
     </div>
     <div class="campo" id="bloco-galeria-arte" style="display:none">
@@ -454,9 +463,11 @@
     </div>
     <div class="campo">
       <label>Foto/print (opcional — só use se quiser mostrar a imagem em vez do texto)</label>
-      <div id="preview-depoimento-imagem" style="width:100%; max-width:220px; background:var(--creme); border-radius:8px; overflow:hidden; margin-bottom:8px; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--texto-claro); min-height:60px">sem imagem</div>
+      <div class="preview-capa-wrap" style="max-width:220px">
+        <div id="preview-depoimento-imagem" style="width:100%; background:var(--creme); border-radius:8px; overflow:hidden; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--texto-claro); min-height:60px">sem imagem</div>
+        <button type="button" class="btn-remover-capa" id="btn-remover-depoimento-imagem" title="Remover foto">✕</button>
+      </div>
       <input type="file" id="campo-depoimento-imagem" accept="image/*">
-      <button type="button" class="btn btn-secundario" id="btn-remover-depoimento-imagem" style="margin-top:6px; font-size:12px; padding:6px 10px">Remover foto</button>
       <div id="status-upload-depoimento" style="font-size:12px; color:var(--texto-claro); margin-top:4px"></div>
     </div>
     <div class="campo">
