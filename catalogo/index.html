@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="assets/brand.css">
 <style>
   body{ background:var(--creme); position:relative; }
+  body.scroll-travado{ position:fixed; left:0; right:0; overflow:hidden; }
   #fundo-interativo{
     position:fixed; inset:0; z-index:-1;
     overflow:hidden;
@@ -429,6 +430,8 @@
   .modal-col-imagem .modal-imagem{
     aspect-ratio:16/9;
     max-height:65vh;
+    max-width:100%;
+    margin:0 auto;
     border-radius:12px;
     overflow:hidden;
     background:var(--creme);
@@ -1876,9 +1879,33 @@ async function iniciar(){
 }
 iniciar();
 
-/* ---- Fundo com parallax: mouse no desktop, giroscópio no celular ---- */
-/* ---- Fundo: formas geométricas que mudam ao passar o mouse/dedo por perto ---- */
-(function iniciarFormasFundo(){
+/* ---- Trava o scroll da página de fundo enquanto qualquer modal/painel estiver aberto ---- */
+(function travarScrollAoAbrirModal(){
+  const overlays = [...document.querySelectorAll('.modal-fundo, .sobreposicao')];
+  let scrollSalvo = 0;
+
+  function atualizar(){
+    const algumAberto = overlays.some(el => el.classList.contains('aberto'));
+    const travado = document.body.classList.contains('scroll-travado');
+    if (algumAberto && !travado){
+      scrollSalvo = window.scrollY;
+      document.body.style.top = `-${scrollSalvo}px`;
+      document.body.classList.add('scroll-travado');
+    } else if (!algumAberto && travado){
+      document.body.classList.remove('scroll-travado');
+      document.body.style.top = '';
+      window.scrollTo(0, scrollSalvo);
+    }
+  }
+
+  overlays.forEach(el => {
+    new MutationObserver(atualizar).observe(el, { attributes: true, attributeFilter: ['class'] });
+  });
+})();
+
+/* ---- Fundo: formas geométricas em fluxo contínuo da direita pra esquerda,
+   com paralaxe de mouse/giroscópio e troca de forma ao passar perto ---- */
+(function iniciarFundoAnimado(){
   const FORMAS = [
     '<rect x="20" y="20" width="60" height="60" rx="8"/>',
     '<polygon points="50,14 87,82 13,82"/>',
@@ -1889,26 +1916,31 @@ iniciar();
   const container = document.getElementById('fundo-interativo');
   if (!container) return;
 
-  const CEL = 100;
-  const cols = Math.ceil(window.innerWidth / CEL) + 1;
+  const CEL = 55;
+  const larguraTela = window.innerWidth;
+  const cols = Math.ceil(larguraTela / CEL) + 2;
   const rows = Math.ceil(window.innerHeight / CEL) + 1;
   const formas = [];
 
   for (let r = 0; r < rows; r++){
     for (let c = 0; c < cols; c++){
-      const jitterX = (Math.random() - 0.5) * CEL * 0.55;
-      const jitterY = (Math.random() - 0.5) * CEL * 0.55;
-      const tamanho = CEL * (0.34 + Math.random() * 0.24);
+      const jitterX = (Math.random() - 0.5) * CEL * 0.7;
+      const jitterY = (Math.random() - 0.5) * CEL * 0.7;
+      const tamanho = CEL * (0.22 + Math.random() * 0.85);
       const left = c * CEL + jitterX;
       const top = r * CEL + jitterY;
       const el = document.createElement('div');
       el.className = 'fundo-camada fundo-forma';
-      el.style.left = left + 'px';
       el.style.top = top + 'px';
       el.style.width = tamanho + 'px';
-      el.dataset.profundidade = (6 + Math.random() * 26).toFixed(1);
       container.appendChild(el);
-      formas.push({ el, left, top, tamanho, indice: Math.floor(Math.random() * FORMAS.length), ativo: false });
+      formas.push({
+        el, left, top, tamanho,
+        velocidade: 6 + Math.random() * 22,
+        profundidade: 6 + Math.random() * 24,
+        indice: Math.floor(Math.random() * FORMAS.length),
+        ativo: false
+      });
     }
   }
 
@@ -1932,64 +1964,58 @@ iniciar();
     if (e.touches[0]){ ponteiroX = e.touches[0].clientX; ponteiroY = e.touches[0].clientY; }
   }, { passive: true });
 
-  (function loop(){
-    formas.forEach(f => {
-      const perto = ponteiroX >= f.left - 26 && ponteiroX <= f.left + f.tamanho + 26 &&
-                    ponteiroY >= f.top - 26 && ponteiroY <= f.top + f.tamanho + 26;
-      if (perto && !f.ativo){ f.ativo = true; trocarForma(f); }
-      else if (!perto && f.ativo){ f.ativo = false; }
-    });
-    requestAnimationFrame(loop);
-  })();
-})();
-
-(function iniciarParallaxFundo(){
-  const camadas = [...document.querySelectorAll('.fundo-camada')];
   let alvoX = 0, alvoY = 0, atualX = 0, atualY = 0;
-
-  function aplicarCamadas(){
-    atualX += (alvoX - atualX) * 0.06;
-    atualY += (alvoY - atualY) * 0.06;
-    camadas.forEach(el => {
-      const prof = parseFloat(el.dataset.profundidade) || 20;
-      el.style.transform = `translate(${(atualX * prof).toFixed(1)}px, ${(atualY * prof).toFixed(1)}px)`;
-    });
-    requestAnimationFrame(aplicarCamadas);
-  }
-  aplicarCamadas();
-
   const temMouse = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-
   if (temMouse){
     window.addEventListener('mousemove', (e) => {
       alvoX = (e.clientX / window.innerWidth - 0.5) * 2;
       alvoY = (e.clientY / window.innerHeight - 0.5) * 2;
     });
-    return;
+  } else if (window.DeviceOrientationEvent){
+    function tratarOrientacao(ev){
+      const gamma = ev.gamma || 0;
+      const beta = ev.beta || 0;
+      alvoX = Math.max(-1, Math.min(1, gamma / 25));
+      alvoY = Math.max(-1, Math.min(1, (beta - 35) / 25));
+    }
+    if (typeof DeviceOrientationEvent.requestPermission === 'function'){
+      const pedirPermissao = () => {
+        DeviceOrientationEvent.requestPermission().then(estado => {
+          if (estado === 'granted') window.addEventListener('deviceorientation', tratarOrientacao);
+        }).catch(() => {});
+        document.body.removeEventListener('touchstart', pedirPermissao);
+        document.body.removeEventListener('click', pedirPermissao);
+      };
+      document.body.addEventListener('touchstart', pedirPermissao, { once: true });
+      document.body.addEventListener('click', pedirPermissao, { once: true });
+    } else {
+      window.addEventListener('deviceorientation', tratarOrientacao);
+    }
   }
 
-  if (!window.DeviceOrientationEvent) return;
+  const inicio = performance.now();
+  (function loop(agora){
+    atualX += (alvoX - atualX) * 0.06;
+    atualY += (alvoY - atualY) * 0.06;
+    const t = (agora - inicio) / 1000;
 
-  function tratarOrientacao(ev){
-    const gamma = ev.gamma || 0;
-    const beta = ev.beta || 0;
-    alvoX = Math.max(-1, Math.min(1, gamma / 25));
-    alvoY = Math.max(-1, Math.min(1, (beta - 35) / 25));
-  }
+    formas.forEach(f => {
+      const largura = f.tamanho + larguraTela + f.tamanho;
+      let x = f.left - t * f.velocidade;
+      x = ((x + f.tamanho) % largura + largura) % largura - f.tamanho;
+      const deltaX = x - f.left;
+      const paralaxeX = atualX * f.profundidade;
+      const paralaxeY = atualY * f.profundidade;
+      f.el.style.transform = `translate(${(deltaX + paralaxeX).toFixed(1)}px, ${paralaxeY.toFixed(1)}px)`;
 
-  if (typeof DeviceOrientationEvent.requestPermission === 'function'){
-    const pedirPermissao = () => {
-      DeviceOrientationEvent.requestPermission().then(estado => {
-        if (estado === 'granted') window.addEventListener('deviceorientation', tratarOrientacao);
-      }).catch(() => {});
-      document.body.removeEventListener('touchstart', pedirPermissao);
-      document.body.removeEventListener('click', pedirPermissao);
-    };
-    document.body.addEventListener('touchstart', pedirPermissao, { once: true });
-    document.body.addEventListener('click', pedirPermissao, { once: true });
-  } else {
-    window.addEventListener('deviceorientation', tratarOrientacao);
-  }
+      const telaX = f.left + deltaX;
+      const perto = ponteiroX >= telaX - 22 && ponteiroX <= telaX + f.tamanho + 22 &&
+                    ponteiroY >= f.top - 22 && ponteiroY <= f.top + f.tamanho + 22;
+      if (perto && !f.ativo){ f.ativo = true; trocarForma(f); }
+      else if (!perto && f.ativo){ f.ativo = false; }
+    });
+    requestAnimationFrame(loop);
+  })(inicio);
 })();
 </script>
 

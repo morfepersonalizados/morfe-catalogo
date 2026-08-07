@@ -133,6 +133,11 @@
   - **Imagem do produto no quick-view agora se molda à imagem enviada**: antes forçava paisagem (16:9) fixo pra todo produto; usuário apontou que produto como azulejo é quadrado, não paisagem. Agora lê a dimensão real da imagem/vídeo (`naturalWidth/naturalHeight` ou `videoWidth/videoHeight`) e ajusta o formato da caixa dinamicamente pra cada produto, com `object-fit:contain` (nunca corta) e um limite de altura (65vh) pra imagens muito verticais não estourarem a tela.
   - **Busca em todas as listas do admin** (Produtos, Categorias, Artes, FAQ, Depoimentos): campo de busca no topo de cada lista, filtra em tempo real por nome (e tema, no caso de artes; pergunta/resposta, no caso de FAQ; texto/autor, em depoimentos).
 
+- **2026-08-08** — Mais três ajustes:
+  - **Bug corrigido**: rolar a página às vezes "vazava" pro fundo (a página de trás rolava junto) enquanto um modal/painel estava aberto — clássico problema de scroll chaining em overlay, comum em celular. Corrigido travando o scroll do `body` (com a técnica de `position:fixed` + salvar/restaurar a posição) sempre que qualquer modal ou painel estiver com a classe `aberto`, via `MutationObserver` — não precisa mais lembrar de travar/destravar manualmente em cada abertura/fechamento.
+  - **Fundo com formas**: unificado num sistema só (antes eram dois: um cuidava da troca de forma, outro da paralaxe — disputando a mesma propriedade `transform` do CSS). Agora tem muito mais formas (célula menor, 55px em vez de 100px) de tamanhos bem variados, e todas fluem continuamente da direita pra esquerda (com velocidade própria de cada uma, dando um efeito de correnteza), envolvendo a tela infinitamente. Paralaxe de mouse/giroscópio e troca de forma ao passar perto continuam funcionando, agora combinados no mesmo cálculo.
+  - **Imagem do produto sempre centralizada**: como a caixa da imagem agora se ajusta ao formato real da foto (feature anterior), em fotos mais "estreitas" que a coluna ela ficava grudada à esquerda com espaço em branco sobrando à direita. Adicionado `margin:0 auto` pra sempre centralizar.
+
 ## Pendências / próximos passos
 - **Urgente**: consertar o deploy automático na Vercel (parado desde ontem ~20h15) — ver nota acima.
 - Configurar `catalogo.morfepersonalizados.com.br` na Vercel + DNS no provedor do domínio.
