@@ -140,6 +140,11 @@
 
 - **2026-08-08** — Formas do fundo ganharam "física" leve de colisão: quando duas se aproximam (tratadas como círculos, checando só a própria linha da grade + vizinhas, pra não comparar todas contra todas), elas se empurram de leve uma pra longe da outra, e esse empurrão vai decaindo com o tempo até sumir — assim elas nunca ficam grudadas/sobrepostas, mas também não saem permanentemente do fluxo.
 
+- **2026-08-08** — Dois ajustes no admin de produto:
+  - **"Não dá pra por mais de uma imagem"**: não era bem um bug no upload em si — o problema era de fluxo. Num produto NOVO (ainda não salvo), a seção de galeria de fotos extras fica bloqueada até o produto existir no banco (precisa do id), então só dava pra usar a capa até salvar, fechar e reabrir — o que parecia "só aceita 1 imagem". Corrigido: ao salvar um produto novo, o modal não fecha mais — ele continua aberto, já em modo de edição, com a galeria liberada na mesma hora, sem precisar fechar/reabrir.
+  - **Campo de descrição**: existia no catálogo público (`p.description`) mas nunca teve onde editar no admin — só dava pra definir mexendo direto no banco. Adicionado campo de descrição no formulário de produto.
+- Pendente de esclarecimento do usuário: pediu pra mexer nos "botões de voltar no admin" — não ficou claro qual botão/comportamento específico, perguntei antes de mexer.
+
 ## Pendências / próximos passos
 - **Urgente**: consertar o deploy automático na Vercel (parado desde ontem ~20h15) — ver nota acima.
 - Configurar `catalogo.morfepersonalizados.com.br` na Vercel + DNS no provedor do domínio.
