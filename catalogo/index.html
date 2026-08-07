@@ -649,14 +649,7 @@
 </head>
 <body>
 
-<div id="fundo-interativo">
-  <div class="fundo-camada fundo-forma" data-profundidade="14" style="top:9%; left:7%; width:8.5%"></div>
-  <div class="fundo-camada fundo-forma" data-profundidade="24" style="top:16%; right:11%; width:6.5%"></div>
-  <div class="fundo-camada fundo-forma" data-profundidade="19" style="top:52%; left:4%; width:7.5%"></div>
-  <div class="fundo-camada fundo-forma" data-profundidade="32" style="bottom:14%; right:7%; width:9.5%"></div>
-  <div class="fundo-camada fundo-forma" data-profundidade="27" style="bottom:22%; left:40%; width:6%"></div>
-  <div class="fundo-camada fundo-forma" data-profundidade="21" style="top:38%; right:32%; width:5%"></div>
-</div>
+<div id="fundo-interativo"></div>
 
 <div id="pre-carregador">
   <div class="pre-logo"><img src="assets/logo.png" alt="Morfê Personalizados"></div>
@@ -1881,46 +1874,61 @@ iniciar();
     '<polygon points="50,8 86,29 86,71 50,92 14,71 14,29"/>',
     '<polygon points="50,10 90,50 50,90 10,50"/>'
   ];
-  const formas = [...document.querySelectorAll('.fundo-forma')];
-  if (!formas.length) return;
+  const container = document.getElementById('fundo-interativo');
+  if (!container) return;
 
-  function desenhar(el){
-    const i = parseInt(el.dataset.indiceForma) || 0;
-    el.innerHTML = `<svg viewBox="0 0 100 100" fill="none" stroke="var(--terracota)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">${FORMAS[i]}</svg>`;
+  const CEL = 100;
+  const cols = Math.ceil(window.innerWidth / CEL) + 1;
+  const rows = Math.ceil(window.innerHeight / CEL) + 1;
+  const formas = [];
+
+  for (let r = 0; r < rows; r++){
+    for (let c = 0; c < cols; c++){
+      const jitterX = (Math.random() - 0.5) * CEL * 0.55;
+      const jitterY = (Math.random() - 0.5) * CEL * 0.55;
+      const tamanho = CEL * (0.34 + Math.random() * 0.24);
+      const left = c * CEL + jitterX;
+      const top = r * CEL + jitterY;
+      const el = document.createElement('div');
+      el.className = 'fundo-camada fundo-forma';
+      el.style.left = left + 'px';
+      el.style.top = top + 'px';
+      el.style.width = tamanho + 'px';
+      el.dataset.profundidade = (6 + Math.random() * 26).toFixed(1);
+      container.appendChild(el);
+      formas.push({ el, left, top, tamanho, indice: Math.floor(Math.random() * FORMAS.length), ativo: false });
+    }
   }
 
-  formas.forEach((el, idx) => {
-    el.dataset.indiceForma = idx % FORMAS.length;
-    desenhar(el);
-  });
+  function desenhar(f){
+    f.el.innerHTML = `<svg viewBox="0 0 100 100" fill="none" stroke="var(--terracota)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">${FORMAS[f.indice]}</svg>`;
+  }
+  formas.forEach(desenhar);
 
-  function trocarForma(el){
-    el.classList.add('fundo-forma-sumindo');
+  function trocarForma(f){
+    f.el.classList.add('fundo-forma-sumindo');
     setTimeout(() => {
-      el.dataset.indiceForma = (parseInt(el.dataset.indiceForma) + 1) % FORMAS.length;
-      desenhar(el);
-      el.classList.remove('fundo-forma-sumindo');
+      f.indice = (f.indice + 1) % FORMAS.length;
+      desenhar(f);
+      f.el.classList.remove('fundo-forma-sumindo');
     }, 180);
   }
 
-  function verificarProximidade(x, y){
-    formas.forEach(el => {
-      const r = el.getBoundingClientRect();
-      const perto = x >= r.left - 24 && x <= r.right + 24 && y >= r.top - 24 && y <= r.bottom + 24;
-      const jaAtivo = el.dataset.ativo === '1';
-      if (perto && !jaAtivo){
-        el.dataset.ativo = '1';
-        trocarForma(el);
-      } else if (!perto && jaAtivo){
-        el.dataset.ativo = '0';
-      }
-    });
-  }
-
-  window.addEventListener('mousemove', (e) => verificarProximidade(e.clientX, e.clientY));
+  let ponteiroX = -9999, ponteiroY = -9999;
+  window.addEventListener('mousemove', (e) => { ponteiroX = e.clientX; ponteiroY = e.clientY; });
   window.addEventListener('touchmove', (e) => {
-    if (e.touches[0]) verificarProximidade(e.touches[0].clientX, e.touches[0].clientY);
+    if (e.touches[0]){ ponteiroX = e.touches[0].clientX; ponteiroY = e.touches[0].clientY; }
   }, { passive: true });
+
+  (function loop(){
+    formas.forEach(f => {
+      const perto = ponteiroX >= f.left - 26 && ponteiroX <= f.left + f.tamanho + 26 &&
+                    ponteiroY >= f.top - 26 && ponteiroY <= f.top + f.tamanho + 26;
+      if (perto && !f.ativo){ f.ativo = true; trocarForma(f); }
+      else if (!perto && f.ativo){ f.ativo = false; }
+    });
+    requestAnimationFrame(loop);
+  })();
 })();
 
 (function iniciarParallaxFundo(){
