@@ -741,9 +741,11 @@ function renderProdutos(){
     const tr = document.createElement('tr');
     if (!p.is_available) tr.className = 'indisponivel';
     tr.innerHTML = `
-      <td style="display:flex; align-items:center; gap:8px">
-        ${p.image_url ? `<span style="width:32px; height:32px; border-radius:6px; overflow:hidden; flex-shrink:0; display:block">${tagPreviewMidia(p.image_url, '32px')}</span>` : ''}
-        <span>${p.name}${rotulosBadges(p).map(r => ' <span class="badge">' + r + '</span>').join('')}</span>
+      <td>
+        <div style="display:flex; align-items:center; gap:8px">
+          ${p.image_url ? `<span style="width:32px; height:32px; border-radius:6px; overflow:hidden; flex-shrink:0; display:block">${tagPreviewMidia(p.image_url, '32px')}</span>` : ''}
+          <span>${p.name}${rotulosBadges(p).map(r => ' <span class="badge">' + r + '</span>').join('')}</span>
+        </div>
       </td>
       <td>${cat ? cat.name : '—'}</td>
       <td>${formatarPreco(p.price_cents)}</td>
@@ -1051,9 +1053,11 @@ function renderArtes(){
     const n = (produtosPorArte[a.id] || []).length;
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td style="display:flex; align-items:center; gap:8px">
-        ${a.image_url ? `<span style="width:32px; height:32px; border-radius:6px; overflow:hidden; flex-shrink:0; display:block">${tagPreviewMidia(a.image_url, '32px')}</span>` : ''}
-        <span>${a.name}</span>
+      <td>
+        <div style="display:flex; align-items:center; gap:8px">
+          ${a.image_url ? `<span style="width:32px; height:32px; border-radius:6px; overflow:hidden; flex-shrink:0; display:block">${tagPreviewMidia(a.image_url, '32px')}</span>` : ''}
+          <span>${a.name}</span>
+        </div>
       </td>
       <td>${a.theme || '—'}</td>
       <td>${n}</td>
