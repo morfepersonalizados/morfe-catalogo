@@ -79,9 +79,13 @@
 - Cores faltando (Tarja Branca, Glitter, Mágica, Vidro Fosco): não é pendência — usuário confirmou que esses modelos realmente não têm variação de cor (ex: a tarjada só existe na versão tarjada).
 - Domínio próprio: usuário tem `morfepersonalizados.com.br` registrado. Perguntei como ele quer estruturar (catálogo no domínio raiz vs. subdomínio tipo `catalogo.morfepersonalizados.com.br`, deixando o domínio raiz livre pra outra coisa) antes de dar o passo a passo de configuração — decisão em aberto.
 
+- **2026-08-07** — Descoberto que o deploy automático (push → Vercel) parou de funcionar em algum momento depois de ontem ~20h15: os commits `56cfcba` (bloco Como comprar/Dúvidas) e `f5a54e6` (troca/garantia revisada + depoimentos redesenhados) estão no GitHub mas não geraram nenhum deploy novo na Vercel (`vercel ls` mostra o último deploy com 16h+ de idade). Tentativa de publicar manualmente (`vercel deploy --prod`) foi bloqueada pelo próprio ambiente por segurança. **Usuário precisa resolver pelo painel da Vercel**: aba Deployments → Redeploy no commit mais recente, ou, se não aparecer, checar em Settings → Git se a conexão com `morfepersonalizados/morfe-catalogo` ainda está ativa.
+- **2026-08-07** — Decidido: domínio `morfepersonalizados.com.br` vai usar subdomínio pro catálogo (`catalogo.morfepersonalizados.com.br`), deixando o domínio raiz livre pra outra coisa no futuro. Falta o usuário adicionar o domínio nas configurações do projeto na Vercel e criar o registro DNS no provedor onde o domínio está registrado.
+
 ## Pendências / próximos passos
-- Testar o link ao vivo (https://morfe-catalogo-xfyv.vercel.app) no celular, vindo do WhatsApp/Instagram como um cliente real faria.
-- Considerar domínio próprio (ex: catalogo.morfepersonalizados.com.br) em vez do domínio `.vercel.app` padrão, quando fizer sentido.
-- Produtos que existem no ERP mas não têm foto: se/quando o usuário mandar fotos, evoluir o catálogo de texto-only para incluir imagem.
+- **Urgente**: consertar o deploy automático na Vercel (parado desde ontem ~20h15) — ver nota acima.
+- Configurar `catalogo.morfepersonalizados.com.br` na Vercel + DNS no provedor do domínio.
+- Testar o link ao vivo no celular, vindo do WhatsApp/Instagram como um cliente real faria (depois do deploy consertado).
+- Produtos que existem no ERP mas não têm foto: usuário vai subir as fotos reais ele mesmo pelo admin.
 - Migração de longo prazo do ERP para autenticação real via Supabase (mencionada como ideia, não decidida).
 - Fase 2 (generalizar o catálogo como produto pra vender pra outros negócios) ainda não iniciada — depende de validar a fase 1 primeiro.
