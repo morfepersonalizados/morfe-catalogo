@@ -415,7 +415,12 @@
     max-width:900px;
     max-height:88vh;
     overflow-y:auto;
+    scrollbar-width:thin;
+    scrollbar-color:#d8cfba transparent;
   }
+  .modal.modal-produto::-webkit-scrollbar{ width:6px }
+  .modal.modal-produto::-webkit-scrollbar-track{ background:transparent }
+  .modal.modal-produto::-webkit-scrollbar-thumb{ background:#d8cfba; border-radius:10px }
   .modal-grid{
     display:grid;
     grid-template-columns:300px 1fr;
@@ -470,7 +475,8 @@
 
   .modal-relacionados-bloco{ margin-top:26px; padding-top:20px; border-top:1px solid #f1ead6 }
   .modal-relacionados-bloco h4{ font-family:var(--fonte-titulo); font-size:15px; font-weight:600; color:var(--terracota); margin-bottom:12px }
-  .relacionados-linha{ display:flex; gap:12px; overflow-x:auto; padding-bottom:4px }
+  .relacionados-linha{ display:flex; gap:12px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; -ms-overflow-style:none }
+  .relacionados-linha::-webkit-scrollbar{ display:none }
   .relacionado-card{
     flex-shrink:0; width:120px; cursor:pointer;
     border-radius:10px; overflow:hidden; background:var(--creme);
@@ -499,10 +505,11 @@
   .opcao-arte{
     width:76px; border:1.5px solid #e4dcc8; border-radius:10px; overflow:hidden;
     background:#fff; text-align:center; transition: border-color .15s ease, transform .15s ease;
+    cursor:pointer;
   }
   .opcao-arte:hover{ transform:translateY(-2px) }
   .opcao-arte.selecionada{ border-color:var(--terracota); box-shadow:0 0 0 1.5px var(--terracota) }
-  .opcao-arte .opcao-arte-midia{ width:100%; aspect-ratio:1/1; background:var(--creme); display:flex; align-items:center; justify-content:center; overflow:hidden }
+  .opcao-arte .opcao-arte-midia{ position:relative; width:100%; aspect-ratio:1/1; background:var(--creme); display:flex; align-items:center; justify-content:center; overflow:hidden }
   .opcao-arte .opcao-arte-midia img, .opcao-arte .opcao-arte-midia video{ width:100%; height:100%; object-fit:cover; display:block }
   .opcao-arte .opcao-arte-midia .sem-midia{ font-size:9px; color:var(--texto-claro); padding:4px }
   .opcao-arte .opcao-arte-nome{ font-size:10.5px; font-weight:600; padding:5px 4px; line-height:1.25; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden }
@@ -1226,10 +1233,16 @@ function preencherModal(produtoId, botaoOrigem){
     blocoArtes.style.display = 'block';
     obsLabel.textContent = 'Não achou a arte que queria? Descreva aqui (opcional)';
     artes.forEach(a => {
-      const btn = document.createElement('button');
+      const galeriaArte = galeriaDaArte(a);
+      const btn = document.createElement('div');
       btn.className = 'opcao-arte';
+      btn.setAttribute('role', 'button');
+      btn.setAttribute('tabindex', '0');
       btn.innerHTML = `
-        <div class="opcao-arte-midia">${a.image_url ? tagMidia(a.image_url, a.name) : '<span class="sem-midia">sem foto</span>'}</div>
+        <div class="opcao-arte-midia">
+          ${a.image_url ? tagMidia(a.image_url, a.name) : '<span class="sem-midia">sem foto</span>'}
+          ${galeriaArte.length > 1 ? `<button type="button" class="galeria-arte-expandir" title="Ver todas as fotos/vídeos"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>` : ''}
+        </div>
         <div class="opcao-arte-nome">${a.name}</div>
       `;
       btn.onclick = () => {
@@ -1238,6 +1251,16 @@ function preencherModal(produtoId, botaoOrigem){
         [...artesEl.children].forEach(el => el.classList.remove('selecionada'));
         if (!jaSelecionada) btn.classList.add('selecionada');
       };
+      btn.onkeydown = (e) => {
+        if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); btn.click(); }
+      };
+      const btnExpandir = btn.querySelector('.galeria-arte-expandir');
+      if (btnExpandir){
+        btnExpandir.onclick = (e) => {
+          e.stopPropagation();
+          abrirLightbox(galeriaArte, 0);
+        };
+      }
       artesEl.appendChild(btn);
     });
   } else {
