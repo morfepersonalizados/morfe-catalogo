@@ -138,6 +138,8 @@
   - **Fundo com formas**: unificado num sistema só (antes eram dois: um cuidava da troca de forma, outro da paralaxe — disputando a mesma propriedade `transform` do CSS). Agora tem muito mais formas (célula menor, 55px em vez de 100px) de tamanhos bem variados, e todas fluem continuamente da direita pra esquerda (com velocidade própria de cada uma, dando um efeito de correnteza), envolvendo a tela infinitamente. Paralaxe de mouse/giroscópio e troca de forma ao passar perto continuam funcionando, agora combinados no mesmo cálculo.
   - **Imagem do produto sempre centralizada**: como a caixa da imagem agora se ajusta ao formato real da foto (feature anterior), em fotos mais "estreitas" que a coluna ela ficava grudada à esquerda com espaço em branco sobrando à direita. Adicionado `margin:0 auto` pra sempre centralizar.
 
+- **2026-08-08** — Formas do fundo ganharam "física" leve de colisão: quando duas se aproximam (tratadas como círculos, checando só a própria linha da grade + vizinhas, pra não comparar todas contra todas), elas se empurram de leve uma pra longe da outra, e esse empurrão vai decaindo com o tempo até sumir — assim elas nunca ficam grudadas/sobrepostas, mas também não saem permanentemente do fluxo.
+
 ## Pendências / próximos passos
 - **Urgente**: consertar o deploy automático na Vercel (parado desde ontem ~20h15) — ver nota acima.
 - Configurar `catalogo.morfepersonalizados.com.br` na Vercel + DNS no provedor do domínio.

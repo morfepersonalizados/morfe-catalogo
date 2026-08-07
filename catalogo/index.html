@@ -1935,14 +1935,21 @@ iniciar();
       el.style.width = tamanho + 'px';
       container.appendChild(el);
       formas.push({
-        el, left, top, tamanho,
+        el, left, top, tamanho, linha: r,
         velocidade: 6 + Math.random() * 22,
         profundidade: 6 + Math.random() * 24,
         indice: Math.floor(Math.random() * FORMAS.length),
-        ativo: false
+        ativo: false,
+        deltaX: 0, offX: 0, offY: 0
       });
     }
   }
+
+  const porLinha = {};
+  formas.forEach(f => {
+    if (!porLinha[f.linha]) porLinha[f.linha] = [];
+    porLinha[f.linha].push(f);
+  });
 
   function desenhar(f){
     f.el.innerHTML = `<svg viewBox="0 0 100 100" fill="none" stroke="var(--terracota)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">${FORMAS[f.indice]}</svg>`;
@@ -1999,18 +2006,51 @@ iniciar();
     atualY += (alvoY - atualY) * 0.06;
     const t = (agora - inicio) / 1000;
 
+    /* fluxo da direita pra esquerda + decaimento do empurrão da colisão anterior */
     formas.forEach(f => {
       const largura = f.tamanho + larguraTela + f.tamanho;
       let x = f.left - t * f.velocidade;
       x = ((x + f.tamanho) % largura + largura) % largura - f.tamanho;
-      const deltaX = x - f.left;
+      f.deltaX = x - f.left;
+      f.offX *= 0.92;
+      f.offY *= 0.92;
+    });
+
+    /* colisão leve: se duas formas próximas (mesma linha ou vizinha) se encostam, afastam-se */
+    formas.forEach(f => {
+      const cx1 = f.left + f.deltaX + f.offX + f.tamanho / 2;
+      const cy1 = f.top + f.offY + f.tamanho / 2;
+      const r1 = f.tamanho * 0.42;
+      for (let dl = -1; dl <= 1; dl++){
+        const vizinhas = porLinha[f.linha + dl];
+        if (!vizinhas) continue;
+        for (const g of vizinhas){
+          if (g === f) continue;
+          const cx2 = g.left + g.deltaX + g.offX + g.tamanho / 2;
+          const cy2 = g.top + g.offY + g.tamanho / 2;
+          const r2 = g.tamanho * 0.42;
+          const dx = cx1 - cx2, dy = cy1 - cy2;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 0.01;
+          const minDist = r1 + r2;
+          if (dist < minDist){
+            const sobra = (minDist - dist) / 2;
+            f.offX += (dx / dist) * sobra * 0.5;
+            f.offY += (dy / dist) * sobra * 0.5;
+          }
+        }
+      }
+    });
+
+    /* aplica posição final e checa proximidade do ponteiro pra trocar de forma */
+    formas.forEach(f => {
       const paralaxeX = atualX * f.profundidade;
       const paralaxeY = atualY * f.profundidade;
-      f.el.style.transform = `translate(${(deltaX + paralaxeX).toFixed(1)}px, ${paralaxeY.toFixed(1)}px)`;
+      f.el.style.transform = `translate(${(f.deltaX + paralaxeX + f.offX).toFixed(1)}px, ${(paralaxeY + f.offY).toFixed(1)}px)`;
 
-      const telaX = f.left + deltaX;
+      const telaX = f.left + f.deltaX + f.offX;
+      const telaY = f.top + f.offY;
       const perto = ponteiroX >= telaX - 22 && ponteiroX <= telaX + f.tamanho + 22 &&
-                    ponteiroY >= f.top - 22 && ponteiroY <= f.top + f.tamanho + 22;
+                    ponteiroY >= telaY - 22 && ponteiroY <= telaY + f.tamanho + 22;
       if (perto && !f.ativo){ f.ativo = true; trocarForma(f); }
       else if (!perto && f.ativo){ f.ativo = false; }
     });
