@@ -428,12 +428,13 @@
   }
   .modal-col-imagem .modal-imagem{
     aspect-ratio:16/9;
+    max-height:65vh;
     border-radius:12px;
     overflow:hidden;
     background:var(--creme);
     position:relative;
   }
-  .modal-col-imagem .modal-imagem img, .modal-col-imagem .modal-imagem video{ width:100%; height:100%; object-fit:cover; display:block }
+  .modal-col-imagem .modal-imagem img, .modal-col-imagem .modal-imagem video{ width:100%; height:100%; object-fit:contain; display:block }
   .modal-col-imagem .modal-imagem{ cursor:zoom-in }
   .modal-imagem .badge-video{ top:10px; left:10px; font-size:12px; padding:5px 11px 5px 8px; pointer-events:auto; cursor:pointer }
   .modal-thumbs{ display:flex; gap:8px; margin-top:8px; flex-wrap:wrap }
@@ -1374,6 +1375,7 @@ function preencherModal(produtoId, botaoOrigem){
   const indiceVideoModal = indiceDoVideo(galeriaProdutoModal);
 
   function mostrarMidiaModal(indice){
+    imgBloco.style.aspectRatio = '16 / 9';
     imgBloco.innerHTML = tagMidia(galeriaProdutoModal[indice], p.name) + (indiceVideoModal !== -1 ? `<div class="badge-video">${ICONE_PLAY} Vídeo</div>` : '');
     imgBloco.onclick = () => abrirLightbox(galeriaProdutoModal, indice);
     const badgeVideoEl = imgBloco.querySelector('.badge-video');
@@ -1382,6 +1384,16 @@ function preencherModal(produtoId, botaoOrigem){
         e.stopPropagation();
         abrirLightbox(galeriaProdutoModal, indiceVideoModal);
       };
+    }
+    const midiaEl = imgBloco.querySelector('img, video');
+    if (midiaEl && midiaEl.tagName === 'IMG'){
+      const ajustar = () => { imgBloco.style.aspectRatio = `${midiaEl.naturalWidth} / ${midiaEl.naturalHeight}`; };
+      if (midiaEl.complete && midiaEl.naturalWidth) ajustar();
+      else midiaEl.addEventListener('load', ajustar);
+    } else if (midiaEl){
+      midiaEl.addEventListener('loadedmetadata', () => {
+        imgBloco.style.aspectRatio = `${midiaEl.videoWidth} / ${midiaEl.videoHeight}`;
+      });
     }
     [...thumbsBloco.children].forEach((el, i) => el.classList.toggle('ativa', i === indice));
   }

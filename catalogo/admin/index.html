@@ -92,7 +92,13 @@
   .admin-aviso-item button{ font-size:12px; padding:5px 10px }
   .admin-vazio-ok{ font-size:13px; color:var(--texto-claro) }
 
-  .lista-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:14px }
+  .lista-header{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px; flex-wrap:wrap }
+  .busca-lista{
+    flex:1; min-width:140px; max-width:280px;
+    padding:8px 12px; border-radius:8px; border:1.5px solid #e4dcc8;
+    font-size:13px; background:var(--branco); color:var(--texto); font-family:var(--fonte-corpo);
+  }
+  .busca-lista:focus{ outline:none; border-color:var(--dourado) }
 
   table{ width:100%; border-collapse:collapse; background:var(--branco); border-radius:10px; overflow:hidden; box-shadow:var(--sombra) }
   th, td{ text-align:left; padding:11px 14px; font-size:13px; border-bottom:1px solid #f1ead6 }
@@ -227,6 +233,7 @@
     <div class="painel-secao" id="secao-produtos">
       <div class="lista-header">
         <strong id="contagem-produtos"></strong>
+        <input type="text" class="busca-lista" id="busca-produtos" placeholder="Buscar produto...">
         <button class="btn btn-primario" id="btn-novo-produto">+ Novo produto</button>
       </div>
       <table>
@@ -238,6 +245,7 @@
     <div class="painel-secao" id="secao-categorias">
       <div class="lista-header">
         <strong id="contagem-categorias"></strong>
+        <input type="text" class="busca-lista" id="busca-categorias" placeholder="Buscar categoria...">
         <button class="btn btn-primario" id="btn-nova-categoria">+ Nova categoria</button>
       </div>
       <table>
@@ -250,6 +258,7 @@
       <p style="font-size:13px; color:var(--texto-claro); margin-bottom:14px">Artes/temas que aparecem como opção de personalização no catálogo (ex: Harry Potter, Times de Futebol). Não mudam o preço — o preço vem sempre do produto.</p>
       <div class="lista-header">
         <strong id="contagem-artes"></strong>
+        <input type="text" class="busca-lista" id="busca-artes" placeholder="Buscar arte...">
         <button class="btn btn-primario" id="btn-nova-arte">+ Nova arte</button>
       </div>
       <table>
@@ -262,6 +271,7 @@
       <p style="font-size:13px; color:var(--texto-claro); margin-bottom:14px">Perguntas frequentes que aparecem no catálogo, no link "Como comprar / Dúvidas".</p>
       <div class="lista-header">
         <strong id="contagem-faq"></strong>
+        <input type="text" class="busca-lista" id="busca-faq" placeholder="Buscar pergunta...">
         <button class="btn btn-primario" id="btn-nova-faq">+ Nova pergunta</button>
       </div>
       <table>
@@ -274,6 +284,7 @@
       <p style="font-size:13px; color:var(--texto-claro); margin-bottom:14px">Depoimentos de clientes (texto ou print de conversa) que aparecem no catálogo, no link "Como comprar / Dúvidas".</p>
       <div class="lista-header">
         <strong id="contagem-depoimentos"></strong>
+        <input type="text" class="busca-lista" id="busca-depoimentos" placeholder="Buscar depoimento...">
         <button class="btn btn-primario" id="btn-novo-depoimento">+ Novo depoimento</button>
       </div>
       <table>
@@ -524,6 +535,10 @@ let imagemDepoimentoUrlAtual = null;
 let mediaPorProduto = {};
 let mediaPorArte = {};
 
+function normalizarBusca(texto){
+  return (texto || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+
 function ehVideo(url){
   return /\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(url || '');
 }
@@ -716,10 +731,12 @@ function renderVisaoGeral(){
 
 /* ---- Renderizar produtos ---- */
 function renderProdutos(){
-  document.getElementById('contagem-produtos').textContent = `${produtos.length} produtos`;
+  const busca = normalizarBusca(document.getElementById('busca-produtos').value);
+  const lista = produtos.filter(p => normalizarBusca(p.name).includes(busca));
+  document.getElementById('contagem-produtos').textContent = busca ? `${lista.length} de ${produtos.length} produtos` : `${produtos.length} produtos`;
   const tbody = document.getElementById('tabela-produtos');
   tbody.innerHTML = '';
-  produtos.forEach(p => {
+  lista.forEach(p => {
     const cat = categorias.find(c => c.id === p.category_id);
     const tr = document.createElement('tr');
     if (!p.is_available) tr.className = 'indisponivel';
@@ -743,10 +760,12 @@ function renderProdutos(){
 }
 
 function renderCategorias(){
-  document.getElementById('contagem-categorias').textContent = `${categorias.length} categorias`;
+  const busca = normalizarBusca(document.getElementById('busca-categorias').value);
+  const lista = categorias.filter(c => normalizarBusca(c.name).includes(busca));
+  document.getElementById('contagem-categorias').textContent = busca ? `${lista.length} de ${categorias.length} categorias` : `${categorias.length} categorias`;
   const tbody = document.getElementById('tabela-categorias');
   tbody.innerHTML = '';
-  categorias.forEach(c => {
+  lista.forEach(c => {
     const n = produtos.filter(p => p.category_id === c.id).length;
     const tr = document.createElement('tr');
     tr.innerHTML = `
@@ -1023,10 +1042,12 @@ async function excluirCategoria(id){
 
 /* ---- Artes ---- */
 function renderArtes(){
-  document.getElementById('contagem-artes').textContent = `${artes.length} artes`;
+  const busca = normalizarBusca(document.getElementById('busca-artes').value);
+  const lista = artes.filter(a => normalizarBusca(a.name).includes(busca) || normalizarBusca(a.theme).includes(busca));
+  document.getElementById('contagem-artes').textContent = busca ? `${lista.length} de ${artes.length} artes` : `${artes.length} artes`;
   const tbody = document.getElementById('tabela-artes');
   tbody.innerHTML = '';
-  artes.forEach(a => {
+  lista.forEach(a => {
     const n = (produtosPorArte[a.id] || []).length;
     const tr = document.createElement('tr');
     tr.innerHTML = `
@@ -1234,10 +1255,12 @@ async function excluirArte(id){
 
 /* ---- FAQ ---- */
 function renderFaq(){
-  document.getElementById('contagem-faq').textContent = `${faq.length} perguntas`;
+  const busca = normalizarBusca(document.getElementById('busca-faq').value);
+  const lista = faq.filter(f => normalizarBusca(f.pergunta).includes(busca) || normalizarBusca(f.resposta).includes(busca));
+  document.getElementById('contagem-faq').textContent = busca ? `${lista.length} de ${faq.length} perguntas` : `${faq.length} perguntas`;
   const tbody = document.getElementById('tabela-faq');
   tbody.innerHTML = '';
-  faq.forEach(f => {
+  lista.forEach(f => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${f.pergunta}</td>
@@ -1290,10 +1313,12 @@ async function excluirFaq(id){
 
 /* ---- Depoimentos ---- */
 function renderDepoimentos(){
-  document.getElementById('contagem-depoimentos').textContent = `${depoimentos.length} depoimentos`;
+  const busca = normalizarBusca(document.getElementById('busca-depoimentos').value);
+  const lista = depoimentos.filter(d => normalizarBusca(d.texto).includes(busca) || normalizarBusca(d.autor).includes(busca));
+  document.getElementById('contagem-depoimentos').textContent = busca ? `${lista.length} de ${depoimentos.length} depoimentos` : `${depoimentos.length} depoimentos`;
   const tbody = document.getElementById('tabela-depoimentos');
   tbody.innerHTML = '';
-  depoimentos.forEach(d => {
+  lista.forEach(d => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${d.imagem_url ? `<img src="${d.imagem_url}" style="width:32px; height:32px; border-radius:6px; object-fit:cover">` : '—'}</td>
@@ -1409,6 +1434,13 @@ document.getElementById('btn-salvar-loja').onclick = async () => {
   statusEl.textContent = error ? 'Erro ao salvar.' : 'Salvo!';
   setTimeout(() => statusEl.textContent = '', 2500);
 };
+
+/* ---- Busca nas listas ---- */
+document.getElementById('busca-produtos').addEventListener('input', renderProdutos);
+document.getElementById('busca-categorias').addEventListener('input', renderCategorias);
+document.getElementById('busca-artes').addEventListener('input', renderArtes);
+document.getElementById('busca-faq').addEventListener('input', renderFaq);
+document.getElementById('busca-depoimentos').addEventListener('input', renderDepoimentos);
 
 verificarSessao();
 </script>

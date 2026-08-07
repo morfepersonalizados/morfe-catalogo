@@ -128,6 +128,11 @@
 - **2026-08-08** — Ajuste: clicar na arte pra abrir o visualizador agora sempre abre no início da ordem definida (posição 1), em vez de pular direto pro vídeo — usuário achou estranho não respeitar a ordem que ele configurou.
 - **2026-08-08** — Fundo animado trocado de novo (terceira versão): usuário achou o fundo de blobs/ícones (versão anterior) ainda ruim e pediu algo diferente — várias formas geométricas (quadrado, triângulo, círculo, hexágono, losango) em contorno fino marrom (terracota), bem sutil (opacidade baixa, não é pra chamar atenção). A ideia nova: cada forma muda pra próxima do ciclo quando o mouse (ou o dedo arrastando, no celular) passa perto dela — não é mais só o parallax seguindo a posição do cursor, agora tem essa troca de forma por proximidade também. Implementado com detecção de proximidade via `getBoundingClientRect()` comparado à posição do ponteiro/toque (funciona mesmo a camada estando atrás do conteúdo, já que não depende de hover real do DOM).
 
+- **2026-08-08** — Mais ajustes a partir de feedback:
+  - **Fundo com formas geométricas**: ainda estava esparso demais e mal posicionado ("lugares que nem dá pra ver"). Trocado por geração via JS que preenche a tela inteira numa grade (célula ~100px, com variação aleatória de posição/tamanho pra não ficar robótico), se adaptando ao tamanho da tela de cada visitante.
+  - **Imagem do produto no quick-view agora se molda à imagem enviada**: antes forçava paisagem (16:9) fixo pra todo produto; usuário apontou que produto como azulejo é quadrado, não paisagem. Agora lê a dimensão real da imagem/vídeo (`naturalWidth/naturalHeight` ou `videoWidth/videoHeight`) e ajusta o formato da caixa dinamicamente pra cada produto, com `object-fit:contain` (nunca corta) e um limite de altura (65vh) pra imagens muito verticais não estourarem a tela.
+  - **Busca em todas as listas do admin** (Produtos, Categorias, Artes, FAQ, Depoimentos): campo de busca no topo de cada lista, filtra em tempo real por nome (e tema, no caso de artes; pergunta/resposta, no caso de FAQ; texto/autor, em depoimentos).
+
 ## Pendências / próximos passos
 - **Urgente**: consertar o deploy automático na Vercel (parado desde ontem ~20h15) — ver nota acima.
 - Configurar `catalogo.morfepersonalizados.com.br` na Vercel + DNS no provedor do domínio.
