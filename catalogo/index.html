@@ -1030,7 +1030,7 @@ async function carregarDados(){
   const [resCat, resProd, resCores, resVinculos, resArtes, resSettings, resFaq, resDepoimentos, resMediaProd, resMediaArte, resInteresse] = await Promise.all([
     fetch(`${SUPABASE_URL}/rest/v1/catalog_categories?select=id,name,sort_order&order=sort_order`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_products?select=id,category_id,name,price_cents,description,badges,image_url,prazo_dias,created_at,sort_order&is_available=eq.true&order=sort_order`, { headers: HEADERS }),
-    fetch(`${SUPABASE_URL}/rest/v1/catalog_product_colors?select=id,product_id,name,sort_order&order=sort_order`, { headers: HEADERS }),
+    fetch(`${SUPABASE_URL}/rest/v1/catalog_product_colors?select=id,product_id,name,sort_order,image_url&order=sort_order`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_product_designs?select=product_id,design_id,catalog_designs(id,name,theme,image_url)`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_designs?select=id,name,theme,image_url,sort_order&order=theme.nullslast,sort_order`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_settings?select=quem_somos,pagamento,entrega,embalagem,troca_garantia,dias_selo_novo&id=eq.1`, { headers: HEADERS }),
@@ -1321,6 +1321,8 @@ function preencherModal(produtoId, botaoOrigem){
         corModalSelecionada = c.name;
         [...coresEl.children].forEach(el => el.classList.remove('selecionada'));
         btn.classList.add('selecionada');
+        if (c.image_url) mostrarMidiaCor(c.image_url);
+        else mostrarMidiaModal(0);
       };
       coresEl.appendChild(btn);
     });
@@ -1399,6 +1401,23 @@ function preencherModal(produtoId, botaoOrigem){
       });
     }
     [...thumbsBloco.children].forEach((el, i) => el.classList.toggle('ativa', i === indice));
+  }
+
+  function mostrarMidiaCor(url){
+    imgBloco.style.aspectRatio = '16 / 9';
+    imgBloco.innerHTML = tagMidia(url, p.name);
+    imgBloco.onclick = () => abrirLightbox([url], 0);
+    const midiaEl = imgBloco.querySelector('img, video');
+    if (midiaEl && midiaEl.tagName === 'IMG'){
+      const ajustar = () => { imgBloco.style.aspectRatio = `${midiaEl.naturalWidth} / ${midiaEl.naturalHeight}`; };
+      if (midiaEl.complete && midiaEl.naturalWidth) ajustar();
+      else midiaEl.addEventListener('load', ajustar);
+    } else if (midiaEl){
+      midiaEl.addEventListener('loadedmetadata', () => {
+        imgBloco.style.aspectRatio = `${midiaEl.videoWidth} / ${midiaEl.videoHeight}`;
+      });
+    }
+    [...thumbsBloco.children].forEach(el => el.classList.remove('ativa'));
   }
 
   if (galeriaProdutoModal.length){

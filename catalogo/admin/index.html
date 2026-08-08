@@ -128,8 +128,16 @@
     transition: background-color .15s ease;
   }
   .modal-fechar-topo button:hover{ background:#f0e6c8 }
-  .linha-cor{ display:flex; justify-content:space-between; align-items:center; padding:6px 0; font-size:13px }
-  .linha-cor button{ background:none; border:none; color:#b3261e; font-size:12px }
+  .linha-cor{ display:flex; align-items:center; gap:8px; padding:6px 0; font-size:13px; border-bottom:1px solid #f6f0dd }
+  .linha-cor-thumb{ width:28px; height:28px; border-radius:6px; overflow:hidden; flex-shrink:0; background:var(--creme) }
+  .linha-cor-nome{ flex:1 }
+  .linha-cor-foto{
+    background:var(--branco); border:1px solid #e4dcc8; border-radius:6px;
+    width:26px; height:26px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    color:var(--terracota);
+  }
+  .linha-cor-foto:hover{ background:var(--creme) }
+  .linha-cor button[data-del-cor]{ background:none; border:none; color:#b3261e; font-size:12px; flex-shrink:0 }
   .add-cor{ display:flex; gap:8px; margin-top:8px }
   .add-cor input{ flex:1 }
   .checkbox-linha{ display:flex; align-items:center; gap:8px; margin-bottom:14px }
@@ -824,6 +832,8 @@ function preencherSelectCategorias(){
   sel.innerHTML = categorias.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
 }
 
+const ICONE_CAMERA = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-2h6l2 2h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13" r="3.3"/></svg>';
+
 function renderListaCores(produtoId){
   const el = document.getElementById('lista-cores');
   const cores = coresPorProduto[produtoId] || [];
@@ -831,11 +841,32 @@ function renderListaCores(produtoId){
   cores.forEach(c => {
     const div = document.createElement('div');
     div.className = 'linha-cor';
-    div.innerHTML = `<span>${c.name}</span><button data-del-cor="${c.id}">remover</button>`;
+    div.innerHTML = `
+      <div class="linha-cor-thumb">${c.image_url ? tagPreviewMidia(c.image_url, '28px') : ''}</div>
+      <span class="linha-cor-nome">${c.name}</span>
+      <button class="linha-cor-foto" data-foto-cor="${c.id}" title="Foto/vídeo dessa cor">${ICONE_CAMERA}</button>
+      <input type="file" accept="image/*,video/*" data-input-foto-cor="${c.id}" style="display:none">
+      <button data-del-cor="${c.id}">remover</button>
+    `;
     el.appendChild(div);
   });
   el.querySelectorAll('[data-del-cor]').forEach(b => b.onclick = async () => {
     await supabase.from('catalog_product_colors').delete().eq('id', b.dataset.delCor);
+    await carregarTudo();
+    renderListaCores(produtoId);
+  });
+  el.querySelectorAll('[data-foto-cor]').forEach(b => b.onclick = () => {
+    el.querySelector(`[data-input-foto-cor="${b.dataset.fotoCor}"]`).click();
+  });
+  el.querySelectorAll('[data-input-foto-cor]').forEach(inp => inp.onchange = async (e) => {
+    const arquivo = e.target.files[0];
+    if (!arquivo) return;
+    const corId = inp.dataset.inputFotoCor;
+    const caminho = `cores/${Date.now()}-${arquivo.name.replace(/[^a-zA-Z0-9._-]/g, '')}`;
+    const { error } = await supabase.storage.from('catalog-images').upload(caminho, arquivo, { upsert: true });
+    if (error){ alert('Erro ao enviar: ' + error.message); return; }
+    const { data } = supabase.storage.from('catalog-images').getPublicUrl(caminho);
+    await supabase.from('catalog_product_colors').update({ image_url: data.publicUrl }).eq('id', corId);
     await carregarTudo();
     renderListaCores(produtoId);
   });

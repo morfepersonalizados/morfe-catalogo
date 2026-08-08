@@ -149,6 +149,8 @@
   - **Botão de fechar no topo dos modais**: os 5 modais do admin (produto, categoria, arte, FAQ, depoimento) só tinham "Cancelar" lá embaixo — em formulários compridos (produto principalmente, que ficou grande com capa+galeria+descrição+cores) tinha que rolar tudo pra fechar. Adicionado um X fixo no topo de cada modal (sticky, sempre visível mesmo rolando), sem tirar o "Cancelar" de baixo.
   - **Mídia de arte por vários produtos específicos**: antes só dava pra marcar 1 produto específico por foto/vídeo (`product_id` único). Trocado por `product_ids` (array) com checkboxes (em vez de um seletor de escolha única) — dá pra marcar quantos produtos quiser pra cada mídia, ou nenhum (aparece em todos).
 
+- **2026-08-08** — Foto/vídeo por cor/variação de produto: usuário deu o exemplo da Caneca Interior Colorido, que tem interior amarelo, azul, vermelho etc., e queria que a foto do produto trocasse ao escolher a cor. Adicionada `catalog_product_colors.image_url`. Admin: cada cor na lista ganhou um ícone de câmera pra anexar foto/vídeo daquela variação específica (upload direto, sem precisar reabrir nada). Catálogo público: clicar numa cor que tem foto própria troca a imagem principal do produto pra mostrar aquela variação; cor sem foto volta a mostrar a capa padrão do produto.
+
 ## Pendências / próximos passos
 - **Urgente**: consertar o deploy automático na Vercel (parado desde ontem ~20h15) — ver nota acima.
 - Configurar `catalogo.morfepersonalizados.com.br` na Vercel + DNS no provedor do domínio.
