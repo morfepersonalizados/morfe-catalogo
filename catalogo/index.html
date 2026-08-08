@@ -1253,7 +1253,33 @@ function renderGrid(){
       let camadas = null;
       let cicloIndice = 0;
       let cicloTimer = null;
+      let emHover = false;
+
+      function tocarSeVideo(el){
+        if (el.tagName === 'VIDEO'){ el.loop = false; el.currentTime = 0; el.play().catch(() => {}); }
+      }
+      function agendarProximo(){
+        if (!emHover) return;
+        const atual = camadas[cicloIndice];
+        if (atual.tagName === 'VIDEO'){
+          // espera o vídeo terminar de tocar inteiro antes de ir pro próximo
+          atual.onended = () => { atual.onended = null; avancar(); };
+        } else {
+          cicloTimer = setTimeout(avancar, 1200);
+        }
+      }
+      function avancar(){
+        if (!emHover) return;
+        camadas[cicloIndice].classList.remove('midia-ciclo-ativa');
+        cicloIndice = (cicloIndice + 1) % camadas.length;
+        const novo = camadas[cicloIndice];
+        novo.classList.add('midia-ciclo-ativa');
+        tocarSeVideo(novo);
+        agendarProximo();
+      }
+
       imgWrap.addEventListener('mouseenter', () => {
+        emHover = true;
         if (!camadas){
           // monta as camadas uma única vez (na primeira passada do mouse), reaproveitando
           // a imagem já visível em vez de recriá-la, pra não piscar na primeira troca
@@ -1263,18 +1289,18 @@ function renderGrid(){
           imgWrap.insertAdjacentHTML('beforeend', extras);
           camadas = [...imgWrap.querySelectorAll('.midia-ciclo')];
         }
-        cicloTimer = setInterval(() => {
-          camadas[cicloIndice].classList.remove('midia-ciclo-ativa');
-          cicloIndice = (cicloIndice + 1) % camadas.length;
-          camadas[cicloIndice].classList.add('midia-ciclo-ativa');
-        }, 1200);
+        tocarSeVideo(camadas[cicloIndice]);
+        agendarProximo();
       });
       imgWrap.addEventListener('mouseleave', () => {
-        clearInterval(cicloTimer);
+        emHover = false;
+        clearTimeout(cicloTimer);
         if (camadas){
+          camadas[cicloIndice].onended = null;
           camadas[cicloIndice].classList.remove('midia-ciclo-ativa');
           cicloIndice = 0;
           camadas[0].classList.add('midia-ciclo-ativa');
+          if (camadas[0].tagName === 'VIDEO'){ camadas[0].loop = true; camadas[0].currentTime = 0; camadas[0].play().catch(() => {}); }
         }
       });
     }
