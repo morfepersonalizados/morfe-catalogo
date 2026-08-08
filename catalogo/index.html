@@ -301,6 +301,8 @@
     position:relative;
   }
   .card-imagem img, .card-imagem video{ width:100%; height:100%; object-fit:cover; display:block }
+  .card-imagem .midia-ciclo{ position:absolute; inset:0; opacity:0; transition:opacity .45s ease }
+  .card-imagem .midia-ciclo.midia-ciclo-ativa{ opacity:1 }
   .badge-video{
     position:absolute; z-index:2; display:flex; align-items:center; gap:4px;
     background:rgba(0,0,0,.6); color:#fff; font-size:10.5px; font-weight:700;
@@ -1003,8 +1005,8 @@ function ehVideo(url){
 }
 function tagMidia(url, alt, cssClass){
   if (!url) return '';
-  if (ehVideo(url)) return `<video class="${cssClass}" src="${url}" autoplay muted loop playsinline></video>`;
-  return `<img class="${cssClass}" src="${url}" alt="${alt || ''}" loading="lazy">`;
+  if (ehVideo(url)) return `<video class="${cssClass || ''}" src="${url}" autoplay muted loop playsinline></video>`;
+  return `<img class="${cssClass || ''}" src="${url}" alt="${alt || ''}" loading="lazy">`;
 }
 
 const ROTULOS_BADGE = { mais_vendido: 'Mais vendido', destaque: 'Destaque' };
@@ -1248,18 +1250,32 @@ function renderGrid(){
     const galeriaCard = galeriaDoProduto(p);
     const imgWrap = card.querySelector('.card-imagem');
     if (imgWrap && TEM_MOUSE_FINO && galeriaCard.length > 1){
+      let camadas = null;
       let cicloIndice = 0;
       let cicloTimer = null;
       imgWrap.addEventListener('mouseenter', () => {
+        if (!camadas){
+          // monta as camadas uma única vez (na primeira passada do mouse), reaproveitando
+          // a imagem já visível em vez de recriá-la, pra não piscar na primeira troca
+          const primeira = imgWrap.querySelector('img, video');
+          if (primeira) primeira.classList.add('midia-ciclo', 'midia-ciclo-ativa');
+          const extras = galeriaCard.slice(1).map(url => tagMidia(url, p.name, 'midia-ciclo')).join('');
+          imgWrap.insertAdjacentHTML('beforeend', extras);
+          camadas = [...imgWrap.querySelectorAll('.midia-ciclo')];
+        }
         cicloTimer = setInterval(() => {
-          cicloIndice = (cicloIndice + 1) % galeriaCard.length;
-          imgWrap.innerHTML = tagMidia(galeriaCard[cicloIndice], p.name) + tagBadgeVideo(galeriaCard);
-        }, 900);
+          camadas[cicloIndice].classList.remove('midia-ciclo-ativa');
+          cicloIndice = (cicloIndice + 1) % camadas.length;
+          camadas[cicloIndice].classList.add('midia-ciclo-ativa');
+        }, 1200);
       });
       imgWrap.addEventListener('mouseleave', () => {
         clearInterval(cicloTimer);
-        cicloIndice = 0;
-        imgWrap.innerHTML = tagMidia(galeriaCard[0], p.name) + tagBadgeVideo(galeriaCard);
+        if (camadas){
+          camadas[cicloIndice].classList.remove('midia-ciclo-ativa');
+          cicloIndice = 0;
+          camadas[0].classList.add('midia-ciclo-ativa');
+        }
       });
     }
 
