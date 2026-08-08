@@ -158,8 +158,9 @@
 
 - **2026-08-08** — Mensagem do WhatsApp reescrita: usuário achou a mensagem padrão (finalizar pedido → abre WhatsApp) "com cara de IA", nada profissional. Pesquisado formatação nativa do WhatsApp (`*negrito*`, `_itálico_`) e boas práticas de mensagem de pedido via catálogo. Trocado abertura genérica ("Olá! Gostaria de fazer o seguinte pedido:") por algo mais humano ("Oi! Vim pelo catálogo da Morfê e gostaria de fazer este pedido"), itens numerados com negrito no nome do produto e no total, espaçamento entre itens pra não ficar um bloco só de texto, fechamento cordial ("Fico no aguardo, obrigado(a)!"). Emoji usado com moderação (só 1, na abertura) — usuário mesmo alertou que emoji em excesso "pode dar bugado" e pediu moderação/teste.
 
+- **2026-08-08** — Domínio próprio no ar: `catalogo.morfepersonalizados.com.br` configurado (CNAME no Registro.br apontando pro valor específico que a Vercel gerou pra esse subdomínio) e confirmado funcionando — Vercel mostra "Valid Configuration"/certificado emitido, DNS propagado, e o site responde HTTP 200 nesse domínio. Cada subdomínio (`catalogo`, `www`) recebeu um valor CNAME próprio e diferente da Vercel — não dá pra reaproveitar o mesmo valor entre eles.
+
 ## Pendências / próximos passos
-- Configurar `catalogo.morfepersonalizados.com.br` na Vercel + DNS no provedor do domínio.
 - Testar o link ao vivo no celular, vindo do WhatsApp/Instagram como um cliente real faria (depois do deploy consertado).
 - Produtos que existem no ERP mas não têm foto: usuário vai subir as fotos reais ele mesmo pelo admin.
 - Migração de longo prazo do ERP para autenticação real via Supabase (mencionada como ideia, não decidida).
