@@ -483,6 +483,15 @@
     .modal-grid{ gap:14px }
   }
 
+  /* No celular, produto/dúvidas/artes abrem em tela cheia (sem folga nas bordas
+     mostrando o fundo por trás) em vez de um cartão flutuante pequeno */
+  @media (max-width:640px){
+    #modal-fundo, #modal-info-fundo, #modal-galeria-fundo{ padding:0 }
+    #modal-fundo .modal, #modal-info-fundo .modal, #modal-galeria-fundo .modal{
+      max-width:100%; width:100%; height:100dvh; max-height:100dvh; border-radius:0;
+    }
+  }
+
   .modal-relacionados-bloco{ margin-top:26px; padding-top:20px; border-top:1px solid #f1ead6 }
   .modal-relacionados-bloco h4{ font-family:var(--fonte-titulo); font-size:15px; font-weight:600; color:var(--terracota); margin-bottom:12px }
   .relacionados-linha{ display:flex; gap:12px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; -ms-overflow-style:none }
@@ -514,6 +523,12 @@
 
   /* Modal de informações (como comprar / dúvidas) */
   .modal.modal-info{ max-width:560px; max-height:85vh; overflow-y:auto }
+  .modal-info .btn-fechar-x{
+    position:sticky; top:0; z-index:3; width:100%;
+    margin:-22px -22px 8px; padding:14px 22px 4px;
+    background:var(--branco);
+    display:flex; justify-content:flex-end;
+  }
   .info-titulo{ font-family:var(--fonte-titulo); font-size:20px; font-weight:600; margin:6px 0 18px; padding-right:20px }
   .info-secao{ margin-bottom:22px }
   .info-secao h4{ font-family:var(--fonte-titulo); font-size:14.5px; font-weight:600; color:var(--terracota); margin-bottom:8px }
