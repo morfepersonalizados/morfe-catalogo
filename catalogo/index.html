@@ -1693,19 +1693,22 @@ document.getElementById('btn-finalizar').onclick = () => {
     return;
   }
 
-  let msg = 'Olá! Gostaria de fazer o seguinte pedido:\n\n';
-  msg += `Nome: ${dadosCliente.nome}\n`;
+  let msg = 'Oi! Vim pelo catálogo da Morfê e gostaria de fazer este pedido 🙂\n\n';
+  msg += `*Nome:* ${dadosCliente.nome}\n`;
   if (dadosCliente.finalidade) msg += `${dadosCliente.finalidade === 'Presente' ? 'É um presente' : 'É para uso pessoal'}\n`;
   if (dadosCliente.prazo) msg += `Precisa para: ${dadosCliente.prazo}\n`;
-  msg += '\n';
-  listaPedido.forEach(item => {
-    msg += `• ${item.nome}${item.cor ? ' (' + item.cor + ')' : ''} x${item.qtd} — ${formatarPreco(totalItemPedido(item))}${promoAplicadaNoItem(item) ? ' (promoção aplicada)' : ''}\n`;
+  msg += '\n*Itens:*\n';
+  listaPedido.forEach((item, i) => {
+    msg += `${i + 1}. *${item.nome}*${item.cor ? ' - ' + item.cor : ''}\n`;
+    msg += `   ${item.qtd}x • ${formatarPreco(totalItemPedido(item))}${promoAplicadaNoItem(item) ? ' _(promoção aplicada)_' : ''}\n`;
     if (item.arte) msg += `   Arte: ${item.arte}\n`;
     if (item.observacao) msg += `   Obs: ${item.observacao}\n`;
+    msg += '\n';
   });
   const total = listaPedido.reduce((s, i) => s + totalItemPedido(i), 0);
-  msg += `\nTotal estimado: ${formatarPreco(total)}`;
+  msg += `*Total estimado: ${formatarPreco(total)}*`;
   if (dadosCliente.obs) msg += `\n\nOutras informações: ${dadosCliente.obs}`;
+  msg += '\n\nFico no aguardo, obrigado(a)!';
   window.open(`https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(msg)}`, '_blank');
   listaPedido = [];
   salvarPedido();
