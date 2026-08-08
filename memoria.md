@@ -156,8 +156,9 @@
   - **Promoção por quantidade**: 100% controlada pelo usuário no admin (nada inferido automaticamente) — define "a partir de X unidades do mesmo produto, cada uma custa Y" (`promo_qtd_minima` + `promo_preco_unitario_cents` em `catalog_products`). Aparece como selo dourado no card e no quick-view ("A partir de 2 un: R$32,50 cada"), e o preço se ajusta sozinho na lista de pedido e na mensagem do WhatsApp quando a quantidade bate o mínimo (com um aviso "(promoção aplicada)" pra transparência).
   - **Cor pode reaproveitar foto já existente no produto**: usuário percebeu que, do jeito que ficou, ele teria que subir a mesma foto duas vezes (uma na galeria do produto, outra pra vincular à cor) — corrigido. Agora, ao clicar no ícone de câmera de uma cor, abre um painel mostrando a capa + todas as fotos/vídeos já na galeria do produto, com um clique pra usar qualquer uma delas na cor (sem reenviar); tem a opção de enviar uma foto nova também, se preferir.
 
+- **2026-08-08** — Mensagem do WhatsApp reescrita: usuário achou a mensagem padrão (finalizar pedido → abre WhatsApp) "com cara de IA", nada profissional. Pesquisado formatação nativa do WhatsApp (`*negrito*`, `_itálico_`) e boas práticas de mensagem de pedido via catálogo. Trocado abertura genérica ("Olá! Gostaria de fazer o seguinte pedido:") por algo mais humano ("Oi! Vim pelo catálogo da Morfê e gostaria de fazer este pedido"), itens numerados com negrito no nome do produto e no total, espaçamento entre itens pra não ficar um bloco só de texto, fechamento cordial ("Fico no aguardo, obrigado(a)!"). Emoji usado com moderação (só 1, na abertura) — usuário mesmo alertou que emoji em excesso "pode dar bugado" e pediu moderação/teste.
+
 ## Pendências / próximos passos
-- **Urgente**: consertar o deploy automático na Vercel (parado desde ontem ~20h15) — ver nota acima.
 - Configurar `catalogo.morfepersonalizados.com.br` na Vercel + DNS no provedor do domínio.
 - Testar o link ao vivo no celular, vindo do WhatsApp/Instagram como um cliente real faria (depois do deploy consertado).
 - Produtos que existem no ERP mas não têm foto: usuário vai subir as fotos reais ele mesmo pelo admin.
