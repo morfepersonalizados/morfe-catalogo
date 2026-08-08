@@ -113,8 +113,21 @@
 
   .modal-fundo{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:70; align-items:center; justify-content:center; padding:20px; overflow-y:auto }
   .modal-fundo.aberto{ display:flex }
-  .modal{ background:var(--branco); border-radius:14px; padding:24px; max-width:440px; width:100%; margin:auto }
+  .modal{ background:var(--branco); border-radius:14px; padding:24px; max-width:440px; width:100%; margin:auto; position:relative }
   .modal h3{ font-family:var(--fonte-titulo); font-weight:600; font-size:18px; margin-bottom:16px; color:var(--terracota) }
+  .modal-fechar-topo{
+    position:sticky; top:0; z-index:5;
+    display:flex; justify-content:flex-end;
+    margin:-24px -24px 8px; padding:10px 14px 0;
+    background:var(--branco);
+  }
+  .modal-fechar-topo button{
+    width:30px; height:30px; border-radius:50%;
+    background:var(--creme); border:none; color:var(--terracota);
+    display:flex; align-items:center; justify-content:center;
+    transition: background-color .15s ease;
+  }
+  .modal-fechar-topo button:hover{ background:#f0e6c8 }
   .linha-cor{ display:flex; justify-content:space-between; align-items:center; padding:6px 0; font-size:13px }
   .linha-cor button{ background:none; border:none; color:#b3261e; font-size:12px }
   .add-cor{ display:flex; gap:8px; margin-top:8px }
@@ -141,10 +154,21 @@
   .galeria-item-acoes button.del-btn{ color:#b3261e }
   .galeria-item[draggable="true"]{ cursor:grab }
   .galeria-item.arrastando{ opacity:.4 }
-  .galeria-item-produto{
-    font-size:11.5px; padding:4px 6px; border-radius:6px; border:1px solid #e4dcc8;
-    background:var(--branco); color:var(--texto); max-width:150px;
+  .galeria-item-arte{ flex-direction:column; align-items:stretch }
+  .galeria-item-linha{ display:flex; align-items:center; gap:8px }
+  .galeria-item-produtos{
+    display:flex; flex-wrap:wrap; align-items:center; gap:6px;
+    margin-top:8px; padding-top:8px; border-top:1px solid #f1ead6;
   }
+  .galeria-item-produtos-label{ font-size:11px; color:var(--texto-claro); font-weight:600 }
+  .galeria-item-produtos-dica{ font-size:10.5px; color:var(--texto-claro); font-style:italic }
+  .chip-produto{
+    display:flex; align-items:center; gap:4px;
+    font-size:11px; padding:3px 8px; border-radius:20px; border:1px solid #e4dcc8;
+    background:var(--branco); color:var(--texto); cursor:pointer;
+  }
+  .chip-produto input{ width:auto; margin:0 }
+  .chip-produto:has(input:checked){ background:var(--creme); border-color:var(--terracota); color:var(--terracota); font-weight:600 }
   .galeria-aviso{ font-size:12px; color:var(--texto-claro) }
   .preview-capa-wrap{ position:relative; width:100%; max-width:180px; margin-bottom:8px }
   .btn-remover-capa{
@@ -331,6 +355,7 @@
 <!-- Modal produto -->
 <div class="modal-fundo" id="modal-produto-fundo">
   <div class="modal">
+    <div class="modal-fechar-topo"><button type="button" id="btn-fechar-topo-produto" title="Fechar"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <h3 id="modal-produto-titulo">Novo produto</h3>
     <div class="campo">
       <label>Foto ou vídeo de capa (vídeo toca em loop, mudo)</label>
@@ -404,6 +429,7 @@
 <!-- Modal categoria -->
 <div class="modal-fundo" id="modal-categoria-fundo">
   <div class="modal">
+    <div class="modal-fechar-topo"><button type="button" id="btn-fechar-topo-categoria" title="Fechar"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <h3 id="modal-categoria-titulo">Nova categoria</h3>
     <div class="campo">
       <label>Nome</label>
@@ -423,6 +449,7 @@
 <!-- Modal arte -->
 <div class="modal-fundo" id="modal-arte-fundo">
   <div class="modal">
+    <div class="modal-fechar-topo"><button type="button" id="btn-fechar-topo-arte" title="Fechar"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <h3 id="modal-arte-titulo">Nova arte</h3>
     <div class="campo">
       <label>Foto ou vídeo de capa (vídeo toca em loop, mudo)</label>
@@ -462,6 +489,7 @@
 <!-- Modal FAQ -->
 <div class="modal-fundo" id="modal-faq-fundo">
   <div class="modal">
+    <div class="modal-fechar-topo"><button type="button" id="btn-fechar-topo-faq" title="Fechar"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <h3 id="modal-faq-titulo">Nova pergunta</h3>
     <div class="campo">
       <label>Pergunta</label>
@@ -485,6 +513,7 @@
 <!-- Modal depoimento -->
 <div class="modal-fundo" id="modal-depoimento-fundo">
   <div class="modal">
+    <div class="modal-fechar-topo"><button type="button" id="btn-fechar-topo-depoimento" title="Fechar"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <h3 id="modal-depoimento-titulo">Novo depoimento</h3>
     <p style="font-size:12.5px; color:var(--texto-claro); margin:-6px 0 14px">No catálogo isso aparece como uma citação estilizada, não como print — copie só o trecho bom da mensagem do cliente.</p>
     <div class="campo">
@@ -921,6 +950,7 @@ function abrirModalProduto(produtoId){
 
 document.getElementById('btn-novo-produto').onclick = () => abrirModalProduto(null);
 document.getElementById('btn-cancelar-produto').onclick = () => document.getElementById('modal-produto-fundo').classList.remove('aberto');
+document.getElementById('btn-fechar-topo-produto').onclick = () => document.getElementById('modal-produto-fundo').classList.remove('aberto');
 
 document.getElementById('campo-preco').addEventListener('blur', (e) => {
   if (!e.target.value.trim()) return;
@@ -1036,6 +1066,7 @@ function abrirModalCategoria(categoriaId){
 
 document.getElementById('btn-nova-categoria').onclick = () => abrirModalCategoria(null);
 document.getElementById('btn-cancelar-categoria').onclick = () => document.getElementById('modal-categoria-fundo').classList.remove('aberto');
+document.getElementById('btn-fechar-topo-categoria').onclick = () => document.getElementById('modal-categoria-fundo').classList.remove('aberto');
 
 document.getElementById('btn-salvar-categoria').onclick = async () => {
   const nome = document.getElementById('campo-cat-nome').value.trim();
@@ -1101,18 +1132,28 @@ function renderGaleriaArteModal(designId){
   const produtosLigados = produtos.filter(p => produtosLigadosIds.includes(p.id));
   const listaEl = document.getElementById('lista-galeria-arte');
   listaEl.innerHTML = itens.map((m, i) => `
-    <div class="galeria-item" data-id="${m.id}">
-      <div class="galeria-item-thumb">${tagPreviewMidia(m.url, '44px')}</div>
-      <select class="galeria-item-produto" data-media-produto="${m.id}">
-        <option value="">Todos os produtos</option>
-        ${produtosLigados.map(p => `<option value="${p.id}" ${m.product_id === p.id ? 'selected' : ''}>Só ${p.name}</option>`).join('')}
-      </select>
-      <div class="galeria-item-acoes">
-        <button data-mover-cima="${m.id}" ${i === 0 ? 'disabled' : ''} title="Mover pra cima">↑</button>
-        <button data-mover-baixo="${m.id}" ${i === itens.length - 1 ? 'disabled' : ''} title="Mover pra baixo">↓</button>
-        <button class="capa-btn" data-tornar-capa="${m.id}" title="Usar como capa">★ Capa</button>
-        <button class="del-btn" data-del-media-arte="${m.id}" title="Remover">✕</button>
+    <div class="galeria-item galeria-item-arte" data-id="${m.id}">
+      <div class="galeria-item-linha">
+        <div class="galeria-item-thumb">${tagPreviewMidia(m.url, '44px')}</div>
+        <div class="galeria-item-acoes">
+          <button data-mover-cima="${m.id}" ${i === 0 ? 'disabled' : ''} title="Mover pra cima">↑</button>
+          <button data-mover-baixo="${m.id}" ${i === itens.length - 1 ? 'disabled' : ''} title="Mover pra baixo">↓</button>
+          <button class="capa-btn" data-tornar-capa="${m.id}" title="Usar como capa">★ Capa</button>
+          <button class="del-btn" data-del-media-arte="${m.id}" title="Remover">✕</button>
+        </div>
       </div>
+      ${produtosLigados.length ? `
+        <div class="galeria-item-produtos">
+          <span class="galeria-item-produtos-label">Aparece em:</span>
+          ${produtosLigados.map(p => `
+            <label class="chip-produto">
+              <input type="checkbox" data-media-produto="${m.id}" value="${p.id}" ${(m.product_ids || []).includes(p.id) ? 'checked' : ''}>
+              ${p.name}
+            </label>
+          `).join('')}
+          <span class="galeria-item-produtos-dica">${(m.product_ids || []).length ? '' : '(nenhum marcado = aparece em todos)'}</span>
+        </div>
+      ` : ''}
     </div>
   `).join('');
   listaEl.querySelectorAll('[data-del-media-arte]').forEach(b => b.onclick = async () => {
@@ -1123,8 +1164,9 @@ function renderGaleriaArteModal(designId){
   listaEl.querySelectorAll('[data-mover-cima]').forEach(b => b.onclick = () => moverGaleriaArte(designId, b.dataset.moverCima, -1));
   listaEl.querySelectorAll('[data-mover-baixo]').forEach(b => b.onclick = () => moverGaleriaArte(designId, b.dataset.moverBaixo, 1));
   listaEl.querySelectorAll('[data-tornar-capa]').forEach(b => b.onclick = () => tornarCapaArte(designId, b.dataset.tornarCapa));
-  listaEl.querySelectorAll('[data-media-produto]').forEach(sel => sel.onchange = async () => {
-    await supabase.from('catalog_design_media').update({ product_id: sel.value || null }).eq('id', sel.dataset.mediaProduto);
+  listaEl.querySelectorAll('[data-media-produto]').forEach(chk => chk.onchange = async () => {
+    const marcados = [...listaEl.querySelectorAll(`[data-media-produto="${chk.dataset.mediaProduto}"]:checked`)].map(i => i.value);
+    await supabase.from('catalog_design_media').update({ product_ids: marcados }).eq('id', chk.dataset.mediaProduto);
     await carregarTudo();
     renderGaleriaArteModal(designId);
   });
@@ -1194,6 +1236,7 @@ function abrirModalArte(designId){
 
 document.getElementById('btn-nova-arte').onclick = () => abrirModalArte(null);
 document.getElementById('btn-cancelar-arte').onclick = () => document.getElementById('modal-arte-fundo').classList.remove('aberto');
+document.getElementById('btn-fechar-topo-arte').onclick = () => document.getElementById('modal-arte-fundo').classList.remove('aberto');
 
 document.getElementById('campo-arte-imagem').addEventListener('change', async (e) => {
   const arquivo = e.target.files[0];
@@ -1306,6 +1349,7 @@ function abrirModalFaq(id){
 
 document.getElementById('btn-nova-faq').onclick = () => abrirModalFaq(null);
 document.getElementById('btn-cancelar-faq').onclick = () => document.getElementById('modal-faq-fundo').classList.remove('aberto');
+document.getElementById('btn-fechar-topo-faq').onclick = () => document.getElementById('modal-faq-fundo').classList.remove('aberto');
 
 document.getElementById('btn-salvar-faq').onclick = async () => {
   const dados = {
@@ -1378,6 +1422,7 @@ function abrirModalDepoimento(id){
 
 document.getElementById('btn-novo-depoimento').onclick = () => abrirModalDepoimento(null);
 document.getElementById('btn-cancelar-depoimento').onclick = () => document.getElementById('modal-depoimento-fundo').classList.remove('aberto');
+document.getElementById('btn-fechar-topo-depoimento').onclick = () => document.getElementById('modal-depoimento-fundo').classList.remove('aberto');
 
 document.getElementById('campo-depoimento-imagem').addEventListener('change', async (e) => {
   const arquivo = e.target.files[0];

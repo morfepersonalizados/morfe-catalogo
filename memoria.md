@@ -145,6 +145,10 @@
   - **Campo de descrição**: existia no catálogo público (`p.description`) mas nunca teve onde editar no admin — só dava pra definir mexendo direto no banco. Adicionado campo de descrição no formulário de produto.
 - Pendente de esclarecimento do usuário: pediu pra mexer nos "botões de voltar no admin" — não ficou claro qual botão/comportamento específico, perguntei antes de mexer.
 
+- **2026-08-08** — Dois ajustes finais no admin:
+  - **Botão de fechar no topo dos modais**: os 5 modais do admin (produto, categoria, arte, FAQ, depoimento) só tinham "Cancelar" lá embaixo — em formulários compridos (produto principalmente, que ficou grande com capa+galeria+descrição+cores) tinha que rolar tudo pra fechar. Adicionado um X fixo no topo de cada modal (sticky, sempre visível mesmo rolando), sem tirar o "Cancelar" de baixo.
+  - **Mídia de arte por vários produtos específicos**: antes só dava pra marcar 1 produto específico por foto/vídeo (`product_id` único). Trocado por `product_ids` (array) com checkboxes (em vez de um seletor de escolha única) — dá pra marcar quantos produtos quiser pra cada mídia, ou nenhum (aparece em todos).
+
 ## Pendências / próximos passos
 - **Urgente**: consertar o deploy automático na Vercel (parado desde ontem ~20h15) — ver nota acima.
 - Configurar `catalogo.morfepersonalizados.com.br` na Vercel + DNS no provedor do domínio.

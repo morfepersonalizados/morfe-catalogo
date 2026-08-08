@@ -1037,7 +1037,7 @@ async function carregarDados(){
     fetch(`${SUPABASE_URL}/rest/v1/catalog_faq?select=id,pergunta,resposta&order=sort_order`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_depoimentos?select=id,texto,imagem_url,autor&order=sort_order`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_product_media?select=product_id,url,sort_order&order=sort_order`, { headers: HEADERS }),
-    fetch(`${SUPABASE_URL}/rest/v1/catalog_design_media?select=design_id,url,sort_order,product_id&order=sort_order`, { headers: HEADERS }),
+    fetch(`${SUPABASE_URL}/rest/v1/catalog_design_media?select=design_id,url,sort_order,product_ids&order=sort_order`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_interesse?select=product_id`, { headers: HEADERS })
   ]);
   categorias = await resCat.json();
@@ -1073,7 +1073,7 @@ async function carregarDados(){
   mediaPorArte = {};
   mediaArte.forEach(m => {
     if (!mediaPorArte[m.design_id]) mediaPorArte[m.design_id] = [];
-    mediaPorArte[m.design_id].push({ url: m.url, product_id: m.product_id });
+    mediaPorArte[m.design_id].push({ url: m.url, product_ids: m.product_ids || [] });
   });
   const interesse = await resInteresse.json();
   interessePorProduto = {};
@@ -1097,7 +1097,7 @@ function galeriaDoProduto(p){
 function galeriaDaArte(a, produtoContextoId){
   let itens = mediaPorArte[a.id] || [];
   if (produtoContextoId){
-    itens = itens.filter(m => !m.product_id || m.product_id === produtoContextoId);
+    itens = itens.filter(m => !m.product_ids.length || m.product_ids.includes(produtoContextoId));
   }
   const extras = itens.map(m => m.url);
   return a.image_url ? [a.image_url, ...extras] : extras;
