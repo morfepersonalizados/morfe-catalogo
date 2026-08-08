@@ -151,6 +151,11 @@
 
 - **2026-08-08** — Foto/vídeo por cor/variação de produto: usuário deu o exemplo da Caneca Interior Colorido, que tem interior amarelo, azul, vermelho etc., e queria que a foto do produto trocasse ao escolher a cor. Adicionada `catalog_product_colors.image_url`. Admin: cada cor na lista ganhou um ícone de câmera pra anexar foto/vídeo daquela variação específica (upload direto, sem precisar reabrir nada). Catálogo público: clicar numa cor que tem foto própria troca a imagem principal do produto pra mostrar aquela variação; cor sem foto volta a mostrar a capa padrão do produto.
 
+- **2026-08-08** — Promoção por quantidade e melhorias na galeria de cores:
+  - **Kits/combos**: conversamos e ficou decidido que isso já dá pra fazer hoje sem nenhuma mudança — basta cadastrar o kit como um produto normal no admin, com preço fechado.
+  - **Promoção por quantidade**: 100% controlada pelo usuário no admin (nada inferido automaticamente) — define "a partir de X unidades do mesmo produto, cada uma custa Y" (`promo_qtd_minima` + `promo_preco_unitario_cents` em `catalog_products`). Aparece como selo dourado no card e no quick-view ("A partir de 2 un: R$32,50 cada"), e o preço se ajusta sozinho na lista de pedido e na mensagem do WhatsApp quando a quantidade bate o mínimo (com um aviso "(promoção aplicada)" pra transparência).
+  - **Cor pode reaproveitar foto já existente no produto**: usuário percebeu que, do jeito que ficou, ele teria que subir a mesma foto duas vezes (uma na galeria do produto, outra pra vincular à cor) — corrigido. Agora, ao clicar no ícone de câmera de uma cor, abre um painel mostrando a capa + todas as fotos/vídeos já na galeria do produto, com um clique pra usar qualquer uma delas na cor (sem reenviar); tem a opção de enviar uma foto nova também, se preferir.
+
 ## Pendências / próximos passos
 - **Urgente**: consertar o deploy automático na Vercel (parado desde ontem ~20h15) — ver nota acima.
 - Configurar `catalogo.morfepersonalizados.com.br` na Vercel + DNS no provedor do domínio.

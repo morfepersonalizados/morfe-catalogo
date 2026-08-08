@@ -340,6 +340,10 @@
   .card .cores span:hover{ transform:scale(1.25) }
   .card .preco{ font-family:var(--fonte-titulo); font-size:22px; font-weight:700; color:var(--terracota); margin-top:auto; letter-spacing:-.3px }
   .card .preco .cifrao{ font-size:13px; font-weight:600; vertical-align:4px; margin-right:1px; font-family:var(--fonte-corpo) }
+  .promo-linha{
+    display:inline-block; font-size:10.5px; font-weight:700; color:var(--terracota-escuro);
+    background:var(--dourado-claro); padding:2px 8px; border-radius:20px; margin:-4px 0 2px;
+  }
   .card .card-botoes{ display:flex; gap:8px }
   .card .card-botoes .btn{ flex:1; font-size:13px; padding:9px 10px }
 
@@ -828,6 +832,7 @@
         <div class="modal-categoria" id="modal-categoria"></div>
         <h3 id="modal-nome"></h3>
         <div class="preco-modal" id="modal-preco"></div>
+        <div class="promo-linha" id="modal-promo" style="display:none"></div>
         <div class="modal-prazo" id="modal-prazo" style="display:none"></div>
         <p class="modal-descricao" id="modal-descricao" style="display:none"></p>
         <div class="modal-cores-bloco" id="modal-cores-bloco" style="display:none">
@@ -1026,10 +1031,31 @@ function prazoTexto(p){
   return p.prazo_dias === 1 ? '1 dia útil' : `${p.prazo_dias} dias úteis`;
 }
 
+function temPromoQtd(p){
+  return !!(p.promo_qtd_minima && p.promo_preco_unitario_cents);
+}
+function textoPromoQtd(p){
+  if (!temPromoQtd(p)) return '';
+  return `A partir de ${p.promo_qtd_minima} un: ${formatarPreco(p.promo_preco_unitario_cents)} cada`;
+}
+function precoUnitarioEfetivo(p, qtd){
+  if (temPromoQtd(p) && qtd >= p.promo_qtd_minima) return p.promo_preco_unitario_cents;
+  return p.price_cents;
+}
+function totalItemPedido(item){
+  const p = produtos.find(x => x.id === item.product_id);
+  const unitario = p ? precoUnitarioEfetivo(p, item.qtd) : item.preco_cents;
+  return unitario * item.qtd;
+}
+function promoAplicadaNoItem(item){
+  const p = produtos.find(x => x.id === item.product_id);
+  return !!(p && temPromoQtd(p) && item.qtd >= p.promo_qtd_minima);
+}
+
 async function carregarDados(){
   const [resCat, resProd, resCores, resVinculos, resArtes, resSettings, resFaq, resDepoimentos, resMediaProd, resMediaArte, resInteresse] = await Promise.all([
     fetch(`${SUPABASE_URL}/rest/v1/catalog_categories?select=id,name,sort_order&order=sort_order`, { headers: HEADERS }),
-    fetch(`${SUPABASE_URL}/rest/v1/catalog_products?select=id,category_id,name,price_cents,description,badges,image_url,prazo_dias,created_at,sort_order&is_available=eq.true&order=sort_order`, { headers: HEADERS }),
+    fetch(`${SUPABASE_URL}/rest/v1/catalog_products?select=id,category_id,name,price_cents,description,badges,image_url,prazo_dias,created_at,sort_order,promo_qtd_minima,promo_preco_unitario_cents&is_available=eq.true&order=sort_order`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_product_colors?select=id,product_id,name,sort_order,image_url&order=sort_order`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_product_designs?select=product_id,design_id,catalog_designs(id,name,theme,image_url)`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_designs?select=id,name,theme,image_url,sort_order&order=theme.nullslast,sort_order`, { headers: HEADERS }),
@@ -1208,6 +1234,7 @@ function renderGrid(){
       <div class="nome">${p.name}</div>
       ${coresHtml}
       <div class="preco">${formatarPrecoCard(p.price_cents)}</div>
+      ${temPromoQtd(p) ? `<div class="promo-linha">${textoPromoQtd(p)}</div>` : ''}
       <div class="card-botoes">
         <button class="btn btn-primario" data-add="${p.id}">Adicionar</button>
       </div>
@@ -1290,6 +1317,14 @@ function preencherModal(produtoId, botaoOrigem){
   document.getElementById('modal-nome').textContent = p.name;
   document.getElementById('modal-preco').textContent = formatarPreco(p.price_cents);
   document.getElementById('modal-observacao').value = '';
+
+  const promoEl = document.getElementById('modal-promo');
+  if (temPromoQtd(p)){
+    promoEl.textContent = textoPromoQtd(p);
+    promoEl.style.display = 'inline-block';
+  } else {
+    promoEl.style.display = 'none';
+  }
 
   const prazoEl = document.getElementById('modal-prazo');
   const textoPrazo = prazoTexto(p);
@@ -1592,7 +1627,7 @@ function renderPainelPedido(){
           </div>
           <button class="remover" data-remover="${idx}">Remover</button>
         </div>
-        <div class="preco-item">${formatarPreco(item.preco_cents * item.qtd)}</div>
+        <div class="preco-item">${formatarPreco(totalItemPedido(item))}${promoAplicadaNoItem(item) ? '<div class="promo-linha" style="margin-top:4px">Promoção aplicada</div>' : ''}</div>
       `;
       itensEl.appendChild(div);
     });
@@ -1609,7 +1644,7 @@ function renderPainelPedido(){
     });
   }
 
-  const total = listaPedido.reduce((s, i) => s + i.preco_cents * i.qtd, 0);
+  const total = listaPedido.reduce((s, i) => s + totalItemPedido(i), 0);
   document.getElementById('total-pedido').textContent = formatarPreco(total);
 }
 
@@ -1664,11 +1699,11 @@ document.getElementById('btn-finalizar').onclick = () => {
   if (dadosCliente.prazo) msg += `Precisa para: ${dadosCliente.prazo}\n`;
   msg += '\n';
   listaPedido.forEach(item => {
-    msg += `• ${item.nome}${item.cor ? ' (' + item.cor + ')' : ''} x${item.qtd} — ${formatarPreco(item.preco_cents * item.qtd)}\n`;
+    msg += `• ${item.nome}${item.cor ? ' (' + item.cor + ')' : ''} x${item.qtd} — ${formatarPreco(totalItemPedido(item))}${promoAplicadaNoItem(item) ? ' (promoção aplicada)' : ''}\n`;
     if (item.arte) msg += `   Arte: ${item.arte}\n`;
     if (item.observacao) msg += `   Obs: ${item.observacao}\n`;
   });
-  const total = listaPedido.reduce((s, i) => s + i.preco_cents * i.qtd, 0);
+  const total = listaPedido.reduce((s, i) => s + totalItemPedido(i), 0);
   msg += `\nTotal estimado: ${formatarPreco(total)}`;
   if (dadosCliente.obs) msg += `\n\nOutras informações: ${dadosCliente.obs}`;
   window.open(`https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(msg)}`, '_blank');

@@ -128,7 +128,8 @@
     transition: background-color .15s ease;
   }
   .modal-fechar-topo button:hover{ background:#f0e6c8 }
-  .linha-cor{ display:flex; align-items:center; gap:8px; padding:6px 0; font-size:13px; border-bottom:1px solid #f6f0dd }
+  .linha-cor{ padding:6px 0; font-size:13px; border-bottom:1px solid #f6f0dd }
+  .linha-cor-principal{ display:flex; align-items:center; gap:8px }
   .linha-cor-thumb{ width:28px; height:28px; border-radius:6px; overflow:hidden; flex-shrink:0; background:var(--creme) }
   .linha-cor-nome{ flex:1 }
   .linha-cor-foto{
@@ -137,6 +138,15 @@
     color:var(--terracota);
   }
   .linha-cor-foto:hover{ background:var(--creme) }
+  .linha-cor-opcoes{ margin:8px 0 4px 36px; padding:8px; background:var(--creme); border-radius:8px }
+  .linha-cor-opcoes-galeria{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px }
+  .linha-cor-opcao-thumb{
+    width:36px; height:36px; border-radius:6px; overflow:hidden; padding:0;
+    border:2px solid transparent; background:var(--branco);
+  }
+  .linha-cor-opcao-thumb.selecionada{ border-color:var(--terracota) }
+  .linha-cor-upload-label{ display:block; font-size:11.5px; color:var(--texto-claro) }
+  .linha-cor-upload-label input{ display:block; margin-top:4px; font-size:11.5px }
   .linha-cor button[data-del-cor]{ background:none; border:none; color:#b3261e; font-size:12px; flex-shrink:0 }
   .add-cor{ display:flex; gap:8px; margin-top:8px }
   .add-cor input{ flex:1 }
@@ -412,6 +422,14 @@
     <div class="campo">
       <label>Prazo de produção em dias úteis (opcional — 0 = mesmo dia)</label>
       <input type="number" id="campo-prazo" min="0" placeholder="Ex: 0, 1, 3...">
+    </div>
+    <div class="campo">
+      <label>Promoção por quantidade (opcional)</label>
+      <p class="galeria-aviso" style="margin-bottom:6px">A partir de quantas unidades do mesmo produto o preço por unidade muda. Deixe em branco pra não ter promoção.</p>
+      <div class="add-cor">
+        <input type="number" id="campo-promo-qtd" min="2" placeholder="A partir de quantas un.">
+        <input type="text" id="campo-promo-preco" placeholder="Preço por un. na promo (R$)">
+      </div>
     </div>
     <div class="checkbox-linha">
       <input type="checkbox" id="campo-disponivel" checked>
@@ -837,16 +855,32 @@ const ICONE_CAMERA = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none
 function renderListaCores(produtoId){
   const el = document.getElementById('lista-cores');
   const cores = coresPorProduto[produtoId] || [];
+  const opcoesGaleria = [];
+  if (imagemUrlAtual) opcoesGaleria.push(imagemUrlAtual);
+  (mediaPorProduto[produtoId] || []).forEach(m => opcoesGaleria.push(m.url));
+
   el.innerHTML = '';
   cores.forEach(c => {
     const div = document.createElement('div');
     div.className = 'linha-cor';
     div.innerHTML = `
-      <div class="linha-cor-thumb">${c.image_url ? tagPreviewMidia(c.image_url, '28px') : ''}</div>
-      <span class="linha-cor-nome">${c.name}</span>
-      <button class="linha-cor-foto" data-foto-cor="${c.id}" title="Foto/vídeo dessa cor">${ICONE_CAMERA}</button>
-      <input type="file" accept="image/*,video/*" data-input-foto-cor="${c.id}" style="display:none">
-      <button data-del-cor="${c.id}">remover</button>
+      <div class="linha-cor-principal">
+        <div class="linha-cor-thumb">${c.image_url ? tagPreviewMidia(c.image_url, '28px') : ''}</div>
+        <span class="linha-cor-nome">${c.name}</span>
+        <button class="linha-cor-foto" data-toggle-cor="${c.id}" title="Escolher foto/vídeo dessa cor">${ICONE_CAMERA}</button>
+        <button data-del-cor="${c.id}">remover</button>
+      </div>
+      <div class="linha-cor-opcoes" id="opcoes-cor-${c.id}" style="display:none">
+        ${opcoesGaleria.length ? `
+          <p class="galeria-item-produtos-label">Usar uma foto/vídeo que já está no produto:</p>
+          <div class="linha-cor-opcoes-galeria">
+            ${opcoesGaleria.map(url => `<button type="button" class="linha-cor-opcao-thumb${c.image_url === url ? ' selecionada' : ''}" data-usar-existente="${c.id}" data-url="${encodeURIComponent(url)}">${tagPreviewMidia(url, '36px')}</button>`).join('')}
+          </div>
+        ` : ''}
+        <label class="linha-cor-upload-label">ou enviar uma foto/vídeo nova pra essa cor:
+          <input type="file" accept="image/*,video/*" data-input-foto-cor="${c.id}">
+        </label>
+      </div>
     `;
     el.appendChild(div);
   });
@@ -855,8 +889,14 @@ function renderListaCores(produtoId){
     await carregarTudo();
     renderListaCores(produtoId);
   });
-  el.querySelectorAll('[data-foto-cor]').forEach(b => b.onclick = () => {
-    el.querySelector(`[data-input-foto-cor="${b.dataset.fotoCor}"]`).click();
+  el.querySelectorAll('[data-toggle-cor]').forEach(b => b.onclick = () => {
+    const painel = document.getElementById(`opcoes-cor-${b.dataset.toggleCor}`);
+    painel.style.display = painel.style.display === 'none' ? 'block' : 'none';
+  });
+  el.querySelectorAll('[data-usar-existente]').forEach(b => b.onclick = async () => {
+    await supabase.from('catalog_product_colors').update({ image_url: decodeURIComponent(b.dataset.url) }).eq('id', b.dataset.usarExistente);
+    await carregarTudo();
+    renderListaCores(produtoId);
   });
   el.querySelectorAll('[data-input-foto-cor]').forEach(inp => inp.onchange = async (e) => {
     const arquivo = e.target.files[0];
@@ -959,6 +999,8 @@ function abrirModalProduto(produtoId){
     document.getElementById('campo-badge-vendido').checked = (p.badges || []).includes('mais_vendido');
     document.getElementById('campo-badge-destaque').checked = (p.badges || []).includes('destaque');
     document.getElementById('campo-prazo').value = p.prazo_dias ?? '';
+    document.getElementById('campo-promo-qtd').value = p.promo_qtd_minima ?? '';
+    document.getElementById('campo-promo-preco').value = p.promo_preco_unitario_cents ? (p.promo_preco_unitario_cents / 100).toFixed(2).replace('.', ',') : '';
     document.getElementById('campo-disponivel').checked = p.is_available;
     imagemUrlAtual = p.image_url || null;
     blocoCores.style.display = 'block';
@@ -971,6 +1013,8 @@ function abrirModalProduto(produtoId){
     document.getElementById('campo-badge-vendido').checked = false;
     document.getElementById('campo-badge-destaque').checked = false;
     document.getElementById('campo-prazo').value = '';
+    document.getElementById('campo-promo-qtd').value = '';
+    document.getElementById('campo-promo-preco').value = '';
     document.getElementById('campo-disponivel').checked = true;
     imagemUrlAtual = null;
     blocoCores.style.display = 'none';
@@ -984,6 +1028,10 @@ document.getElementById('btn-cancelar-produto').onclick = () => document.getElem
 document.getElementById('btn-fechar-topo-produto').onclick = () => document.getElementById('modal-produto-fundo').classList.remove('aberto');
 
 document.getElementById('campo-preco').addEventListener('blur', (e) => {
+  if (!e.target.value.trim()) return;
+  e.target.value = (precoParaCentavos(e.target.value) / 100).toFixed(2).replace('.', ',');
+});
+document.getElementById('campo-promo-preco').addEventListener('blur', (e) => {
   if (!e.target.value.trim()) return;
   e.target.value = (precoParaCentavos(e.target.value) / 100).toFixed(2).replace('.', ',');
 });
@@ -1047,6 +1095,8 @@ document.getElementById('btn-salvar-produto').onclick = async () => {
   if (document.getElementById('campo-badge-vendido').checked) badgesEscolhidos.push('mais_vendido');
   if (document.getElementById('campo-badge-destaque').checked) badgesEscolhidos.push('destaque');
   const prazoTexto = document.getElementById('campo-prazo').value.trim();
+  const promoQtdTexto = document.getElementById('campo-promo-qtd').value.trim();
+  const promoPrecoTexto = document.getElementById('campo-promo-preco').value.trim();
   const dados = {
     name: document.getElementById('campo-nome').value.trim(),
     description: document.getElementById('campo-descricao').value.trim() || null,
@@ -1054,9 +1104,15 @@ document.getElementById('btn-salvar-produto').onclick = async () => {
     price_cents: precoParaCentavos(document.getElementById('campo-preco').value),
     badges: badgesEscolhidos,
     prazo_dias: prazoTexto === '' ? null : parseInt(prazoTexto),
+    promo_qtd_minima: promoQtdTexto === '' ? null : parseInt(promoQtdTexto),
+    promo_preco_unitario_cents: promoPrecoTexto === '' ? null : precoParaCentavos(promoPrecoTexto),
     is_available: document.getElementById('campo-disponivel').checked,
     image_url: imagemUrlAtual
   };
+  if ((dados.promo_qtd_minima && !dados.promo_preco_unitario_cents) || (!dados.promo_qtd_minima && dados.promo_preco_unitario_cents)){
+    alert('Preencha os dois campos da promoção por quantidade, ou deixe os dois em branco.');
+    return;
+  }
   if (!dados.name || !dados.price_cents){
     alert('Preencha nome e preço.');
     return;
