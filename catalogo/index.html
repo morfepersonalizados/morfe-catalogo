@@ -1012,7 +1012,16 @@ function corParaHex(nome){
   if (n.includes('branc')) return '#FFFFFF';
   if (n.includes('dourad')) return '#B18C35';
   if (n.includes('prata') || n.includes('fosco')) return '#B7B7B7';
+  if (n.includes('marrom')) return '#6B4226';
+  if (n.includes('roxo') || n.includes('lilas')) return '#8B5FBF';
+  if (n.includes('laranja')) return '#E8792B';
+  if (n.includes('cinza')) return '#8A8A8A';
+  if (n.includes('bege')) return '#D8C6A8';
+  if (n.includes('turquesa') || n.includes('ciano')) return '#2FB6B0';
   return '#CCCCCC';
+}
+function corHex(c){
+  return c.hex_color || corParaHex(c.name);
 }
 
 function ehVideo(url){
@@ -1073,7 +1082,7 @@ async function carregarDados(){
   const [resCat, resProd, resCores, resVinculos, resArtes, resSettings, resFaq, resDepoimentos, resMediaProd, resMediaArte, resInteresse] = await Promise.all([
     fetch(`${SUPABASE_URL}/rest/v1/catalog_categories?select=id,name,sort_order&order=sort_order`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_products?select=id,category_id,name,price_cents,description,badges,image_url,prazo_dias,created_at,sort_order,promo_qtd_minima,promo_preco_unitario_cents&is_available=eq.true&order=sort_order`, { headers: HEADERS }),
-    fetch(`${SUPABASE_URL}/rest/v1/catalog_product_colors?select=id,product_id,name,sort_order,image_url&order=sort_order`, { headers: HEADERS }),
+    fetch(`${SUPABASE_URL}/rest/v1/catalog_product_colors?select=id,product_id,name,sort_order,image_url,hex_color&order=sort_order`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_product_designs?select=product_id,design_id,catalog_designs(id,name,theme,image_url)`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_designs?select=id,name,theme,image_url,sort_order&order=theme.nullslast,sort_order`, { headers: HEADERS }),
     fetch(`${SUPABASE_URL}/rest/v1/catalog_settings?select=quem_somos,pagamento,entrega,embalagem,troca_garantia,dias_selo_novo&id=eq.1`, { headers: HEADERS }),
@@ -1240,7 +1249,7 @@ function renderGrid(){
     card.style.animationDelay = Math.min(idx * 35, 350) + 'ms';
 
     const coresHtml = cores.length
-      ? `<div class="cores">${cores.map(c => `<span style="background:${corParaHex(c.name)}" title="${c.name}"></span>`).join('')}</div>`
+      ? `<div class="cores">${cores.map(c => `<span style="background:${corHex(c)}" title="${c.name}"></span>`).join('')}</div>`
       : '';
 
     card.innerHTML = `
@@ -1408,7 +1417,7 @@ function preencherModal(produtoId, botaoOrigem){
     cores.forEach(c => {
       const btn = document.createElement('button');
       btn.className = 'opcao-cor' + (c.name === corModalSelecionada ? ' selecionada' : '');
-      btn.innerHTML = `<span style="background:${corParaHex(c.name)}"></span>${c.name}`;
+      btn.innerHTML = `<span style="background:${corHex(c)}"></span>${c.name}`;
       btn.onclick = () => {
         corModalSelecionada = c.name;
         [...coresEl.children].forEach(el => el.classList.remove('selecionada'));
